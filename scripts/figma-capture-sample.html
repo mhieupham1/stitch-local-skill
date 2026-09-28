@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Lấy mẫu clipboard từ Figma</title>
+    <style>
+      :root { color-scheme: light dark; }
+      body {
+        margin: 0;
+        padding: 40px;
+        font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+        line-height: 1.6;
+        max-width: 900px;
+      }
+      h1 { font-size: 22px; margin: 0 0 4px; }
+      p.lead { margin: 0 0 24px; opacity: 0.7; }
+      #drop {
+        border: 2px dashed color-mix(in srgb, currentColor 35%, transparent);
+        border-radius: 12px;
+        padding: 48px 24px;
+        text-align: center;
+        transition: background 0.15s, border-color 0.15s;
+      }
+      #drop.hot {
+        border-color: #6366f1;
+        background: color-mix(in srgb, #6366f1 12%, transparent);
+      }
+      #drop strong { display: block; font-size: 17px; margin-bottom: 6px; }
+      ol { padding-left: 20px; }
+      li { margin-bottom: 6px; }
+      #status { margin-top: 24px; }
+      .card {
+        border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+        border-radius: 10px;
+        padding: 14px 16px;
+        margin-bottom: 10px;
+      }
+      .ok { border-color: #16a34a; }
+      .bad { border-color: #dc2626; }
+      .name { font-weight: 600; }
+      dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 8px 0 0; }
+      dt { opacity: 0.7; }
+      dd { margin: 0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
+      .hint { opacity: 0.7; font-size: 14px; }
+      textarea {
+        width: 100%; height: 130px; margin-top: 8px; font-family: ui-monospace, Menlo, monospace;
+        font-size: 12px; border-radius: 8px; padding: 8px;
+        border: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+        background: transparent; color: inherit;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Lấy mẫu clipboard từ Figma</h1>
+    <p class="lead">Dùng để trích schema Kiwi cho tính năng “Copy cho Figma”. File tải về là bằng chứng thật, không sửa gì.</p>
+
+    <div id="drop">
+      <strong>Dán vào đây (Cmd+V)</strong>
+      <span class="hint">bấm vào vùng này trước, rồi nhấn Cmd+V</span>
+    </div>
+
+    <div id="status"></div>
+
+    <div class="card">
+      <p class="name" style="margin: 0 0 8px">Cách lấy 5 mẫu</p>
+      <ol>
+        <li>Mở Figma, tạo các đối tượng theo danh sách bên dưới.</li>
+        <li>Chọn đối tượng, nhấn <code>Cmd+C</code>.</li>
+        <li>Quay lại trang này, bấm vào vùng nét đứt, nhấn <code>Cmd+V</code>.</li>
+        <li>File tự tải về — đặt tên theo mẫu (a…e) và lưu cùng một chỗ.</li>
+      </ol>
+      <p class="hint" style="margin: 0">
+        (a) frame rỗng có màu nền &nbsp;·&nbsp; (b) frame có một text &nbsp;·&nbsp;
+        (c) frame auto layout dọc có 2 con &nbsp;·&nbsp; (d) frame có border + bo góc + shadow &nbsp;·&nbsp;
+        (e) rectangle có ảnh (image fill)
+      </p>
+    </div>
+
+    <script>
+      const drop = document.getElementById('drop');
+      const status = document.getElementById('status');
+
+      // Đếm để tên file không ghi đè nhau khi lấy nhiều mẫu liên tiếp.
+      let seq = 0;
+
+      function render(html, plain) {
+        const checks = {
+          'có data-buffer': html.includes('data-buffer'),
+          'có (figma)': html.includes('(figma)'),
+          'có data-metadata': html.includes('data-metadata'),
+          'có (figmeta)': html.includes('(figmeta)'),
+        };
+        const valid = checks['có (figma)'] && checks['có data-buffer'];
+
+        // Trích phần base64 giữa hai mốc để ước lượng kích thước archive thật.
+        const buf = html.match(/\(figma\)([A-Za-z0-9+/=]+)\(\/figma\)/);
+        const meta = html.match(/\(figmeta\)([A-Za-z0-9+/=]+)\(\/figmeta\)/);
+        const decodeLength = (b64) => {
+          try {
+            const clean = b64.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+            return atob(clean.replace(/&quot;/g, '"')).length;
+          } catch { return -1; }
+        };
+
+        const rows = [
+          ['kích thước text/html', html.length + ' ký tự'],
+          ['archive (giải mã)', buf ? decodeLength(buf[1]) + ' byte' : 'không thấy'],
+          ['figmeta (giải mã)', meta ? decodeLength(meta[1]) + ' byte' : 'không thấy'],
+          ['text/plain', plain.length + ' ký tự'],
+          ['nén', inspectArchive(buf ? buf[1] : '')],
+        ];
+
+        status.innerHTML = '';
+        const card = document.createElement('div');
+        card.className = 'card ' + (valid ? 'ok' : 'bad');
+        card.innerHTML =
+          '<p class="name">' + (valid ? '✓ Payload hợp lệ — đã tải file' : '✗ Không phải payload Figma') + '</p>'
+          + '<dl>' + rows.map(([k, v]) => '<dt>' + k + '</dt><dd>' + v + '</dd>').join('') + '</dl>'
+          + '<dl>' + Object.entries(checks).map(([k, v]) => '<dt>' + k + '</dt><dd>' + (v ? 'có' : 'KHÔNG') + '</dd>').join('') + '</dl>';
+        status.appendChild(card);
+
+        if (!valid) {
+          const warn = document.createElement('div');
+          warn.className = 'card bad';
+          warn.innerHTML = '<p class="name">Cần làm gì</p><p style="margin:0">Hãy chắc chắn bạn đã copy một <em>layer</em> trong Figma (không phải chữ từ trang web khác). Nội dung dán vào không có <code>(figma)</code> nên không dùng được.</p>';
+          status.appendChild(warn);
+        }
+
+        const details = document.createElement('div');
+        details.className = 'card';
+        details.innerHTML = '<p class="name">Nội dung thô</p>';
+        const area = document.createElement('textarea');
+        area.readOnly = true;
+        area.value = html.slice(0, 20000);
+        details.appendChild(area);
+        status.appendChild(details);
+      }
+
+      // Đọc header archive thật: 8 byte magic "fig-kiwi", rồi u32 LE version, rồi
+      // các chunk dạng [u32 LE độ dài][dữ liệu đã nén]. Báo cáo để đối chiếu với
+      // giả định "chỉ deflate, không zstd" — byte đầu mỗi chunk là cờ nén của deflate.
+      function inspectArchive(b64) {
+        if (!b64) return 'không có dữ liệu';
+        try {
+          const clean = b64.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&amp;/g, '&');
+          const raw = atob(clean);
+          const bytes = Uint8Array.from(raw, (c) => c.charCodeAt(0));
+          const magic = raw.slice(0, 8);
+          const view = new DataView(bytes.buffer);
+          const version = view.getUint32(8, true);
+          const parts = ['magic="' + magic + '"', 'version=' + version];
+          let offset = 12;
+          let chunk = 0;
+          // Đi qua tối đa 3 chunk; độ dài 0 nghĩa là đã hết.
+          while (offset + 4 <= bytes.length && chunk < 3) {
+            const length = view.getUint32(offset, true);
+            if (length === 0) break;
+            const start = offset + 4;
+            if (start >= bytes.length) { parts.push('chunk' + chunk + '=dữ liệu thiếu'); break; }
+            const flag = bytes[start];
+            // Với deflate thô, byte đầu có bit 3 (0x08) là chỉ báo DEFLATE, và
+            // 3 bit thấp là mức nén (0..7).
+            const isDeflate = (flag & 0x08) !== 0;
+            parts.push('chunk' + chunk + '=' + length + 'B ' + (isDeflate ? 'deflate(mức ' + (flag & 0x07) + ')' : 'byte đầu 0x' + flag.toString(16)));
+            offset = start + length;
+            chunk += 1;
+          }
+          return parts.join(' · ');
+        } catch (error) {
+          return 'không đọc được: ' + error.message;
+        }
+      }
+
+      function download(html) {
+        seq += 1;
+        const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+        const name = 'figma-sample-' + String(seq).padStart(2, '0') + '-' + stamp + '.html';
+        const blob = new Blob([html], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = name;
+        link.click();
+        URL.revokeObjectURL(url);
+        return name;
+      }
+
+      function handle(files, html, plain) {
+        drop.classList.remove('hot');
+        // Ưu tiên text/html; một số trình duyệt để nội dung trong file .html.
+        if (!html && files && files.length) {
+          for (const file of files) {
+            if (file.type === 'text/html' || file.name.endsWith('.html')) {
+              // Đọc bất đồng bộ rồi vẽ lại sau.
+              file.text().then((content) => { download(content); render(content, ''); });
+              return;
+            }
+          }
+        }
+        if (!html) {
+          status.innerHTML = '<div class="card bad"><p class="name">✗ Clipboard trống hoặc chỉ có ảnh</p><p style="margin:0">Figma có thể ghi thêm dạng ảnh; phần HTML là thứ ta cần. Thử copy lại một layer cụ thể.</p></div>';
+          return;
+        }
+        const name = download(html);
+        render(html, plain);
+        const note = document.createElement('p');
+        note.className = 'hint';
+        note.textContent = 'Đã tải: ' + name;
+        status.prepend(note);
+      }
+
+      document.addEventListener('paste', (event) => {
+        const html = event.clipboardData.getData('text/html');
+        const plain = event.clipboardData.getData('text/plain');
+        const files = event.clipboardData.files ? Array.from(event.clipboardData.files) : [];
+        event.preventDefault();
+        handle(files, html, plain);
+      });
+
+      // Cũng cho phép kéo-thả file .html đã lưu trước đó để kiểm tra lại.
+      drop.addEventListener('dragover', (event) => {
+        event.preventDefault();
+        drop.classList.add('hot');
+      });
+      drop.addEventListener('dragleave', () => drop.classList.remove('hot'));
+      drop.addEventListener('drop', (event) => {
+        event.preventDefault();
+        const file = event.dataTransfer.files[0];
+        if (file) file.text().then((content) => handle(null, content, ''));
+      });
+
+      drop.addEventListener('click', () => drop.focus());
+      drop.tabIndex = 0;
+      drop.focus();
+    </script>
+  </body>
+</html>

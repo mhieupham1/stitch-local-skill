@@ -1,0 +1,38 @@
+:root {
+  color: #172033;
+  background: #f8fafc;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body {
+  margin: 0;
+}
+
+main {
+  display: grid;
+  min-height: 100vh;
+  align-content: center;
+  gap: 1rem;
+  box-sizing: border-box;
+  padding: clamp(2rem, 8vw, 7rem);
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--canvas-accent, #2563eb);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+h1,
+p {
+  margin: 0;
+}
+
+h1 {
+  max-width: 16ch;
+  font-size: clamp(2rem, 6vw, 4.5rem);
+  line-height: 1;
+}

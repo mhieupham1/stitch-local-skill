@@ -1,0 +1,11 @@
+{
+  "name": "@local-design-canvas/core",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    "./schema": "./src/schema.ts",
+    "./paths": "./src/paths.ts",
+    "./project-store": "./src/project-store.ts"
+  }
+}

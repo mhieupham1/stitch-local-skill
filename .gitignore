@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.local-tools/
+.claude/skills/local-design-canvas/node_modules/
+test-results/
+*.log
+.DS_Store

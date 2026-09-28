@@ -1,0 +1,9 @@
+{
+  "name": "@local-design-canvas/cli",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "local-canvas": "./src/index.ts"
+  }
+}

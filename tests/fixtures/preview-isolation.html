@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <body>
+    <p id="parent-dom">Parent DOM: pending</p>
+    <p id="popup">Popup: pending</p>
+    <p id="api">API: pending</p>
+    <button type="button" id="increment">Tăng</button>
+    <p id="value">Giá trị: 0</p>
+    <script>
+      const report = (id, value) => { document.getElementById(id).textContent = `${id === 'parent-dom' ? 'Parent DOM' : id[0].toUpperCase() + id.slice(1)}: ${value}`; };
+      try { report('parent-dom', parent.document.body ? 'exposed' : 'blocked'); } catch { report('parent-dom', 'blocked'); }
+      report('popup', window.open('about:blank') ? 'opened' : 'blocked');
+      // Management writes are reachable from a sandboxed preview at the network
+      // level, so the origin check must be what stops them: a sandboxed frame has
+      // an opaque origin and the request carries no usable Origin header.
+      // A 403 or a network-level rejection both mean the write was refused.
+      fetch('__MANAGEMENT_ORIGIN__/api/projects', { method: 'POST', body: '{}' })
+        .then((response) => report('api', response.status === 201 ? 'accepted' : 'rejected'))
+        .catch(() => report('api', 'rejected'));
+      document.getElementById('increment').addEventListener('click', () => {
+        document.getElementById('value').textContent = 'Giá trị: 1';
+      });
+      try { top.location.href = 'https://example.invalid/'; } catch { /* sandbox blocks this navigation */ }
+    </script>
+  </body>
+</html>
