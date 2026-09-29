@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { spawn } from 'node:child_process';
 import { realpathSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import { cwd } from 'node:process';
 import { pathToFileURL } from 'node:url';
 import { asCanvasError, type Project, type Result } from '../../core/src/schema.js';
@@ -161,6 +162,31 @@ export async function run(argv: string[]): Promise<number> {
       writeResult({ ok: true, data: result }, args.json);
       return 0;
     }
+    if (command === 'prototype') {
+      const projectId = option(args, '--project');
+      const base = `/api/projects/${encodeURIComponent(projectId)}/prototypes`;
+      if (action === 'sources') {
+        const screens = option(args, '--screens');
+        writeResult({ ok: true, data: await managementRequest(args.workspace, `/api/projects/${encodeURIComponent(projectId)}/prototype-sources?screenIds=${encodeURIComponent(screens)}`) }, args.json);
+        return 0;
+      }
+      if (action === 'list') { writeResult({ ok: true, data: await managementRequest(args.workspace, base) }, args.json); return 0; }
+      if (action === 'get' && id) { writeResult({ ok: true, data: await managementRequest(args.workspace, `${base}/${encodeURIComponent(id)}`) }, args.json); return 0; }
+      if (action === 'delete' && id) {
+        const data = await managementRequest(args.workspace, `${base}/${encodeURIComponent(id)}`, { method: 'DELETE', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ expectedRevision: integerOption(args, '--revision') }) });
+        writeResult({ ok: true, data }, args.json);
+        return 0;
+      }
+      if (['create', 'update', 'regenerate'].includes(action ?? '') && id) {
+        const input = JSON.parse(await readFile(option(args, '--input'), 'utf8')) as Record<string, unknown>;
+        if (action === 'create' && input.id !== id) throw new Error('ID trong file input phải trùng ID lệnh tạo prototype.');
+        const path = action === 'create' ? base : `${base}/${encodeURIComponent(id)}${action === 'regenerate' ? '/regenerate' : ''}`;
+        const method = action === 'update' ? 'PATCH' : 'POST';
+        const data = await managementRequest(args.workspace, path, { method, headers: { 'content-type': 'application/json' }, body: JSON.stringify(input) });
+        writeResult({ ok: true, data }, args.json);
+        return 0;
+      }
+    }
     if (command === 'screenshot' && action) {
       const projectId = option(args, '--project');
       const result = await managementRequest(args.workspace, `/api/projects/${encodeURIComponent(projectId)}/screens/${encodeURIComponent(action)}/capture`, { method: 'POST' });
@@ -184,7 +210,7 @@ export async function run(argv: string[]): Promise<number> {
       await serveMcp(args.workspace);
       return 0;
     }
-    throw new Error('Lệnh hợp lệ: start, status, stop, project create/list, screen add/list/update/duplicate/focus/edit start|done, screenshot, snapshot create/restore, selection get, reference fetch <url>, mcp serve.');
+    throw new Error('Lệnh hợp lệ: start, status, stop, project create/list, screen add/list/update/duplicate/focus/edit start|done, prototype sources/list/get/create/update/regenerate/delete, screenshot, snapshot create/restore, selection get, reference fetch <url>, mcp serve.');
   } catch (error) {
     const canvasError = asCanvasError(error);
     writeResult({ ok: false, error: { code: canvasError.code, message: canvasError.message } }, args.json);

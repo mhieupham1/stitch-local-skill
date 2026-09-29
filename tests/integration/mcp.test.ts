@@ -80,4 +80,22 @@ describe('mcp adapter', () => {
       await client.close();
     }
   }, 15_000);
+
+  it('tạo và tạo lại prototype qua MCP trên cùng dữ liệu API', async () => {
+    await api('/api/projects', { method: 'POST', body: JSON.stringify({ id: 'shop', name: 'Shop' }) });
+    await api('/api/projects/shop/screens', { method: 'POST', body: JSON.stringify({ id: 'home', name: 'Home', width: 800, height: 600, expectedRevision: 0 }) });
+    await api('/api/projects/shop/screens', { method: 'POST', body: JSON.stringify({ id: 'detail', name: 'Detail', width: 800, height: 600, expectedRevision: 1 }) });
+    const client = await connectClient();
+    try {
+      const source = await callJson(client, 'prototype_sources', { project: 'shop', screens: ['home', 'detail'] });
+      expect(source.ok).toBe(true);
+      const expectedSourceBaseline = source.data as Record<string, string>;
+      const created = await callJson(client, 'prototype_create', { project: 'shop', id: 'booking', name: 'Booking', screens: ['home', 'detail'], startScreen: 'home', transitions: [{ fromScreenId: 'home', elementId: 'home-link', toScreenId: 'detail' }], expectedSourceBaseline });
+      expect(created).toMatchObject({ ok: true, data: { id: 'booking', revision: 0 } });
+      const regenerated = await callJson(client, 'prototype_regenerate', { project: 'shop', id: 'booking', expectedRevision: 0, screens: ['home', 'detail'], startScreen: 'detail', transitions: [], expectedSourceBaseline });
+      expect(regenerated).toMatchObject({ ok: true, data: { id: 'booking', revision: 1, startScreenId: 'detail' } });
+      const viaApi = (await (await api('/api/projects/shop/prototypes/booking')).json()) as { data: { startScreenId: string } };
+      expect(viaApi.data.startScreenId).toBe('detail');
+    } finally { await client.close(); }
+  });
 });

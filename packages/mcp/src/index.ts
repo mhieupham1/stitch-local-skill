@@ -1,7 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
-import { asCanvasError, type Project } from '../../core/src/schema.js';
+import { asCanvasError, prototypeTransitionSchema, type Project } from '../../core/src/schema.js';
 import { ensureServer, getServerStatus } from '../../server/src/lifecycle.js';
 import { managementRequest } from '../../cli/src/client.js';
 
@@ -136,6 +136,53 @@ export function createMcpServer(workspace: string): McpServer {
   }, async ({ project }) => runTool(async () => {
     await ensureServer(workspace);
     return managementRequest(workspace, `/api/projects/${encodeURIComponent(project)}/selection`);
+  }));
+
+  const prototypePath = (project: string, id?: string) => `/api/projects/${encodeURIComponent(project)}/prototypes${id ? `/${encodeURIComponent(id)}` : ''}`;
+  const requestJson = (path: string, method: string, body: unknown) => managementRequest(workspace, path, { method, headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+  const transitions = z.array(prototypeTransitionSchema);
+  const baseline = z.record(z.string(), z.string());
+
+  server.registerTool('prototype_sources', {
+    title: 'Prototype source revisions', description: 'Read current source fingerprints for the selected design screens.',
+    inputSchema: { project: z.string(), screens: z.array(z.string()).min(2) },
+  }, async ({ project, screens }) => runTool(async () => {
+    await ensureServer(workspace);
+    return managementRequest(workspace, `/api/projects/${encodeURIComponent(project)}/prototype-sources?screenIds=${encodeURIComponent(screens.join(','))}`);
+  }));
+  server.registerTool('prototype_list', {
+    title: 'List prototypes', description: 'List prototype IDs and stale status for a project.', inputSchema: { project: z.string() },
+  }, async ({ project }) => runTool(async () => { await ensureServer(workspace); return managementRequest(workspace, prototypePath(project)); }));
+  server.registerTool('prototype_get', {
+    title: 'Get prototype', description: 'Read a prototype by project and stable ID.', inputSchema: { project: z.string(), id: z.string() },
+  }, async ({ project, id }) => runTool(async () => { await ensureServer(workspace); return managementRequest(workspace, prototypePath(project, id)); }));
+  server.registerTool('prototype_create', {
+    title: 'Create prototype', description: 'Save AI-inferred screen transitions without copying source screens.',
+    inputSchema: { project: z.string(), id: z.string(), name: z.string(), screens: z.array(z.string()).min(2), startScreen: z.string(), transitions, expectedSourceBaseline: baseline },
+  }, async ({ project, id, name, screens, startScreen, transitions: links, expectedSourceBaseline }) => runTool(async () => {
+    await ensureServer(workspace);
+    return requestJson(prototypePath(project), 'POST', { id, name, screenIds: screens, startScreenId: startScreen, transitions: links, expectedSourceBaseline });
+  }));
+  server.registerTool('prototype_update', {
+    title: 'Update prototype', description: 'Edit prototype links or name without clearing stale source status.',
+    inputSchema: { project: z.string(), id: z.string(), expectedRevision: z.number().int(), name: z.string().optional(), startScreen: z.string().optional(), transitions: transitions.optional() },
+  }, async ({ project, id, expectedRevision, name, startScreen, transitions: links }) => runTool(async () => {
+    await ensureServer(workspace);
+    return requestJson(prototypePath(project, id), 'PATCH', { expectedRevision, name, startScreenId: startScreen, transitions: links });
+  }));
+  server.registerTool('prototype_regenerate', {
+    title: 'Regenerate prototype', description: 'Replace transitions and source baseline for one existing prototype after the user requests regeneration.',
+    inputSchema: { project: z.string(), id: z.string(), expectedRevision: z.number().int(), screens: z.array(z.string()).min(2), startScreen: z.string(), transitions, expectedSourceBaseline: baseline },
+  }, async ({ project, id, expectedRevision, screens, startScreen, transitions: links, expectedSourceBaseline }) => runTool(async () => {
+    await ensureServer(workspace);
+    return requestJson(`${prototypePath(project, id)}/regenerate`, 'POST', { expectedRevision, screenIds: screens, startScreenId: startScreen, transitions: links, expectedSourceBaseline });
+  }));
+  server.registerTool('prototype_delete', {
+    title: 'Delete prototype', description: 'Remove one prototype by project and stable ID.',
+    inputSchema: { project: z.string(), id: z.string(), expectedRevision: z.number().int() },
+  }, async ({ project, id, expectedRevision }) => runTool(async () => {
+    await ensureServer(workspace);
+    return requestJson(prototypePath(project, id), 'DELETE', { expectedRevision });
   }));
 
   return server;
