@@ -7,6 +7,7 @@ type PendingChange = {
   screenIds: Set<string>;
   refreshAll: boolean;
   hasError: boolean;
+  prototypeChanged: boolean;
   timer?: NodeJS.Timeout;
 };
 
@@ -38,7 +39,8 @@ export function watchWorkspace(workspace: string, events: CanvasEvents): FSWatch
       const screenIds = change.refreshAll || !change.screenIds.size
         ? project.screens.map((screen) => screen.id).sort()
         : [...change.screenIds].sort();
-      events.publish({ type: 'screen.changed', projectId, screenIds });
+      if (change.refreshAll || change.screenIds.size) events.publish({ type: 'screen.changed', projectId, screenIds });
+      if (change.prototypeChanged || change.refreshAll || change.screenIds.size) events.publish({ type: 'prototype.updated', projectId, screenIds });
     } catch (error) {
       events.publish({
         type: 'project.error',
@@ -55,10 +57,11 @@ export function watchWorkspace(workspace: string, events: CanvasEvents): FSWatch
     const projectId = segments[1];
     const projectRelative = segments.slice(2);
     if (!projectId || projectRelative[0] === 'artifacts' || projectRelative[0] === 'snapshots' || projectRelative[0] === 'project.json') return;
-    const change = pending.get(projectId) ?? { screenIds: new Set<string>(), refreshAll: false, hasError: false };
-    if (projectRelative[0] === 'screens' && projectRelative[1]) change.screenIds.add(projectRelative[1]);
+    const change = pending.get(projectId) ?? { screenIds: new Set<string>(), refreshAll: false, hasError: false, prototypeChanged: false };
+    if (projectRelative[0] === 'prototypes') change.prototypeChanged = true;
+    else if (projectRelative[0] === 'screens' && projectRelative[1]) change.screenIds.add(projectRelative[1]);
     else change.refreshAll = true;
-    if (eventName === 'unlink' || eventName === 'unlinkDir') change.hasError = true;
+    if (projectRelative[0] !== 'prototypes' && (eventName === 'unlink' || eventName === 'unlinkDir')) change.hasError = true;
     pending.set(projectId, change);
     if (change.timer) clearTimeout(change.timer);
     change.timer = setTimeout(() => void flush(projectId), 150);

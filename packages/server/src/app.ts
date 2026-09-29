@@ -15,13 +15,15 @@ import {
   renameProject,
 } from '../../core/src/project-store.js';
 import { canonicalWorkspace, resolveProjectDirectory, resolveProjectFile } from '../../core/src/paths.js';
-import { asCanvasError, CanvasError, projectIdSchema, type Result, screenLayoutPatchSchema, screenOrderSchema, selectionContextSchema } from '../../core/src/schema.js';
+import { asCanvasError, CanvasError, projectIdSchema, type Result, screenLayoutPatchSchema, screenOrderSchema, selectionContextSchema, prototypeCreateInputSchema, prototypePatchInputSchema, prototypeRegenerateInputSchema } from '../../core/src/schema.js';
 import { CanvasEvents } from './events.js';
 import { captureScreen } from './capture.js';
 import { exportScreenForFigma } from './figma-export.js';
 import { fetchReference } from './reference.js';
 import { createSnapshot, duplicateScreen, restoreSnapshot } from './snapshots.js';
 import { SelectionStore } from './selection.js';
+import { createPrototype, deletePrototype, listPrototypes, readPrototype, regeneratePrototype, updatePrototype } from './prototypes.js';
+import { readPrototypeSources } from './prototype-sources.js';
 import { bridgeScriptSource, contentSizeScriptSource, figmaCaptureScriptSource } from '../../preview-bridge/src/index.js';
 
 export type ManagementAppOptions = {
@@ -157,6 +159,36 @@ export async function createManagementApp(options: ManagementAppOptions): Promis
 
   app.get<{ Params: { projectId: string } }>('/api/projects/:projectId', async (request) => {
     return success(await readProject(options.workspace, request.params.projectId));
+  });
+
+  app.get<{ Params: { projectId: string }; Querystring: { screenIds?: string } }>('/api/projects/:projectId/prototype-sources', async (request) => {
+    const ids = z.array(projectIdSchema).min(2).max(50).parse(request.query.screenIds?.split(',') ?? []);
+    if (new Set(ids).size !== ids.length) throw new CanvasError('VALIDATION_ERROR', 'Màn hình prototype bị trùng.');
+    return success(await readPrototypeSources(options.workspace, request.params.projectId, ids));
+  });
+
+  app.get<{ Params: { projectId: string } }>('/api/projects/:projectId/prototypes', async (request) => success(await listPrototypes(options.workspace, request.params.projectId)));
+  app.get<{ Params: { projectId: string; prototypeId: string } }>('/api/projects/:projectId/prototypes/:prototypeId', async (request) => success(await readPrototype(options.workspace, request.params.projectId, request.params.prototypeId)));
+  app.post<{ Params: { projectId: string } }>('/api/projects/:projectId/prototypes', async (request, reply) => {
+    const created = await createPrototype(options.workspace, request.params.projectId, prototypeCreateInputSchema.parse(request.body));
+    options.events.publish({ type: 'prototype.updated', projectId: request.params.projectId, screenIds: created.screenIds });
+    return reply.code(201).send(success(created));
+  });
+  app.patch<{ Params: { projectId: string; prototypeId: string } }>('/api/projects/:projectId/prototypes/:prototypeId', async (request) => {
+    const updated = await updatePrototype(options.workspace, request.params.projectId, request.params.prototypeId, prototypePatchInputSchema.parse(request.body));
+    options.events.publish({ type: 'prototype.updated', projectId: request.params.projectId, screenIds: updated.screenIds });
+    return success(updated);
+  });
+  app.post<{ Params: { projectId: string; prototypeId: string } }>('/api/projects/:projectId/prototypes/:prototypeId/regenerate', async (request) => {
+    const updated = await regeneratePrototype(options.workspace, request.params.projectId, request.params.prototypeId, prototypeRegenerateInputSchema.parse(request.body));
+    options.events.publish({ type: 'prototype.updated', projectId: request.params.projectId, screenIds: updated.screenIds });
+    return success(updated);
+  });
+  app.delete<{ Params: { projectId: string; prototypeId: string } }>('/api/projects/:projectId/prototypes/:prototypeId', async (request) => {
+    const body = z.object({ expectedRevision: z.number().int().nonnegative() }).parse(request.body);
+    await deletePrototype(options.workspace, request.params.projectId, request.params.prototypeId, body.expectedRevision);
+    options.events.publish({ type: 'prototype.updated', projectId: request.params.projectId, screenIds: [] });
+    return success({ deleted: true });
   });
 
   app.patch<{ Params: { projectId: string } }>('/api/projects/:projectId', async (request) => {
@@ -386,7 +418,7 @@ export async function createPreviewApp(workspace: string): Promise<FastifyInstan
     const projectId = projectIdSchema.parse(request.params.projectId);
     const relativePath = request.params['*'];
     const topLevel = relativePath.split('/')[0];
-    if (['.local-canvas', 'project.json', 'snapshots', 'artifacts'].includes(topLevel)) {
+    if (['.local-canvas', 'project.json', 'snapshots', 'artifacts', 'prototypes'].includes(topLevel)) {
       throw new CanvasError('PATH_OUTSIDE_PROJECT', 'File không được phục vụ bởi preview.', 403);
     }
     await readProject(workspace, projectId);
