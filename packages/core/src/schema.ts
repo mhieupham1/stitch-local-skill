@@ -37,6 +37,55 @@ export const screenLayoutPatchSchema = z.object({
 // the same time cannot silently collapse two screens onto the same layer.
 export const screenOrderSchema = z.array(projectIdSchema);
 
+export const prototypeTransitionSchema = z.object({
+  fromScreenId: projectIdSchema,
+  elementId: z.string().trim().min(1).max(200),
+  toScreenId: projectIdSchema,
+});
+
+const prototypeFieldsSchema = z.object({
+  id: projectIdSchema,
+  name: z.string().trim().min(1).max(120),
+  screenIds: z.array(projectIdSchema).min(2).max(50),
+  startScreenId: projectIdSchema,
+  transitions: z.array(prototypeTransitionSchema).max(5000),
+});
+
+const sourceBaselineSchema = z.record(projectIdSchema, z.string().regex(/^[a-f0-9]{64}$/));
+
+function checkPrototypeLinks(value: { screenIds: string[]; startScreenId: string; transitions: { fromScreenId: string; elementId: string; toScreenId: string }[] }, context: z.RefinementCtx): void {
+  const ids = new Set(value.screenIds);
+  if (ids.size !== value.screenIds.length) context.addIssue({ code: 'custom', message: 'Màn hình prototype bị trùng.' });
+  if (!ids.has(value.startScreenId)) context.addIssue({ code: 'custom', message: 'Màn hình bắt đầu không thuộc prototype.' });
+  const links = new Set<string>();
+  for (const transition of value.transitions) {
+    if (!ids.has(transition.fromScreenId) || !ids.has(transition.toScreenId)) context.addIssue({ code: 'custom', message: 'Liên kết trỏ tới màn hình ngoài prototype.' });
+    const key = `${transition.fromScreenId}\0${transition.elementId}`;
+    if (links.has(key)) context.addIssue({ code: 'custom', message: 'Một phần tử chỉ được nối tới một màn hình.' });
+    links.add(key);
+  }
+}
+
+export const prototypeSchema = prototypeFieldsSchema.extend({
+  schemaVersion: z.literal(1),
+  revision: z.number().int().nonnegative(),
+  sourceBaseline: sourceBaselineSchema,
+}).superRefine((value, context) => {
+  checkPrototypeLinks(value, context);
+  if (Object.keys(value.sourceBaseline).length !== value.screenIds.length || value.screenIds.some((id) => !(id in value.sourceBaseline))) {
+    context.addIssue({ code: 'custom', message: 'Dấu vân tay nguồn không khớp danh sách màn hình.' });
+  }
+});
+
+export const prototypeCreateInputSchema = prototypeFieldsSchema.extend({ expectedSourceBaseline: sourceBaselineSchema }).superRefine((value, context) => {
+  checkPrototypeLinks(value, context);
+});
+export const prototypePatchInputSchema = prototypeFieldsSchema.omit({ id: true }).partial().extend({ expectedRevision: z.number().int().nonnegative() });
+export const prototypeRegenerateInputSchema = prototypeFieldsSchema.omit({ id: true, name: true }).extend({
+  expectedRevision: z.number().int().nonnegative(),
+  expectedSourceBaseline: sourceBaselineSchema,
+}).superRefine((value, context) => checkPrototypeLinks(value, context));
+
 export const selectionBoundsSchema = z.object({
   x: z.number().finite(),
   y: z.number().finite(),
@@ -61,7 +110,7 @@ export const canvasEventSchema = z.object({
   instanceId: z.string().min(1),
   projectId: projectIdSchema,
   screenIds: z.array(projectIdSchema),
-  type: z.enum(['project.updated', 'screen.changed', 'project.error', 'screen.editing']),
+  type: z.enum(['project.updated', 'screen.changed', 'project.error', 'screen.editing', 'prototype.updated']),
   message: z.string().optional(),
 });
 
@@ -69,6 +118,11 @@ export type Screen = z.infer<typeof screenSchema>;
 export type Project = z.infer<typeof projectSchema>;
 export type ScreenLayoutPatch = z.infer<typeof screenLayoutPatchSchema>;
 export type ScreenOrder = z.infer<typeof screenOrderSchema>;
+export type Prototype = z.infer<typeof prototypeSchema>;
+export type PrototypeView = Prototype & { stale: boolean; changedScreenIds: string[]; missingScreenIds: string[] };
+export type PrototypeCreateInput = z.infer<typeof prototypeCreateInputSchema>;
+export type PrototypePatchInput = z.infer<typeof prototypePatchInputSchema>;
+export type PrototypeRegenerateInput = z.infer<typeof prototypeRegenerateInputSchema>;
 export type CanvasEvent = z.infer<typeof canvasEventSchema>;
 export type SelectionBounds = z.infer<typeof selectionBoundsSchema>;
 export type SelectionContext = z.infer<typeof selectionContextSchema>;
