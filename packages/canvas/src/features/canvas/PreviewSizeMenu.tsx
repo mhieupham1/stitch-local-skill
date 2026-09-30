@@ -13,20 +13,19 @@ type Props = {
 export function PreviewSizeMenu({ width, disabled, onPick }: Props) {
   const active = matchDevicePreset(width);
   return (
-    <div className="preview-size-menu" id="preview-size-menu" role="group" aria-label="Kích thước xem trước" data-testid="preview-size-menu">
+    <select
+      className="preview-size-menu"
+      id="preview-size-menu"
+      aria-label="Kích thước xem trước"
+      data-testid="preview-size-menu"
+      value={active ? String(width) : ''}
+      disabled={disabled}
+      onChange={(event) => onPick(Number(event.target.value))}
+    >
+      {!active && <option value="" disabled>Tuỳ chỉnh · {width}px</option>}
       {DEVICE_PRESETS.map((preset) => (
-        <button
-          key={preset.id}
-          type="button"
-          className={active === preset.id ? 'active' : ''}
-          aria-pressed={active === preset.id}
-          disabled={disabled}
-          onClick={() => onPick(preset.width)}
-        >
-          {preset.label}
-          <small>{preset.width}</small>
-        </button>
+        <option key={preset.id} value={preset.width}>{preset.label} · {preset.width}px</option>
       ))}
-    </div>
+    </select>
   );
 }

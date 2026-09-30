@@ -1,0 +1,44 @@
+{
+  "id": "cgv-booking-flow",
+  "name": "Đặt vé phim CGV",
+  "screenIds": [
+    "home",
+    "movie-detail",
+    "seat-selection"
+  ],
+  "startScreenId": "home",
+  "transitions": [
+    {
+      "fromScreenId": "home",
+      "elementId": "home-el-55",
+      "toScreenId": "movie-detail"
+    },
+    {
+      "fromScreenId": "movie-detail",
+      "elementId": "movie-back-to-list",
+      "toScreenId": "home"
+    },
+    {
+      "fromScreenId": "movie-detail",
+      "elementId": "movie-vincom-1910",
+      "toScreenId": "seat-selection"
+    },
+    {
+      "fromScreenId": "seat-selection",
+      "elementId": "seat-cancel-booking",
+      "toScreenId": "movie-detail"
+    },
+    {
+      "fromScreenId": "seat-selection",
+      "elementId": "seat-brand-home",
+      "toScreenId": "home"
+    }
+  ],
+  "schemaVersion": 1,
+  "revision": 0,
+  "sourceBaseline": {
+    "home": "4129f97bb7778a94aae21e69138e0425a69f637fadbc15f5cde49fbf09cecf11",
+    "movie-detail": "716b5b2cf29be476604df0a0ee9d58c9066ecdcb2ee0597dec4698be4dcfa31b",
+    "seat-selection": "ccadbd181fcd732a5b9cec9e5c0dee27fe52ce4053ebc4bd45d09b92a2685e1d"
+  }
+}

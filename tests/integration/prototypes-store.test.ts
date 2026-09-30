@@ -40,6 +40,19 @@ beforeEach(async () => {
 afterEach(async () => { await rm(root, { recursive: true, force: true }); });
 
 describe('prototype store', () => {
+  it('persists a prototype position independently without marking its flow stale', async () => {
+    const manifest = join(workspace, 'projects', 'shop', 'project.json');
+    const before = await readFile(manifest, 'utf8');
+    const created = await createPrototype(workspace, 'shop', await input());
+    expect(created.x).toBeUndefined();
+    expect(created.y).toBeUndefined();
+    const moved = await updatePrototype(workspace, 'shop', 'booking', { expectedRevision: created.revision, x: 1320, y: -48 });
+    expect(moved).toMatchObject({ x: 1320, y: -48, stale: false, revision: 1 });
+    expect(await readPrototype(workspace, 'shop', 'booking')).toMatchObject({ x: 1320, y: -48 });
+    expect(await readFile(manifest, 'utf8')).toBe(before);
+    await expect(updatePrototype(workspace, 'shop', 'booking', { expectedRevision: 1, x: Number.POSITIVE_INFINITY, y: 0 })).rejects.toThrow();
+  });
+
   it('stores distinct prototypes per project without changing source screens', async () => {
     const projectBefore = await readFile(join(workspace, 'projects', 'shop', 'project.json'), 'utf8');
     const sourceBefore = await readFile(join(workspace, 'projects', 'shop', 'screens', 'home', 'index.html'), 'utf8');
@@ -83,6 +96,23 @@ describe('prototype store', () => {
     await createPrototype(workspace, 'shop', await input());
     await writeFile(join(workspace, 'projects', 'shop', 'shared', 'menu.css'), 'new');
     expect((await readPrototype(workspace, 'shop', 'booking')).stale).toBe(true);
+  });
+
+  it('allows adding/removing screens through a patch without clearing stale history', async () => {
+    const created = await createPrototype(workspace, 'shop', await input());
+    const added = await updatePrototype(workspace, 'shop', 'booking', { expectedRevision: created.revision, screenIds: ['home', 'detail', 'other'] });
+    expect(added.screenIds).toEqual(['home', 'detail', 'other']);
+    expect(added.stale).toBe(true);
+    expect(added.sourceBaseline.home).toBe(created.sourceBaseline.home);
+    const removed = await updatePrototype(workspace, 'shop', 'booking', { expectedRevision: added.revision, screenIds: ['home', 'detail'] });
+    expect(removed.screenIds).toEqual(['home', 'detail']);
+    expect(Object.keys(removed.sourceBaseline).sort()).toEqual(['detail', 'home']);
+    expect(removed.stale).toBe(true);
+    const regenerated = await regeneratePrototype(workspace, 'shop', 'booking', {
+      expectedRevision: removed.revision, screenIds: removed.screenIds, startScreenId: removed.startScreenId,
+      transitions: removed.transitions, expectedSourceBaseline: await readPrototypeSources(workspace, 'shop', removed.screenIds),
+    });
+    expect(regenerated.stale).toBe(false);
   });
 
   it('reports a deleted source screen on read and rejects unsafe prototype directories', async () => {

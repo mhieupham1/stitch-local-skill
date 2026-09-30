@@ -85,7 +85,7 @@ async function view(workspace: string, projectId: string, prototype: Prototype):
   const present = prototype.screenIds.filter((id) => !missingScreenIds.includes(id));
   const current = await readPrototypeSources(workspace, projectId, present);
   const changedScreenIds = present.filter((id) => current[id] !== prototype.sourceBaseline[id]);
-  return { ...prototype, stale: changedScreenIds.length > 0 || missingScreenIds.length > 0, changedScreenIds, missingScreenIds };
+  return { ...prototype, stale: Boolean(prototype.requiresRegeneration) || changedScreenIds.length > 0 || missingScreenIds.length > 0, changedScreenIds, missingScreenIds };
 }
 
 export async function listPrototypes(workspace: string, projectId: string): Promise<PrototypeView[]> {
@@ -125,9 +125,15 @@ export async function updatePrototype(workspace: string, projectId: string, id: 
     const previous = await load(root, id);
     if (previous.revision !== input.expectedRevision) throw new CanvasError('REVISION_CONFLICT', 'Prototype đã thay đổi; hãy tải lại.', 409);
     const { expectedRevision: _revision, ...patch } = input;
-    const next = prototypeSchema.parse({ ...previous, ...patch, revision: previous.revision + 1 });
+    const screenIds = patch.screenIds ?? previous.screenIds;
+    const membershipChanged = screenIds.length !== previous.screenIds.length || screenIds.some((screenId) => !previous.screenIds.includes(screenId));
+    const sourceBaseline = Object.fromEntries(screenIds.map((screenId) => [screenId, previous.sourceBaseline[screenId] ?? '0'.repeat(64)]));
+    const previouslyStale = (await view(workspace, projectId, previous)).stale;
+    const next = prototypeSchema.parse({
+      ...previous, ...patch, sourceBaseline, revision: previous.revision + 1,
+      requiresRegeneration: previouslyStale || membershipChanged,
+    });
     await validateScreens(workspace, projectId, next.screenIds);
-    if (next.screenIds.some((screenId) => !(screenId in next.sourceBaseline))) throw new CanvasError('VALIDATION_ERROR', 'Thêm màn hình cần tạo lại prototype.');
     await save(pathFor((await directory(root, false))!, id), next);
     return view(workspace, projectId, next);
   });
@@ -141,7 +147,7 @@ export async function regeneratePrototype(workspace: string, projectId: string, 
     if (previous.revision !== input.expectedRevision) throw new CanvasError('REVISION_CONFLICT', 'Prototype đã thay đổi; hãy tải lại.', 409);
     await validateScreens(workspace, projectId, input.screenIds);
     const sourceBaseline = await assertSources(workspace, projectId, input.screenIds, input.expectedSourceBaseline);
-    const next = prototypeSchema.parse({ ...previous, screenIds: input.screenIds, startScreenId: input.startScreenId, transitions: input.transitions, sourceBaseline, revision: previous.revision + 1 });
+    const next = prototypeSchema.parse({ ...previous, screenIds: input.screenIds, startScreenId: input.startScreenId, transitions: input.transitions, sourceBaseline, requiresRegeneration: false, revision: previous.revision + 1 });
     await save(pathFor((await directory(root, false))!, id), next);
     return view(workspace, projectId, next);
   });

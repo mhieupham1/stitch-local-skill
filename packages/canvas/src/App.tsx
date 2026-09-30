@@ -1,24 +1,21 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { Project, ScreenLayoutPatch, SelectionContext } from '../../core/src/schema.js';
-import { ApiError, CanvasApi, connectEvents, readSession } from './api.js';
+import type { Project, PrototypeView, ScreenLayoutPatch, SelectionContext } from '../../core/src/schema.js';
+import { ApiError, CanvasApi, clearPreviewUrl, connectEvents, readSession, savePreviewUrl } from './api.js';
 import { CanvasViewport } from './features/canvas/CanvasViewport.js';
-import type { CanvasMode } from './features/canvas/ScreenFrame.js';
 import type { SaveState } from './features/canvas/layout-state.js';
 import type { Viewport } from './features/canvas/viewport-math.js';
 import { PreviewSizeMenu } from './features/canvas/PreviewSizeMenu.js';
 import { ProjectSidebar } from './features/projects/ProjectSidebar.js';
+import { createPrototypePrompt, regeneratePrototypePrompt } from './features/prototypes/prompts.js';
+import { PrototypePlayer } from './features/prototypes/PrototypePlayer.js';
 import {
-  IconAlert, IconCamera, IconCamera2, IconCheck, IconCopy, IconCursor, IconFigma, IconHand,
-  IconLoader, IconMonitor, IconMove, IconPlus, IconRotateCcw, IconTrash, IconX,
+  IconAlert, IconCamera, IconCamera2, IconCheck, IconCopy, IconFigma,
+  IconLoader, IconMonitor, IconRotateCcw, IconTrash, IconX,
 } from './icons.js';
 
 const DEFAULT_VIEWPORT: Viewport = { x: 96, y: 96, zoom: 0.5 };
 const viewportKey = (projectId: string) => `local-canvas-viewport:${projectId}`;
-const previewMenuKey = 'local-canvas-preview-menu';
 const readViewport = (projectId: string): Viewport => { try { return JSON.parse(localStorage.getItem(viewportKey(projectId)) ?? '') as Viewport; } catch { return DEFAULT_VIEWPORT; } };
-const readPreviewMenuOpen = (): boolean => {
-  try { return localStorage.getItem(previewMenuKey) !== '0'; } catch { return true; }
-};
 const sidebarCollapsedKey = 'local-canvas-sidebar-collapsed';
 const readSidebarCollapsed = (): boolean => {
   try { return localStorage.getItem(sidebarCollapsedKey) === '1'; } catch { return false; }
@@ -37,26 +34,47 @@ const clearConfirmedFields = (draft: ScreenLayoutPatch | undefined, patch: Scree
 };
 
 export function App() {
+  const params = new URLSearchParams(window.location.search);
+  const projectId = params.get('prototypeProject');
+  const prototypeId = params.get('prototypeId');
+  if (projectId && prototypeId) return <PrototypePlayer projectId={projectId} prototypeId={prototypeId} />;
+  return <CanvasApp />;
+}
+
+function CanvasApp() {
   const session = useMemo(readSession, []);
   const api = useMemo(() => new CanvasApi(), []);
+  // A URL from the fragment or storage is only a request: the management API
+  // remains the authority for which companion preview belongs to this session.
+  const previewCandidateUrl = useRef(session.previewUrl);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [availablePreviewUrl, setAvailablePreviewUrl] = useState<string | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(!session.previewUrl);
+  const [previewError, setPreviewError] = useState<string | null>(null);
+  const [previewRequest, setPreviewRequest] = useState(0);
   const [projects, setProjects] = useState<Project[]>([]);
   const [project, setProject] = useState<Project | null>(null);
+  const [prototypes, setPrototypes] = useState<PrototypeView[]>([]);
+  const [prototypePrompt, setPrototypePrompt] = useState<string | null>(null);
+  const [promptCopied, setPromptCopied] = useState(false);
   const [selectedScreenIds, setSelectedScreenIds] = useState<string[]>([]);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(readSidebarCollapsed);
   const [viewport, setViewport] = useState<Viewport>(DEFAULT_VIEWPORT);
-  const [mode, setMode] = useState<CanvasMode>('arrange');
   const [bridgeNonce, setBridgeNonce] = useState<string | null>(null);
   const [selection, setSelection] = useState<SelectionContext | null>(null);
   const [selectionStale, setSelectionStale] = useState(false);
+  const [elementIdNotice, setElementIdNotice] = useState<{ id: string | null; status: 'pending' | 'copied' | 'failed' } | null>(null);
   const [editingScreenId, setEditingScreenId] = useState<string | null>(null);
   const [userEditingScreenId, setUserEditingScreenId] = useState<string | null>(null);
   const [editingMessage, setEditingMessage] = useState<string | null>(null);
-  const [previewMenuOpen, setPreviewMenuOpen] = useState(readPreviewMenuOpen);
   const bridgeNonceRef = useRef<string | null>(null);
+  const versionMenuRef = useRef<HTMLDivElement>(null);
   const [saveState, setSaveState] = useState<SaveState>('saved');
   const [figmaState, setFigmaState] = useState<'idle' | 'copying' | 'copied'>('idle');
   const [pending, setPending] = useState<PendingLayout[]>([]);
   const [connection, setConnection] = useState<'connected' | 'reconnecting'>('reconnecting');
+  const hasConnectedRef = useRef(false);
+  const hadConnectionFailureRef = useRef(false);
   const [error, setError] = useState<string | null>(null);
   const [screenRevisions, setScreenRevisions] = useState<Record<string, number>>({});
   const projectRef = useRef<Project | null>(null);
@@ -65,6 +83,46 @@ export function App() {
   const draftRef = useRef<Record<string, ScreenLayoutPatch>>({});
 
   useEffect(() => { projectRef.current = project; }, [project]);
+
+  const loadPrototypes = useCallback(async (projectId: string) => {
+    const items = await api.listPrototypes(projectId);
+    if (projectRef.current?.id === projectId) setPrototypes(items);
+  }, [api]);
+
+  useEffect(() => {
+    setPrototypes([]);
+    setPrototypePrompt(null);
+    if (!project?.id) return;
+    void loadPrototypes(project.id).catch((cause: unknown) => setError(cause instanceof Error ? cause.message : 'Không tải được prototypes.'));
+  }, [project?.id, loadPrototypes]);
+
+  useEffect(() => {
+    if (previewUrl) return;
+    let active = true;
+    setPreviewLoading(true);
+    setPreviewError(null);
+    void api.getPreview()
+      .then(({ url }) => {
+        if (!active) return;
+        setAvailablePreviewUrl(url);
+        setPreviewLoading(false);
+        if (previewCandidateUrl.current === url) {
+          setPreviewUrl(url);
+          return;
+        }
+        if (previewCandidateUrl.current) {
+          clearPreviewUrl();
+          previewCandidateUrl.current = null;
+        }
+      })
+      .catch((cause: unknown) => {
+        if (!active) return;
+        setAvailablePreviewUrl(null);
+        setPreviewError(cause instanceof Error ? cause.message : 'Không tải được preview của phiên canvas này.');
+        setPreviewLoading(false);
+      });
+    return () => { active = false; };
+  }, [api, previewRequest, previewUrl]);
 
   const loadProject = useCallback(async (projectId: string) => {
     if (!api) return;
@@ -104,6 +162,8 @@ export function App() {
     if (activeProjectId) await loadProject(activeProjectId);
     else { setProject(null); setSelectedScreenIds([]); }
   }, [api, loadProject, project?.id]);
+  const refreshProjectsRef = useRef(refreshProjects);
+  refreshProjectsRef.current = refreshProjects;
 
   useEffect(() => {
     if (!api) return;
@@ -124,6 +184,9 @@ export function App() {
         // may no longer resolve, so mark it stale rather than presenting it as current.
         setSelection((current) => { if (current && event.screenIds.includes(current.screenId)) setSelectionStale(true); return current; });
       }
+      if (activeProject && event.projectId === activeProject.id && (event.type === 'screen.changed' || event.type === 'prototype.updated')) {
+        void loadPrototypes(activeProject.id).catch((cause: unknown) => setError(cause instanceof Error ? cause.message : 'Không tải được prototypes.'));
+      }
       if (activeProject && event.projectId === activeProject.id && event.type === 'screen.editing') {
         if (event.message === 'idle' || event.screenIds.length === 0) {
           setEditingScreenId(null);
@@ -131,26 +194,31 @@ export function App() {
         } else {
           setEditingScreenId(event.screenIds[0] ?? null);
           setEditingMessage(event.message ?? 'Agent đang chỉnh sửa');
-          setMode((current) => current === 'interact' || current === 'select' ? 'arrange' : current);
         }
       }
-      if (event.type === 'project.updated') void refreshProjects().catch((cause: unknown) => setError(cause instanceof Error ? cause.message : 'Không tải được projects.'));
+      if (event.type === 'project.updated') void refreshProjectsRef.current().catch((cause: unknown) => setError(cause instanceof Error ? cause.message : 'Không tải được projects.'));
       if (activeProject && event.projectId === activeProject.id && event.type === 'project.error') setError(event.message ?? 'Không thể đọc thay đổi file thiết kế.');
     }, (state) => {
       setConnection(state);
+      if (state === 'reconnecting') hadConnectionFailureRef.current = true;
       if (state === 'connected') {
         const activeProject = projectRef.current;
-        if (activeProject) {
+        // The first successful connection follows the initial fetch. Reload
+        // every frame only if we previously missed events or reconnected.
+        if (activeProject && (hasConnectedRef.current || hadConnectionFailureRef.current)) {
+          void loadPrototypes(activeProject.id).catch(() => undefined);
           setScreenRevisions((current) => {
             const next = { ...current };
             for (const screen of activeProject.screens) next[screen.id] = (next[screen.id] ?? activeProject.revision) + 1;
             return next;
           });
         }
-        void refreshProjects().catch((cause: unknown) => setError(cause instanceof Error ? cause.message : 'Không tải được projects.'));
+        hasConnectedRef.current = true;
+        hadConnectionFailureRef.current = false;
+        void refreshProjectsRef.current().catch((cause: unknown) => setError(cause instanceof Error ? cause.message : 'Không tải được projects.'));
       }
     });
-  }, [api, project?.id, refreshProjects]);
+  }, [api, loadPrototypes]);
 
   useEffect(() => {
     if (project) setSaveState(pending.some((item) => item.projectId === project.id) ? 'unsaved' : 'saved');
@@ -296,7 +364,6 @@ export function App() {
       const target = event.target as HTMLElement | null;
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
       setSelectedScreenIds([]);
-      setMode('arrange');
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
@@ -305,21 +372,21 @@ export function App() {
   useEffect(() => { bridgeNonceRef.current = bridgeNonce; }, [bridgeNonce]);
 
   // A per-frame nonce lets the shell reject a postMessage that claims to be a
-  // different frame. Refresh it when the target frame or select mode changes.
+  // different frame. Refresh it when the user starts editing another frame.
   useEffect(() => {
-    if ((mode !== 'select' && userEditingScreenId !== selectedScreen?.id) || !api || !project || !selectedScreen) { setBridgeNonce(null); return; }
+    if (userEditingScreenId !== selectedScreen?.id || !api || !project || !selectedScreen) { setBridgeNonce(null); return; }
     let active = true;
     void api.selectionNonce(project.id, selectedScreen.id)
       .then((result) => { if (active) setBridgeNonce(result.nonce); })
       .catch((cause: unknown) => { if (active) setError(cause instanceof Error ? cause.message : 'Không lấy được phiên chọn phần tử.'); });
     return () => { active = false; };
-  }, [mode, userEditingScreenId, api, project?.id, selectedScreen?.id]);
+  }, [userEditingScreenId, api, project?.id, selectedScreen?.id]);
 
   // A persisted canvas can be zoomed far out (for example 10%), which makes
-  // iframe hit targets effectively impossible to use in Select mode. Bring the
+  // iframe hit targets effectively impossible to use while editing. Bring the
   // selected preview back to a practical zoom while preserving its position.
   useEffect(() => {
-    if (mode !== 'select' || !project || !selectedScreen || viewport.zoom >= 0.35) return;
+    if (userEditingScreenId !== selectedScreen?.id || !project || !selectedScreen || viewport.zoom >= 0.35) return;
     const nextZoom = 0.5;
     const canvas = document.querySelector<HTMLElement>('.canvas-viewport')?.getBoundingClientRect();
     if (!canvas) return;
@@ -332,20 +399,26 @@ export function App() {
       localStorage.setItem(viewportKey(project.id), JSON.stringify(next));
       return next;
     });
-  }, [mode, project?.id, selectedScreen?.id, viewport.zoom]);
+  }, [userEditingScreenId, project?.id, selectedScreen?.id, viewport.zoom]);
 
   useEffect(() => {
-    if ((mode !== 'select' && userEditingScreenId !== selectedScreen?.id) || !api || !project || !selectedScreen) return;
+    if (userEditingScreenId !== selectedScreen?.id || !api || !project || !selectedScreen) return;
     const handler = (event: MessageEvent) => {
       // Validate the message: it must come from the exact selected iframe, carry the
       // current per-frame nonce, and target the selected screen. A sandboxed frame can
       // present an opaque origin, so we authenticate by source window + nonce, not origin.
       const iframe = document.querySelector<HTMLIFrameElement>(`[data-screen-id="${CSS.escape(selectedScreen.id)}"] iframe`);
       if (!iframe || event.source !== iframe.contentWindow) return;
-      const data = event.data as Partial<SelectionContext> & { source?: string; kind?: string; nonce?: string };
-      if (data.source !== 'local-design-canvas' || (data.kind !== 'selection' && data.kind !== 'hover')) return;
+      const data = event.data as Partial<SelectionContext> & { source?: string; kind?: string; nonce?: string; copied?: boolean };
+      if (data.source !== 'local-design-canvas' || (data.kind !== 'selection' && data.kind !== 'hover' && data.kind !== 'clipboard')) return;
       if (data.nonce !== bridgeNonceRef.current) return;
       if (data.screenId !== selectedScreen.id || data.projectId !== project.id) return;
+      if (data.kind === 'clipboard') {
+        setElementIdNotice((current) => current?.id && current.id === data.elementId
+          ? { id: current.id, status: data.copied ? 'copied' : 'failed' }
+          : current);
+        return;
+      }
       const context: SelectionContext = {
         projectId: project.id,
         screenId: selectedScreen.id,
@@ -360,17 +433,21 @@ export function App() {
         setSelectionStale(false);
         return;
       }
+      setElementIdNotice({ id: context.elementId, status: context.elementId ? 'pending' : 'failed' });
       void api.recordSelection(project.id, context, bridgeNonceRef.current ?? '')
-        .then((saved) => { setSelection(saved); setSelectionStale(false); })
-        .catch((cause: unknown) => setError(cause instanceof Error ? cause.message : 'Không ghi được lựa chọn.'));
+        .then((saved) => {
+          setSelection(saved);
+          setSelectionStale(false);
+        })
+        .catch((cause: unknown) => { setElementIdNotice(null); setError(cause instanceof Error ? cause.message : 'Không ghi được lựa chọn.'); });
     };
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
-  }, [mode, userEditingScreenId, api, project?.id, selectedScreen?.id]);
+  }, [userEditingScreenId, api, project?.id, selectedScreen?.id]);
 
   // A reselect or source edit can invalidate a stored selection. Drop the highlight
   // when the user switches away so a stale selector is never shown as current.
-  useEffect(() => { setSelection(null); setSelectionStale(false); }, [selectedScreenId, project?.id]);
+  useEffect(() => { setSelection(null); setSelectionStale(false); setElementIdNotice(null); }, [selectedScreenId, project?.id]);
   useEffect(() => { if (selection && selectedScreenId && selection.screenId !== selectedScreenId) setSelection(null); }, [selectedScreenId, selection]);
 
   const updateViewport = (next: Viewport) => { setViewport(next); if (project) localStorage.setItem(viewportKey(project.id), JSON.stringify(next)); };
@@ -419,13 +496,6 @@ export function App() {
       if (project?.id === before.id) setSaveState('unsaved');
       setError('Bố cục chưa lưu được. Hãy thử lại khi server kết nối lại.');
     }
-  };
-  const createScreen = async () => {
-    if (!api || !project) return;
-    const id = window.prompt('ID màn hình (slug)', `screen-${project.screens.length + 1}`); if (!id) return;
-    const name = window.prompt('Tên hiển thị', id); if (!name) return;
-    try { await api.addScreen(project.id, { id, name, width: 1440, height: 1000, expectedRevision: project.revision }); await loadProject(project.id); }
-    catch (cause) { setError(cause instanceof Error ? cause.message : 'Không tạo được màn hình.'); }
   };
   const captureScreen = async () => {
     if (!api || !project || !selectedScreen) return;
@@ -492,12 +562,12 @@ export function App() {
   };
   const createProjectSnapshot = async () => {
     if (!api || !project) return;
-    try { const result = await api.createSnapshot(project.id); setError(`Đã lưu snapshot: ${result.snapshotId}`); }
+    try { const result = await api.createSnapshot(project.id); setError(`Đã lưu phiên bản: ${result.snapshotId}`); }
     catch (cause) { setError(cause instanceof Error ? cause.message : 'Không thể tạo snapshot.'); }
   };
   const restoreProjectSnapshot = async () => {
     if (!api || !project) return;
-    const snapshotId = window.prompt('ID snapshot cần khôi phục');
+    const snapshotId = window.prompt('ID phiên bản cần khôi phục');
     if (!snapshotId) return;
     try { const result = await api.restoreSnapshot(project.id, snapshotId); await loadProject(project.id); setError(`Đã khôi phục snapshot. Backup hiện tại: ${result.backupSnapshotId}`); }
     catch (cause) { setError(cause instanceof Error ? cause.message : 'Không thể khôi phục snapshot.'); }
@@ -513,13 +583,6 @@ export function App() {
     setSidebarCollapsed(next);
     try { localStorage.setItem(sidebarCollapsedKey, next ? '1' : '0'); } catch { /* ignore */ }
   };
-  const togglePreviewMenu = () => {
-    setPreviewMenuOpen((open) => {
-      const next = !open;
-      try { localStorage.setItem(previewMenuKey, next ? '1' : '0'); } catch { /* ignore */ }
-      return next;
-    });
-  };
   const applyPreviewWidth = (width: number) => {
     if (!selectedScreen) return;
     const next = { id: selectedScreen.id, width };
@@ -527,7 +590,106 @@ export function App() {
     void persist([next]);
   };
 
-  if (!session.previewUrl) return <div className="app-message"><h1>Chưa có preview</h1><p>Mở canvas bằng <code>local-canvas start --open</code> để nhận URL preview.</p></div>;
+  const selectPreview = (url: string) => {
+    savePreviewUrl(url);
+    previewCandidateUrl.current = url;
+    setPreviewUrl(url);
+  };
+  const changePreview = () => {
+    clearPreviewUrl();
+    previewCandidateUrl.current = null;
+    setAvailablePreviewUrl(null);
+    setPreviewUrl(null);
+  };
+  const recopyElementId = async (id: string) => {
+    const input = document.createElement('textarea');
+    input.value = id;
+    input.setAttribute('aria-hidden', 'true');
+    input.style.position = 'fixed';
+    input.style.left = '-9999px';
+    document.body.appendChild(input);
+    try {
+      input.select();
+      if (document.execCommand('copy')) {
+        setElementIdNotice({ id, status: 'copied' });
+        return;
+      }
+    } catch { /* Try the async Clipboard API below. */ }
+    finally { input.remove(); }
+    try {
+      await navigator.clipboard.writeText(id);
+      setElementIdNotice({ id, status: 'copied' });
+    } catch {
+      setElementIdNotice({ id, status: 'failed' });
+    }
+  };
+  const retryPreview = () => setPreviewRequest((current) => current + 1);
+
+  const copyPrototypePrompt = async (prompt: string) => {
+    setPrototypePrompt(prompt);
+    setPromptCopied(false);
+    try {
+      await navigator.clipboard.writeText(prompt);
+      setPromptCopied(true);
+    } catch { /* The full prompt stays visible so it can be copied manually or retried. */ }
+  };
+
+  const copyPrototypeId = async (id: string) => {
+    try { await navigator.clipboard.writeText(id); }
+    catch { setError(`Không sao chép được ID “${id}”. Bạn có thể chọn ID đang hiển thị.`); }
+  };
+
+  const removePrototype = async (prototype: PrototypeView) => {
+    if (!project) return;
+    if (!window.confirm(`Xóa prototype “${prototype.name}” (${prototype.id})?\n\nChỉ prototype này bị xóa; các màn hình gốc vẫn được giữ nguyên.`)) return;
+    const projectId = project.id;
+    try {
+      await api.deletePrototype(projectId, prototype.id, prototype.revision);
+      if (projectRef.current?.id === projectId) setPrototypes((items) => items.filter((item) => item.id !== prototype.id));
+    } catch (cause) {
+      if (projectRef.current?.id !== projectId) return;
+      setError(cause instanceof Error ? cause.message : 'Không xóa được prototype.');
+      if (cause instanceof ApiError && cause.code === 'REVISION_CONFLICT') void loadPrototypes(projectId).catch(() => undefined);
+    }
+  };
+
+  const persistPrototypePosition = async (id: string, x: number, y: number) => {
+    if (!api || !project) return;
+    const projectId = project.id;
+    const before = prototypes.find((item) => item.id === id);
+    if (!before) return;
+    setSaveState('saving');
+    try {
+      let saved: PrototypeView;
+      try { saved = await api.updatePrototypePosition(projectId, id, x, y, before.revision); }
+      catch (cause) {
+        if (!(cause instanceof ApiError && cause.code === 'REVISION_CONFLICT')) throw cause;
+        const latest = await api.getPrototype(projectId, id);
+        saved = await api.updatePrototypePosition(projectId, id, x, y, latest.revision);
+      }
+      if (projectRef.current?.id === projectId) {
+        setPrototypes((items) => items.map((item) => item.id === id ? saved : item));
+        setSaveState('saved');
+      }
+    } catch (cause) {
+      if (projectRef.current?.id === projectId) {
+        setPrototypes((items) => items.map((item) => item.id === id ? before : item));
+        setSaveState('unsaved');
+        setError(cause instanceof Error ? cause.message : 'Không lưu được vị trí prototype.');
+      }
+    }
+  };
+
+  if (!previewUrl) return <main className="app-message preview-picker" aria-live="polite">
+    <h1>Chọn preview</h1>
+    <p>Chọn preview do phiên Canvas hiện tại quản lý để tải giao diện.</p>
+    {previewLoading && <p role="status">Đang tải preview…</p>}
+    {availablePreviewUrl && <section className="preview-choice" aria-label="Preview khả dụng">
+      <code>{availablePreviewUrl}</code>
+      <button type="button" onClick={() => selectPreview(availablePreviewUrl)}>Dùng preview này</button>
+    </section>}
+    {previewError && <><p role="alert">{previewError}</p><button type="button" onClick={retryPreview}>Thử lại</button></>}
+  </main>;
   if (error && !project) return <div className="app-message"><h1>Không mở được canvas</h1><p>{error}</p></div>;
   return <div className={sidebarCollapsed ? 'app-shell sidebar-collapsed' : 'app-shell'}>
     <ProjectSidebar projects={projects} selectedProjectId={project?.id ?? null} selectedScreenIds={selectedScreenIds} onProjectSelect={(id) => void loadProject(id)} onScreenSelect={selectScreens} onReorderScreens={(projectId, order) => void reorderScreens(projectId, order)} onRenameProject={(projectId, name) => void renameProject(projectId, name)} collapsed={sidebarCollapsed} onCollapsedChange={updateSidebarCollapsed} />
@@ -542,12 +704,15 @@ export function App() {
         </div>
 
         <div className="header-actions">
+          <button type="button" className="header-btn" onClick={changePreview}><IconMonitor size={14} />Đổi preview</button>
+          {selectedScreen && !userEditingScreenId && <button className="header-btn screen-edit-button" type="button" onClick={() => { setBridgeNonce(null); setElementIdNotice(null); setUserEditingScreenId(selectedScreen.id); }}>Chỉnh sửa</button>}
+          {userEditingScreenId && <button className="header-btn screen-edit-button active" type="button" onClick={() => { bridgeNonceRef.current = null; setBridgeNonce(null); setSelection(null); setSelectionStale(false); setElementIdNotice(null); setUserEditingScreenId(null); }}>{bridgeNonce ? 'Thoát chỉnh sửa' : 'Đang bật chọn…'}</button>}
+          {selectedScreen && <PreviewSizeMenu width={selectedScreen.width} disabled={editingScreenId === selectedScreen.id} onPick={applyPreviewWidth} />}
           {selectedScreen && <div className="inspector">
             <label>W<input aria-label="Width" type="number" min="240" max="4096" value={selectedScreen.width} onChange={(event) => updateDimension('width', event.target.value)} onBlur={(event) => selectedScreen && void persist([{ id: selectedScreen.id, width: Number(event.target.value) }])} /></label>
             <label>H<input aria-label="Height" type="number" min="240" max="4096" value={selectedScreen.height} onChange={(event) => updateDimension('height', event.target.value)} onBlur={(event) => selectedScreen && void persist([{ id: selectedScreen.id, height: Number(event.target.value) }])} /></label>
           </div>}
 
-          {selectedScreen && <button type="button" className="header-btn" aria-pressed={previewMenuOpen} aria-controls="preview-size-menu" onClick={togglePreviewMenu}><IconMonitor />Preview</button>}
 
           <span className={`save-state ${saveState}`} data-testid="save-state">
             {saveState === 'saving' ? <IconLoader size={13} /> : saveState === 'saved' ? <IconCheck size={13} /> : null}
@@ -557,7 +722,7 @@ export function App() {
 
           <span className="header-sep" aria-hidden="true" />
 
-          <button type="button" className="header-btn" onClick={createScreen}><IconPlus size={14} />Thêm màn hình</button>
+          {project && selectedScreenIds.length >= 2 && <button type="button" className="header-btn prototype-create" onClick={() => void copyPrototypePrompt(createPrototypePrompt(project.id, selectedScreenIds))}>Tạo prototype</button>}
           {selectedScreen && <>
             <button type="button" className="header-btn" onClick={() => void captureScreen()}><IconCamera size={14} />Chụp ảnh</button>
             <button type="button" className="header-btn" data-testid="copy-figma" disabled={figmaState === 'copying'} onClick={() => void copyForFigma()} title="Copy màn hình dưới dạng HTML để paste thẳng vào Figma">
@@ -571,30 +736,35 @@ export function App() {
           <span className="header-sep" aria-hidden="true" />
 
           {project && <>
-            <button type="button" className="header-btn" onClick={() => void createProjectSnapshot()} title="Lưu ảnh chụp trạng thái project"><IconCamera2 size={14} />Lưu ảnh chụp</button>
-            <button type="button" className="header-btn" onClick={() => void restoreProjectSnapshot()} title="Khôi phục từ ảnh chụp gần nhất"><IconRotateCcw size={14} />Khôi phục</button>
+            <button type="button" className="header-btn" popoverTarget="version-actions" onClick={(event) => {
+              const menu = versionMenuRef.current;
+              if (!menu) return;
+              const rect = event.currentTarget.getBoundingClientRect();
+              menu.style.top = `${rect.bottom + 6}px`;
+              menu.style.left = `${Math.max(8, Math.min(rect.right - 220, window.innerWidth - 228))}px`;
+            }}><IconCamera2 size={14} />Phiên bản <span aria-hidden="true">⌄</span></button>
+            <div ref={versionMenuRef} id="version-actions" className="version-actions" popover="auto">
+              <button type="button" onClick={() => { versionMenuRef.current?.hidePopover(); void createProjectSnapshot(); }}><IconCamera2 size={14} />Lưu phiên bản</button>
+              <button type="button" onClick={() => { versionMenuRef.current?.hidePopover(); void restoreProjectSnapshot(); }}><IconRotateCcw size={14} />Khôi phục phiên bản…</button>
+            </div>
           </>}
 
-          <div className="mode-switch" role="group" aria-label="Canvas mode">
-            <button aria-pressed={mode === 'arrange'} className={mode === 'arrange' ? 'active' : ''} onClick={() => setMode('arrange')} title="Sắp xếp: kéo, thay đổi kích thước"><IconMove size={14} />Sắp xếp</button>
-            <button aria-pressed={mode === 'interact'} className={mode === 'interact' ? 'active' : ''} onClick={() => setMode('interact')} title="Tương tác: dùng thử giao diện bên trong"><IconHand size={14} />Tương tác</button>
-            <button aria-pressed={mode === 'select'} className={mode === 'select' ? 'active' : ''} onClick={() => { setUserEditingScreenId(null); setMode('select'); }} title="Chọn: lấy phần tử trong màn hình"><IconCursor size={14} />Chọn</button>
-          </div>
         </div>
       </header>
     <div className="canvas-body">
-    {/* The size presets live on their own row so the header keeps a single,
-        predictable height and the presets never split the action groups. */}
-    {selectedScreen && previewMenuOpen && <div className="preview-bar">
-      <span className="preview-bar-label"><IconMonitor size={13} />Kích thước xem trước</span>
-      <PreviewSizeMenu width={selectedScreen.width} disabled={editingScreenId === selectedScreen.id} onPick={applyPreviewWidth} />
-      <span className="preview-bar-current">Hiện tại: <b>{selectedScreen.width}px</b></span>
-    </div>}
+    {prototypePrompt && <section className="prototype-prompt" data-testid="prototype-prompt" aria-label="Prompt prototype">
+      <div><span>{promptCopied ? 'Đã sao chép prompt. Dán vào Codex để tạo hoặc tạo lại prototype.' : 'Không sao chép được tự động. Hãy sao chép prompt bên dưới.'}</span><button type="button" onClick={() => void copyPrototypePrompt(prototypePrompt)}>Sao chép lại</button><button type="button" onClick={() => setPrototypePrompt(null)} aria-label="Đóng prompt">×</button></div>
+      <textarea readOnly value={prototypePrompt} aria-label="Nội dung prompt prototype" onFocus={(event) => event.currentTarget.select()} />
+    </section>}
     {error && <div className="error-banner" role="alert"><span><IconAlert size={14} /> {error}</span><button onClick={() => setError(null)}><IconX size={13} />Đóng</button></div>}
     {editingScreenId && <div className="editing-banner" role="status">Đang chỉnh sửa: {editingMessage ?? editingScreenId}</div>}
-    {selectedScreen && mode === 'arrange' && !userEditingScreenId && <button className="screen-edit-button" type="button" onClick={() => setUserEditingScreenId(selectedScreen.id)}>Chỉnh sửa</button>}
-    {userEditingScreenId && <button className="screen-edit-button active" type="button" onClick={() => setUserEditingScreenId(null)}>Thoát chỉnh sửa</button>}
-    {project ? <CanvasViewport projectId={project.id} screens={project.screens} previewUrl={session.previewUrl} revision={project.revision} screenRevisions={screenRevisions} viewport={viewport} selectedScreenIds={selectedScreenIds} mode={mode} bridgeNonce={bridgeNonce} selection={selection} selectionStale={selectionStale} editingScreenId={editingScreenId} userEditingScreenId={userEditingScreenId} editingMessage={editingMessage} onViewport={updateViewport} onSelect={selectScreens} onSelectMany={selectScreenList} onDraft={applyDraft} onPersist={(patches) => void persist(patches)} /> : <div className="app-message">Đang tải project…</div>}
+    {userEditingScreenId && elementIdNotice && <div className="element-id-notice" role="status" data-testid="element-id-notice">
+      {elementIdNotice.id ? <>
+        <span>{elementIdNotice.status === 'copied' ? 'Đã sao chép ID:' : elementIdNotice.status === 'pending' ? 'Đang sao chép ID:' : 'Chưa sao chép được ID:'} <code>{elementIdNotice.id}</code></span>
+        <button type="button" onClick={() => void recopyElementId(elementIdNotice.id!)}>Sao chép lại</button>
+      </> : <span>Phần tử tạo động chưa có ID cố định. Hãy thêm <code>data-design-id</code> trong nguồn.</span>}
+    </div>}
+    {project ? <CanvasViewport projectId={project.id} screens={project.screens} prototypes={prototypes} previewUrl={previewUrl} revision={project.revision} screenRevisions={screenRevisions} viewport={viewport} selectedScreenIds={selectedScreenIds} bridgeNonce={bridgeNonce} selection={selection} selectionStale={selectionStale} editingScreenId={editingScreenId} userEditingScreenId={userEditingScreenId} editingMessage={editingMessage} onViewport={updateViewport} onSelect={selectScreens} onSelectMany={selectScreenList} onDraft={applyDraft} onPersist={(patches) => void persist(patches)} onPrototypeDraft={(id, x, y) => setPrototypes((items) => items.map((item) => item.id === id ? { ...item, x, y } : item))} onPrototypePersist={(id, x, y) => void persistPrototypePosition(id, x, y)} onRegeneratePrompt={(prototype) => void copyPrototypePrompt(regeneratePrototypePrompt(project.id, prototype.id, prototype.screenIds))} onCopyPrototypeId={(id) => void copyPrototypeId(id)} onDeletePrototype={(prototype) => void removePrototype(prototype)} /> : <div className="app-message">Đang tải project…</div>}
     </div></section>
   </div>;
 }

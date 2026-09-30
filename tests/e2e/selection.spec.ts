@@ -44,27 +44,89 @@ async function openCanvas(page: import('playwright/test').Page): Promise<void> {
 }
 
 /**
- * Enter Select mode and wait until the frame is actually armed. The shell fetches
+ * Enter inline editing and wait until the frame is actually armed. The shell fetches
  * the per-frame nonce asynchronously and only then appends `?bridge=` to the frame
- * src, which reloads it with the selection bridge. A click issued before that
- * lands on a frame with no bridge and is silently dropped, so the overlay never
- * appears — wait for the armed frame instead of guessing with a fixed delay.
+ * src, which reloads it with the selection bridge. Inline editing blocks preview
+ * clicks until that happens; wait for the armed frame instead of guessing with a
+ * fixed delay.
  */
-async function enterSelectMode(page: import('playwright/test').Page): Promise<void> {
-  await page.getByRole('button', { name: 'Chọn', exact: true }).click();
+async function enterEditingMode(page: import('playwright/test').Page): Promise<void> {
+  await page.locator('[data-screen-id="demo"]').click();
+  await page.getByRole('button', { name: 'Chỉnh sửa', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Thoát chỉnh sửa', exact: true })).toBeVisible();
   await expect(page.locator('[data-screen-id="demo"] iframe')).toHaveAttribute('src', /[?&]bridge=[^&]+/);
 }
 
-test('hiển thị border khi vào chỉnh sửa và hover phần tử con', async ({ page }) => {
+test('nút Chỉnh sửa và Thoát chỉnh sửa nằm trên header', async ({ page }) => {
   await openCanvas(page);
   await page.locator('[data-screen-id="demo"]').click();
-  await expect(page.getByRole('button', { name: 'Chỉnh sửa', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'Chỉnh sửa', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Thoát chỉnh sửa', exact: true })).toBeVisible();
+  const header = page.locator('.app-header');
+  await header.getByRole('button', { name: 'Chỉnh sửa', exact: true }).click();
+  await expect(header.getByRole('button', { name: 'Thoát chỉnh sửa', exact: true })).toBeVisible();
+  await header.getByRole('button', { name: 'Thoát chỉnh sửa', exact: true }).click();
+  await expect(header.getByRole('button', { name: 'Chỉnh sửa', exact: true })).toBeVisible();
+});
+
+test('Chỉnh sửa là luồng duy nhất để chọn phần tử con', async ({ page }) => {
+  await openCanvas(page);
+  await enterEditingMode(page);
+  await expect(page.getByRole('button', { name: 'Chọn', exact: true })).toHaveCount(0);
   const cta = page.frameLocator('[data-screen-id="demo"] iframe').getByRole('button', { name: 'Tạo đơn hàng' });
   await expect(cta).toBeVisible();
-  await cta.hover();
+  await cta.click();
   await expect(page.getByTestId('selection-overlay')).toBeVisible();
+  await expect(page.getByTestId('selection-overlay')).toContainText('cta');
+});
+
+test('Chỉnh sửa chờ bridge sẵn sàng trước khi cho click preview', async ({ page }) => {
+  await openCanvas(page);
+  const nonceRequest: { release: (() => void) | null } = { release: null };
+  await page.route('**/selection-nonce', async (route) => {
+    await new Promise<void>((resolve) => { nonceRequest.release = resolve; });
+    await route.continue();
+  });
+
+  await page.locator('[data-screen-id="demo"]').click();
+  await page.getByRole('button', { name: 'Chỉnh sửa', exact: true }).click();
+  await expect.poll(() => nonceRequest.release).not.toBeNull();
+  await expect(page.getByRole('button', { name: 'Đang bật chọn…', exact: true })).toBeVisible();
+
+  const frame = page.locator('[data-screen-id="demo"] iframe');
+  await expect(frame).toHaveCSS('pointer-events', 'none');
+
+  const releaseNonce = nonceRequest.release;
+  if (!releaseNonce) throw new Error('Không chặn được request lấy selection nonce.');
+  releaseNonce();
+  await expect(frame).toHaveAttribute('src', /[?&]bridge=[^&]+/);
+  await expect(frame).toHaveCSS('pointer-events', 'auto');
+  await expect(page.getByRole('button', { name: 'Thoát chỉnh sửa', exact: true })).toBeVisible();
+});
+
+test('Canvas mặc định kéo thả và Thoát chỉnh sửa trả về trạng thái đó', async ({ page }) => {
+  await openCanvas(page);
+  await expect(page.getByRole('button', { name: 'Sắp xếp', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Tương tác', exact: true })).toHaveCount(0);
+  await enterEditingMode(page);
+  await expect(page.locator('[data-screen-id="demo"] iframe')).toHaveCSS('pointer-events', 'auto');
+  await page.getByRole('button', { name: 'Thoát chỉnh sửa', exact: true }).click();
+
+  await expect(page.locator('[data-screen-id="demo"] iframe')).toHaveCSS('pointer-events', 'none');
+  await expect(page.locator('[data-screen-id="demo"] .resize-handle')).toBeVisible();
+});
+
+test('thoát chỉnh sửa xóa highlight hover và không hiện lại khi mở chỉnh sửa', async ({ page }) => {
+  await openCanvas(page);
+  await enterEditingMode(page);
+  const cta = page.frameLocator('[data-screen-id="demo"] iframe').getByRole('button', { name: 'Tạo đơn hàng' });
+  await cta.hover();
+  await expect(page.getByTestId('selection-overlay')).toContainText('cta');
+
+  await page.getByRole('button', { name: 'Thoát chỉnh sửa', exact: true }).click();
+  await expect(page.getByTestId('selection-overlay')).toHaveCount(0);
+
+  await page.getByRole('button', { name: 'Chỉnh sửa', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Thoát chỉnh sửa', exact: true })).toBeVisible();
+  await expect(page.getByTestId('selection-overlay')).toHaveCount(0);
 });
 
 test('tự phục hồi zoom thấp để click phần tử con trong preview', async ({ page }) => {
@@ -74,7 +136,7 @@ test('tự phục hồi zoom thấp để click phần tử con trong preview', 
     if (key) localStorage.setItem(key, JSON.stringify({ x: -313.75, y: 173.6, zoom: 0.1 }));
   });
   await page.reload();
-  await enterSelectMode(page);
+  await enterEditingMode(page);
   await expect.poll(async () => page.locator('.canvas-world').evaluate((element) => element.getAttribute('style'))).toContain('scale(0.5)');
   const cta = page.frameLocator('[data-screen-id="demo"] iframe').getByRole('button', { name: 'Tạo đơn hàng' });
   await expect(cta).toBeVisible();
@@ -85,8 +147,8 @@ test('tự phục hồi zoom thấp để click phần tử con trong preview', 
 
 test('chọn phần tử khi canvas zoom 0.5 lưu đúng screen, text và elementId', async ({ page }) => {
   await openCanvas(page);
-  // Default viewport zoom is 0.5; enter Select mode and click the CTA button.
-  await enterSelectMode(page);
+  // Default viewport zoom is 0.5; enter editing and click the CTA button.
+  await enterEditingMode(page);
   const cta = page.frameLocator('[data-screen-id="demo"] iframe').getByRole('button', { name: 'Tạo đơn hàng' });
   await expect(cta).toBeVisible();
   await cta.click();
@@ -99,9 +161,51 @@ test('chọn phần tử khi canvas zoom 0.5 lưu đúng screen, text và elemen
   }).toMatchObject({ data: { context: { screenId: 'demo', elementId: 'cta', text: 'Tạo đơn hàng' }, stale: false } });
 });
 
+test('click phần tử chưa có ID sao chép ID bền vững để nhắc trong prompt', async ({ page, context }) => {
+  await openCanvas(page);
+  await enterEditingMode(page);
+
+  const target = page.frameLocator('[data-screen-id="demo"] iframe').getByText('Phần tử chưa có ID', { exact: true });
+  const id = await target.getAttribute('data-design-id');
+  expect(id).toBeTruthy();
+  await target.click();
+
+  await expect(page.getByTestId('element-id-notice')).toContainText(`Đã sao chép ID: ${id}`);
+  await context.grantPermissions(['clipboard-read'], { origin: runtime.url });
+  await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe(id);
+  const source = await readFile(join(workspace, 'projects', 'shop', 'screens', 'demo', 'index.html'), 'utf8');
+  expect(source).toContain(`<p data-design-id="${id}">Phần tử chưa có ID</p>`);
+  await expect.poll(async () => {
+    const response = await api('/api/projects/shop/selection');
+    if (!response.ok) return null;
+    return ((await response.json()) as { data: { context: { elementId: string | null } } }).data.context.elementId;
+  }).toBe(id);
+
+  await page.reload();
+  await enterEditingMode(page);
+  await expect(target).toHaveAttribute('data-design-id', id!);
+});
+
+test('nút sao chép lại hoạt động khi Clipboard API bị từ chối', async ({ page }) => {
+  await openCanvas(page);
+  await enterEditingMode(page);
+  const target = page.frameLocator('[data-screen-id="demo"] iframe').getByText('Phần tử chưa có ID', { exact: true });
+  const id = await target.getAttribute('data-design-id');
+  expect(id).toBeTruthy();
+  await target.evaluate(() => { document.execCommand = () => false; });
+  await page.evaluate(() => {
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: () => Promise.reject(new Error('denied')) } });
+  });
+
+  await target.click();
+  await expect(page.getByTestId('element-id-notice')).toContainText(`Chưa sao chép được ID: ${id}`);
+  await page.getByRole('button', { name: 'Sao chép lại' }).click();
+  await expect(page.getByTestId('element-id-notice')).toContainText(`Đã sao chép ID: ${id}`);
+});
+
 test('bỏ qua message giả mạo từ frame khác', async ({ page }) => {
   await openCanvas(page);
-  await enterSelectMode(page);
+  await enterEditingMode(page);
   // Wait for the real frame to be ready before forging a message.
   await expect(page.frameLocator('[data-screen-id="demo"] iframe').getByRole('button', { name: 'Tạo đơn hàng' })).toBeVisible();
   await page.evaluate(() => {
@@ -125,11 +229,16 @@ test('bỏ qua message giả mạo từ frame khác', async ({ page }) => {
 
 test('sửa source làm selection hiện tại thành stale', async ({ page }) => {
   await openCanvas(page);
-  await enterSelectMode(page);
+  await enterEditingMode(page);
   const cta = page.frameLocator('[data-screen-id="demo"] iframe').getByRole('button', { name: 'Tạo đơn hàng' });
   await expect(cta).toBeVisible();
   await cta.click();
   await expect(page.getByTestId('selection-overlay')).toBeVisible();
+  await expect.poll(async () => {
+    const response = await api('/api/projects/shop/selection');
+    if (!response.ok) return null;
+    return ((await response.json()) as { data: { context: { elementId: string | null } } }).data.context.elementId;
+  }).toBe('cta');
 
   await writeFile(join(workspace, 'projects', 'shop', 'screens', 'demo', 'styles.css'), 'body { background: rgb(9, 9, 9); }');
   await expect(page.getByTestId('selection-overlay')).toHaveClass(/stale/);

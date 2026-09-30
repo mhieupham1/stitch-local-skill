@@ -27,7 +27,7 @@ async function create(): Promise<Response> {
   }) });
 }
 
-async function nextPrototypeEvent(action: () => Promise<void>): Promise<{ type: string; projectId: string }> {
+async function nextPrototypeEvent(action: () => Promise<void>, allowProjectError = false): Promise<{ type: string; projectId: string }> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 5_000);
   const response = await fetch(`${runtime.url}/api/events`, { signal: controller.signal });
@@ -48,7 +48,7 @@ async function nextPrototypeEvent(action: () => Promise<void>): Promise<{ type: 
         const data = frame.split('\n').find((line) => line.startsWith('data: '));
         if (data) {
           const event = JSON.parse(data.slice(6)) as { type: string; projectId: string };
-          if (event.type === 'project.error') throw new Error('Prototype change emitted project.error');
+          if (event.type === 'project.error' && !allowProjectError) throw new Error('Prototype change emitted project.error');
           if (event.type === 'prototype.updated') return event;
         }
         end = buffer.indexOf('\n\n');
@@ -140,5 +140,16 @@ describe('prototype API', () => {
     const path = join(workspace, 'projects', 'shop', 'prototypes', 'booking.json');
     const event = await nextPrototypeEvent(() => rm(path));
     expect(event).toMatchObject({ type: 'prototype.updated', projectId: 'shop' });
+  });
+
+  it('refreshes stale state when a shared source file is deleted', async () => {
+    const shared = join(workspace, 'projects', 'shop', 'design-system.css');
+    await writeFile(shared, 'body { color: red; }');
+    await create();
+    await new Promise<void>((resolve) => setTimeout(resolve, 400));
+    const event = await nextPrototypeEvent(() => rm(shared), true);
+    expect(event).toMatchObject({ type: 'prototype.updated', projectId: 'shop' });
+    const loaded = await api('/api/projects/shop/prototypes/booking');
+    expect((await loaded.json() as { data: { stale: boolean } }).data.stale).toBe(true);
   });
 });

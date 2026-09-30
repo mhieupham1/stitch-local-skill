@@ -36,20 +36,25 @@ test.afterAll(async () => {
   delete process.env.LOCAL_CANVAS_STATIC_DIR;
 });
 
-test('preview sandbox cô lập app shell và chặn ghi API, nhưng vẫn cho tương tác nội dung', async ({ page }) => {
+test('preview sandbox cô lập app shell và chặn ghi API, nhưng vẫn cho thử nội dung riêng', async ({ page }) => {
   const previewResponse = await page.request.get(`${runtime.previewUrl}/projects/isolation/screens/demo/index.html`);
   expect(previewResponse.headers()['content-security-policy']).toContain('sandbox allow-scripts');
 
   await page.goto(`${runtime.url}/#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
   await page.getByRole('button', { name: 'Isolation' }).click();
-  await page.getByRole('button', { name: 'Tương tác' }).click();
-  const frame = page.frameLocator('[data-screen-id="demo"] iframe');
+  await expect(page.locator('[data-screen-id="demo"] iframe')).toHaveAttribute('sandbox', 'allow-scripts allow-same-origin');
+  await expect(page.locator('[data-screen-id="demo"] iframe')).toHaveCSS('pointer-events', 'none');
+
+  const previewHost = await page.context().newPage();
+  await previewHost.setContent(`<iframe title="Preview test" sandbox="allow-scripts allow-same-origin" src="${runtime.previewUrl}/projects/isolation/screens/demo/index.html" style="width:800px;height:600px"></iframe>`);
+  const frame = previewHost.frameLocator('iframe');
   await expect(frame.getByText('Parent DOM: blocked')).toBeVisible();
   await expect(frame.getByText('Popup: blocked')).toBeVisible();
   await expect(frame.getByText('Api: rejected')).toBeVisible();
   await frame.getByRole('button', { name: 'Tăng' }).click();
   await expect(frame.getByText('Giá trị: 1')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Isolation' })).toBeVisible();
+  await previewHost.close();
 
   const projects = await api('/api/projects');
   expect((await projects.json()) as { ok: true; data: unknown[] }).toMatchObject({ ok: true, data: [{ id: 'isolation' }] });

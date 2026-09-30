@@ -63,6 +63,7 @@ let closed = false;
 let management: Awaited<ReturnType<typeof createManagementApp>> | undefined;
 let preview: Awaited<ReturnType<typeof createPreviewApp>> | undefined;
 let watcher: ReturnType<typeof watchWorkspace> | undefined;
+let previewAddress: string | null = null;
 const events = new CanvasEvents(instanceId);
 const selection = new SelectionStore();
 
@@ -75,10 +76,10 @@ async function shutdown(): Promise<void> {
 }
 
 try {
-  management = await createManagementApp({ instanceId, workspace, events, selection, onShutdown: shutdown });
+  management = await createManagementApp({ instanceId, workspace, events, selection, getPreviewUrl: () => previewAddress, onShutdown: shutdown });
   preview = await createPreviewApp(workspace);
+  previewAddress = await preview.listen({ host: '127.0.0.1', port: portArgument('--preview-port') });
   const managementAddress = await management.listen({ host: '127.0.0.1', port: portArgument('--management-port') });
-  const previewAddress = await preview.listen({ host: '127.0.0.1', port: portArgument('--preview-port') });
   watcher = watchWorkspace(workspace, events);
   await writeRuntime(runtimePath, {
     instanceId,

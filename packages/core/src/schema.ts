@@ -69,7 +69,10 @@ function checkPrototypeLinks(value: { screenIds: string[]; startScreenId: string
 export const prototypeSchema = prototypeFieldsSchema.extend({
   schemaVersion: z.literal(1),
   revision: z.number().int().nonnegative(),
+  x: z.number().finite().optional(),
+  y: z.number().finite().optional(),
   sourceBaseline: sourceBaselineSchema,
+  requiresRegeneration: z.boolean().optional(),
 }).superRefine((value, context) => {
   checkPrototypeLinks(value, context);
   if (Object.keys(value.sourceBaseline).length !== value.screenIds.length || value.screenIds.some((id) => !(id in value.sourceBaseline))) {
@@ -80,7 +83,11 @@ export const prototypeSchema = prototypeFieldsSchema.extend({
 export const prototypeCreateInputSchema = prototypeFieldsSchema.extend({ expectedSourceBaseline: sourceBaselineSchema }).superRefine((value, context) => {
   checkPrototypeLinks(value, context);
 });
-export const prototypePatchInputSchema = prototypeFieldsSchema.omit({ id: true }).partial().extend({ expectedRevision: z.number().int().nonnegative() });
+export const prototypePatchInputSchema = prototypeFieldsSchema.omit({ id: true }).partial().extend({
+  expectedRevision: z.number().int().nonnegative(),
+  x: z.number().finite().optional(),
+  y: z.number().finite().optional(),
+});
 export const prototypeRegenerateInputSchema = prototypeFieldsSchema.omit({ id: true, name: true }).extend({
   expectedRevision: z.number().int().nonnegative(),
   expectedSourceBaseline: sourceBaselineSchema,

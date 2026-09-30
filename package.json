@@ -34,6 +34,7 @@
     "fzstd": "^0.1.1",
     "kiwi-schema": "^0.5.0",
     "opentype.js": "^2.0.0",
+    "parse5": "^8.0.1",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "zod": "4.6.5"

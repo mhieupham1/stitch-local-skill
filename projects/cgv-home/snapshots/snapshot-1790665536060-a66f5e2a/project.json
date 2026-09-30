@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "revision": 73,
+  "id": "cgv-home",
+  "name": "CGV Cinema Home",
+  "screens": [
+    {
+      "id": "home",
+      "name": "Trang chủ rạp chiếu phim",
+      "entry": "screens/home/index.html",
+      "x": -69,
+      "y": 52,
+      "width": 1280,
+      "height": 1400
+    },
+    {
+      "id": "movie-detail",
+      "name": "Chi tiết phim",
+      "entry": "screens/movie-detail/index.html",
+      "x": 1341,
+      "y": 47,
+      "width": 1280,
+      "height": 1500
+    },
+    {
+      "id": "seat-selection",
+      "name": "Chọn ghế",
+      "entry": "screens/seat-selection/index.html",
+      "x": 2710,
+      "y": 45,
+      "width": 1280,
+      "height": 1400
+    }
+  ]
+}

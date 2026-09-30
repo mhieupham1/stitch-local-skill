@@ -13,7 +13,7 @@ node dist/release/local-design-canvas/scripts/run.mjs start \
   --workspace /absolute/path/to/design-workspace --open --json
 ```
 
-The runner works from the release directory and includes its built CLI, server, canvas assets, and template. See the [skill command reference](skills/local-design-canvas/references/commands.md) for project, screen, capture, snapshot, selection, and MCP commands.
+The runner works from the release directory and includes its built CLI, server, canvas assets, and template. See the [skill command reference](skills/local-design-canvas/references/commands.md) for project, screen, prototype, capture, snapshot, selection, and MCP commands.
 
 ## Install the skill
 
@@ -54,7 +54,7 @@ npm test
 npm run test:e2e
 ```
 
-M1 covers static screen source, local preview, canvas layout, live refresh, and a local skill. M2 adds preview screenshots with render diagnostics, screen variants, and source snapshots with restore. M3 adds element selection (a Select mode on the canvas that reports the clicked element as structured context for the agent), screen focus and edit locks so the agent knows which screen is highlighted or being edited, and an MCP adapter (`mcp serve`) that exposes the same operations as the CLI over stdio.
+M1 covers static screen source, local preview, canvas layout, live refresh, and a local skill. M2 adds preview screenshots with render diagnostics, screen variants, and source snapshots with restore. M3 adds element selection through the canvas's Chỉnh sửa action (which reports the clicked element as structured context for the agent), screen focus and edit locks so the agent knows which screen is highlighted or being edited, and an MCP adapter (`mcp serve`) that exposes the same operations as the CLI over stdio.
 
 Run the MCP adapter over stdio with:
 
@@ -62,6 +62,6 @@ Run the MCP adapter over stdio with:
 node dist/release/local-design-canvas/scripts/run.mjs mcp serve --workspace /absolute/path/to/design-workspace
 ```
 
-It exposes `canvas_status`, `project_list`, `project_create`, `screen_list`, `screen_add`, `screen_focus`, `screen_edit_start`, `screen_edit_done`, `screen_capture`, `reference_fetch`, and `selection_get`. stdout is the protocol channel; diagnostics go to stderr. The CLI and MCP are two ways to reach the same runtime; the skill keeps working with the CLI if you do not need MCP.
+It exposes `canvas_status`, project/screen/selection tools, and prototype source/list/get/create/update/regenerate/delete tools. stdout is the protocol channel; diagnostics go to stderr. The CLI and MCP are two ways to reach the same runtime; the skill keeps working with the CLI if you do not need MCP.
 
 `reference fetch <url>` opens a real URL in a headless browser on your machine and saves the page's title, headings, section text, links, and a full-page screenshot under the project's `artifacts/references`. It is a layout reference for building a similar static design, not a way to copy a page's content or assets.

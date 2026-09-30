@@ -30,6 +30,13 @@ afterEach(async () => {
 });
 
 describe('project management API', () => {
+  it('công bố preview được chính phiên canvas này quản lý', async () => {
+    const response = await api('/api/preview');
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({ ok: true, data: { url: runtime.previewUrl } });
+  });
+
   it('API quản lý mở cho localhost nhưng vẫn từ chối Origin không hợp lệ', async () => {
     const local = await fetch(`${runtime.url}/api/projects`);
     expect(local.status).toBe(200);
@@ -128,6 +135,27 @@ describe('project management API', () => {
     const cleared = await api('/api/projects/shop/focus', { method: 'DELETE' });
     expect(cleared.status).toBe(200);
     await expect((await api('/api/projects/shop/focus')).json()).resolves.toMatchObject({ ok: false, error: { code: 'NO_SCREEN_FOCUS' } });
+  });
+
+  it('bật chọn phần tử gắn ID bền vững cho HTML nguồn và không ghi lại khi mở lần nữa', async () => {
+    await api('/api/projects', { method: 'POST', body: JSON.stringify({ id: 'shop', name: 'Shop' }) });
+    await api('/api/projects/shop/screens', { method: 'POST', body: JSON.stringify({ id: 'overview', name: 'Overview', width: 800, height: 600, expectedRevision: 0 }) });
+    const source = join(workspace, 'projects', 'shop', 'screens', 'overview', 'index.html');
+    const html = '<!doctype html><html><body><main data-design-id="existing"><h1>Title</h1><button>Save</button><script>const sample = "<button>not a node</button>";</script></main></body></html>';
+    await writeFile(source, html);
+
+    const nonce = await api('/api/projects/shop/screens/overview/selection-nonce', { method: 'POST' });
+    expect(nonce.status).toBe(200);
+    const tagged = await readFile(source, 'utf8');
+    expect(tagged).toContain('data-design-id="existing"');
+    expect(tagged).toMatch(/<h1 data-design-id="[^"]+">Title<\/h1>/);
+    expect(tagged).toMatch(/<button data-design-id="[^"]+">Save<\/button>/);
+    expect(tagged).toContain('const sample = "<button>not a node</button>";');
+    const ids = [...tagged.matchAll(/data-design-id="([^"]+)"/g)].map((match) => match[1]);
+    expect(new Set(ids).size).toBe(ids.length);
+
+    await api('/api/projects/shop/screens/overview/selection-nonce', { method: 'POST' });
+    expect(await readFile(source, 'utf8')).toBe(tagged);
   });
 
   it('khóa và mở khóa phiên chỉnh sửa màn hình', async () => {

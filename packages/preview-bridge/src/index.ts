@@ -147,6 +147,13 @@ export function bridgeScriptSource(config: BridgeConfig): string {
     }
     return segments.join(" > ")||element.tagName.toLowerCase();
   }
+  function copyId(value){
+    var input=document.createElement("textarea");
+    input.value=value;input.setAttribute("readonly","");
+    input.style.position="fixed";input.style.opacity="0";
+    document.body.appendChild(input);input.select();
+    try{return document.execCommand("copy");}finally{input.remove();}
+  }
   document.addEventListener("pointermove",function(event){
     var target=event.target;
     if(target&&target.nodeType!==1)target=target.parentElement;
@@ -165,15 +172,74 @@ export function bridgeScriptSource(config: BridgeConfig): string {
     if(event.button!==0)return;
     event.preventDefault();event.stopPropagation();
     var rect=target.getBoundingClientRect();
+    var elementId=target.getAttribute("data-design-id");
     window.parent.postMessage({
       source:"local-design-canvas",kind:"selection",
       nonce:config.nonce,projectId:config.projectId,screenId:config.screenId,
-      elementId:target.getAttribute("data-design-id"),
+      elementId:elementId,
       selector:selectorFor(target),
       text:(target.textContent||"").trim().slice(0,240),
       bounds:{x:Math.round(rect.left),y:Math.round(rect.top),width:Math.round(rect.width),height:Math.round(rect.height)}
     },"*");
+    if(elementId){
+      function report(copied){window.parent.postMessage({source:"local-design-canvas",kind:"clipboard",nonce:config.nonce,projectId:config.projectId,screenId:config.screenId,elementId:elementId,copied:copied},"*");}
+      try{report(copyId(elementId));}catch(error){report(false);}
+    }
   },true);
+})(${serialized});`;
+}
+
+/** A separate, opt-in bridge for playing saved links against the live screen. */
+export function prototypeBridgeScriptSource(config: BridgeConfig & { parentOrigin: string }): string {
+  const serialized = JSON.stringify(config).replaceAll('<', '\\u003c');
+  return `(function(config){
+  var host=window.parent, linked=null, markerStyle=null;
+  function send(kind,extra){host.postMessage(Object.assign({source:"local-design-canvas",kind:kind,nonce:config.nonce,projectId:config.projectId,screenId:config.screenId},extra||{}),config.parentOrigin)}
+  function ready(){if(host&&host!==window)send("prototype.ready")}
+  window.addEventListener("message",function(event){
+    if(event.source!==host||event.origin!==config.parentOrigin)return;
+    var data=event.data;
+    if(!data||data.source!=="local-design-canvas"||data.kind!=="prototype.init"||data.nonce!==config.nonce||data.projectId!==config.projectId||data.screenId!==config.screenId||!Array.isArray(data.elementIds))return;
+    linked=Object.create(null);
+    var missing=[];
+    if(!markerStyle){
+      markerStyle=document.createElement("style");
+      markerStyle.textContent='[data-local-canvas-prototype-link]{outline:2px solid rgba(251,191,36,.72)!important;outline-offset:2px!important;cursor:pointer!important}';
+      (document.head||document.documentElement).appendChild(markerStyle);
+    }
+    var marked=document.querySelectorAll("[data-local-canvas-prototype-link]");
+    for(var m=0;m<marked.length;m++)marked[m].removeAttribute("data-local-canvas-prototype-link");
+    var nodes=document.querySelectorAll("[data-design-id]");
+    for(var i=0;i<data.elementIds.length;i++){
+      var id=data.elementIds[i];
+      if(typeof id!=="string"||!id||id.length>200)continue;
+      linked[id]=true;
+      var found=false;
+      for(var j=0;j<nodes.length;j++)if(nodes[j].getAttribute("data-design-id")===id){nodes[j].setAttribute("data-local-canvas-prototype-link","");found=true}
+      if(!found)missing.push(id);
+    }
+    send("prototype.initialized",{missingElementIds:missing});
+  });
+  document.addEventListener("click",function(event){
+    if(!linked)return;
+    var node=event.target;
+    if(node&&node.nodeType!==1)node=node.parentElement;
+    var anchor=null;
+    while(node&&node.nodeType===1){
+      if(node.tagName==="A"||node.tagName==="FORM")anchor=node;
+      var id=node.getAttribute("data-design-id");
+      if(id&&linked[id]){
+        event.preventDefault();event.stopImmediatePropagation();
+        send("prototype.click",{elementId:id});return;
+      }
+      node=node.parentElement;
+    }
+    if(anchor){event.preventDefault();event.stopImmediatePropagation()}
+  },true);
+  document.addEventListener("submit",function(event){event.preventDefault();event.stopImmediatePropagation()},true);
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",ready);
+  else ready();
+  window.addEventListener("load",ready);
 })(${serialized});`;
 }
 

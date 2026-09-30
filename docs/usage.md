@@ -11,7 +11,7 @@ Mục lục:
 - [5. Dùng qua hội thoại với agent](#5-dùng-qua-hội-thoại-với-agent)
 - [6. Thao tác trên canvas](#6-thao-tác-trên-canvas)
 - [7. Tham chiếu lệnh CLI](#7-tham-chiếu-lệnh-cli)
-- [8. Chọn phần tử (Select mode)](#8-chọn-phần-tử-select-mode)
+- [8. Chọn phần tử bằng Chỉnh sửa](#8-chọn-phần-tử-bằng-chỉnh-sửa)
 - [9. Chụp ảnh, biến thể và snapshot](#9-chụp-ảnh-biến-thể-và-snapshot)
 - [10. Dùng qua MCP](#10-dùng-qua-mcp)
 - [11. Cấu trúc workspace](#11-cấu-trúc-workspace)
@@ -43,7 +43,7 @@ node dist/release/local-design-canvas/scripts/run.mjs start \
 
 `--workspace` trỏ tới nơi bạn muốn lưu các thiết kế. Nếu bỏ qua, CLI dùng thư mục làm việc hiện tại. `--open` mở canvas trong trình duyệt; `--json` in đúng một kết quả JSON ra stdout.
 
-Canvas không dùng token: sau khi server chạy, bạn mở thẳng `http://127.0.0.1:<port>/` là dùng được. Lần mở đầu cần kèm URL preview trong fragment (`#previewUrl=...`, do `--open` tự thêm); canvas nhớ giá trị này cho các lần reload sau. API quản lý vẫn kiểm tra `Host`/`Origin`, nên một trang web khác không gọi được vào workspace của bạn.
+Canvas không dùng token: sau khi server chạy, bạn có thể mở thẳng `http://127.0.0.1:<port>/`. Lần đầu, Canvas hiện preview do chính phiên server này quản lý; bấm **Dùng preview này** để tải giao diện. Canvas nhớ lựa chọn cho các lần reload; dùng **Đổi preview** trên header khi cần chọn lại. `--open` vẫn truyền sẵn preview để mở thẳng vào canvas. API quản lý vẫn kiểm tra `Host`/`Origin`, nên một trang web khác không gọi được vào workspace của bạn.
 
 ## 3. Cài skill cho agent
 
@@ -100,7 +100,7 @@ Agent sẽ:
 
 Sau đó bạn tiếp tục yêu cầu chỉnh sửa qua hội thoại, ví dụ “đổi sidebar của Tổng quan sang nền tối”. Agent chỉ sửa màn hình liên quan; preview cập nhật mà không làm mất vị trí hay mức zoom của canvas.
 
-Khi bạn bấm một màn hình trên sidebar hoặc trên khung canvas rồi nói “sửa màn hình này”, agent đọc lệnh `screen focus` và biết đúng màn hình đang được tô sáng. Agent không tự nhìn canvas; nó hỏi runtime tại lúc bạn gửi prompt. Trong lúc sửa, agent gọi `screen edit start` để canvas hiện lớp “Đang chỉnh sửa” và tạm khóa Interact/Select trên khung đó; xong thì `screen edit done` để bạn click lại được. Chọn phần tử bên trong (chế độ Select) vẫn chi tiết hơn và dùng `selection get`.
+Khi bạn bấm một màn hình trên sidebar hoặc trên khung canvas rồi nói “sửa màn hình này”, agent đọc lệnh `screen focus` và biết đúng màn hình đang được tô sáng. Agent không tự nhìn canvas; nó hỏi runtime tại lúc bạn gửi prompt. Trong lúc sửa, agent gọi `screen edit start` để canvas hiện lớp “Đang chỉnh sửa” và tạm khóa tương tác/chọn phần tử trên khung đó; xong thì `screen edit done` để bạn thao tác lại. Chọn phần tử bên trong bằng nút **Chỉnh sửa** chi tiết hơn và dùng `selection get`.
 
 Agent không tự sửa `project.json` hay thư mục `.local-canvas/` — đó là metadata do server quản lý.
 
@@ -115,11 +115,12 @@ Trên giao diện canvas trong trình duyệt:
   3. Bấm một khung rồi kéo **thanh tiêu đề** của nó: toàn bộ nhóm đang chọn di chuyển cùng nhau.
 
   Khi chọn từ 2 màn trở lên, header hiện kèm số màn đang chọn. Lựa chọn chỉ tồn tại trong phiên trình duyệt; chỉ vị trí/kích thước sau khi kéo được lưu.
+- **Tạo prototype**: chọn ít nhất hai màn hình rồi bấm **Tạo prototype** để copy prompt. Dán prompt vào Codex; skill sẽ phân tích các điểm bấm, lưu prototype có ID riêng và Canvas hiện nút **Play**. Prototype dùng trực tiếp UI gốc, không nhân bản màn hình. Nếu UI gốc đổi, Play vẫn hiện UI mới và các liên kết cũ; Canvas báo **Cần tạo lại**. Bấm **Copy prompt tạo lại** và dán vào Codex khi bạn muốn AI tính lại luồng cho đúng prototype ID. Nút trong Canvas không tự gọi AI.
 - **Pan**: giữ `Shift` và kéo, hoặc dùng bánh xe/trackpad. **Zoom**: `Ctrl`/`Cmd` + cuộn, hoặc nút `+` / `−`. **Fit all** đưa toàn bộ màn hình vào khung nhìn.
-- Ba chế độ ở góc trên bên phải:
+- Hai chế độ ở góc trên bên phải:
   - **Arrange**: kéo thanh tiêu đề để di chuyển khung, kéo góc để đổi kích thước viewport của màn hình. Vị trí/kích thước được lưu qua server.
   - **Interact**: click và nhập liệu bên trong preview. Khung không cuộn như một cửa sổ trình duyệt; cả trang nằm trong artboard.
-  - **Select**: click một phần tử để lấy ngữ cảnh cho agent (xem mục 8).
+- **Chỉnh sửa phần tử**: khi đang ở Arrange và đã chọn một màn hình, bấm nút **Chỉnh sửa** nổi trên canvas. Nút hiển thị **Đang bật chọn…** trong lúc chuẩn bị; sau đó click phần tử để lấy ngữ cảnh cho agent (xem mục 8). Bấm **Thoát chỉnh sửa** để quay lại Arrange. Không có nút Select riêng.
 - Ô **Width/Height** ở header đặt kích thước tối thiểu của màn hình. Chiều rộng là viewport CSS thật. Nếu trang dài hơn chiều cao đã đặt, khung giãn thêm để hiện toàn bộ nội dung, giống artboard trên Figma; zoom canvas chỉ đổi cách nhìn. **Fit all** đưa mọi khung vào vùng nhìn.
 - Trạng thái lưu (Saved / Saving / Unsaved) và trạng thái kết nối hiển thị ở header. Khi mất kết nối, canvas báo đang kết nối lại và không giả vờ đã lưu.
 
@@ -144,6 +145,10 @@ Mọi lệnh nhận `--workspace <path>` và `--json`. Ở chế độ `--json`,
 | Khóa màn hình khi agent đang sửa | `$canvas screen edit start --project shop-dashboard --screen overview --message 'Đang chỉnh sửa…' --workspace "$workspace" --json` |
 | Mở khóa sau khi sửa xong | `$canvas screen edit done --project shop-dashboard --workspace "$workspace" --json` |
 | Đọc phần tử đang chọn | `$canvas selection get --project shop-dashboard --workspace "$workspace" --json` |
+| Liệt kê prototype | `$canvas prototype list --project shop-dashboard --workspace "$workspace" --json` |
+| Đọc prototype theo ID | `$canvas prototype get booking --project shop-dashboard --workspace "$workspace" --json` |
+| Đọc dấu vân tay nguồn | `$canvas prototype sources --project shop-dashboard --screens home,detail --workspace "$workspace" --json` |
+| Tạo hoặc tạo lại prototype | `$canvas prototype create booking --project shop-dashboard --input prototype.json --workspace "$workspace" --json` / `$canvas prototype regenerate booking --project shop-dashboard --input regeneration.json --workspace "$workspace" --json` |
 | Lấy một trang web làm tham chiếu | `$canvas reference fetch 'https://example.com/page' --project shop-dashboard --workspace "$workspace" --json` |
 | Chạy MCP qua stdio | `$canvas mcp serve --workspace "$workspace"` |
 
@@ -154,23 +159,24 @@ Lưu ý:
 - Chiều rộng/cao là số nguyên từ 240 đến 4096.
 - Gặp `REVISION_CONFLICT`: đọc lại project hoặc danh sách màn hình rồi thử lại đúng thao tác. Gặp `SERVER_NOT_RUNNING`: chạy `start`.
 
-## 8. Chọn phần tử (Select mode)
+## 8. Chọn phần tử bằng Chỉnh sửa
 
 Khi bạn muốn nói “sửa phần tử này” mà không cần mô tả dài:
 
-1. Trên canvas, chuyển sang chế độ **Select**.
-2. Click phần tử trong màn hình. Một khung highlight xuất hiện quanh phần tử.
-3. Trong hội thoại, yêu cầu thay đổi (“đổi nút đang chọn thành màu xanh”). Agent đọc ngữ cảnh bằng:
+1. Chọn một màn hình trên canvas, rồi bấm **Chỉnh sửa**.
+2. Đợi nút đổi thành **Thoát chỉnh sửa**; preview đã sẵn sàng nhận lựa chọn.
+3. Click phần tử trong màn hình. Canvas tô sáng phần tử, tự sao chép `data-design-id` vào clipboard và hiện ID phía trên để bạn có thể bấm **Sao chép lại**.
+4. Dán ID vào prompt, ví dụ: “đổi nền phần tử `overview-el-3` thành màu xanh”. Bạn cũng có thể nói “đổi nút đang chọn”; trường hợp đó agent đọc ngữ cảnh bằng:
 
    ```bash
    $canvas selection get --project shop-dashboard --workspace "$workspace" --json
    ```
 
-Kết quả trả về `{ context, stale }`. `context` gồm `screenId`, `selector`, `elementId`, `text` và `bounds`. Agent dùng `selector` hoặc `elementId` để tìm đúng phần tử trong nguồn và chỉ sửa màn hình đó.
+Kết quả trả về `{ context, stale }`. `context` gồm `screenId`, `selector`, `elementId`, `text` và `bounds`. Khi prompt nêu ID cụ thể, agent tìm `data-design-id` đó trong HTML nguồn của project và chỉ sửa màn hình chứa nó; không cần giữ phần tử đó đang được chọn trên canvas.
 
 Nếu `stale` là `true`, nghĩa là nguồn của màn hình đã thay đổi sau lần click, nên lựa chọn cũ không còn đáng tin — hãy chọn lại hoặc đọc lại nguồn trước khi sửa. Highlight trên canvas cũng chuyển sang màu cam để báo stale.
 
-Để lựa chọn ánh xạ ổn định, hãy đặt `data-design-id` cho các phần tử quan trọng trong HTML. Template mặc định đã có sẵn ví dụ. Bridge chọn phần tử được inject vào HTML lúc phục vụ preview, không ghi vào file nguồn; mỗi frame có một nonce riêng nên message giả từ nguồn khác bị từ chối.
+Khi bật **Chỉnh sửa**, Canvas bổ sung `data-design-id` vào các thẻ trong phần thân HTML nguồn của màn hình nếu chúng chưa có ID. ID đã có sẽ được giữ nguyên; ID mới tồn tại qua lần tải lại và khởi động lại server. Phần tử được tạo động bằng JavaScript cần được gắn `data-design-id` ngay trong mã tạo phần tử nếu bạn muốn nhắc lại ID đó về sau. Bridge chọn phần tử được inject vào preview, không ghi vào file nguồn; mỗi frame có một nonce riêng nên message giả từ nguồn khác bị từ chối.
 
 ## 9. Chụp ảnh, biến thể và snapshot
 

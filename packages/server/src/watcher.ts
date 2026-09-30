@@ -34,7 +34,6 @@ export function watchWorkspace(workspace: string, events: CanvasEvents): FSWatch
       const project = await readProject(workspace, projectId);
       if (change.hasError) {
         events.publish({ type: 'project.error', projectId, screenIds: [...change.screenIds], message: 'Một file thiết kế đã bị xóa hoặc không thể đọc.' });
-        return;
       }
       const screenIds = change.refreshAll || !change.screenIds.size
         ? project.screens.map((screen) => screen.id).sort()

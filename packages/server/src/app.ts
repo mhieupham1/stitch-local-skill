@@ -22,15 +22,17 @@ import { exportScreenForFigma } from './figma-export.js';
 import { fetchReference } from './reference.js';
 import { createSnapshot, duplicateScreen, restoreSnapshot } from './snapshots.js';
 import { SelectionStore } from './selection.js';
+import { ensureDesignIds } from './design-ids.js';
 import { createPrototype, deletePrototype, listPrototypes, readPrototype, regeneratePrototype, updatePrototype } from './prototypes.js';
 import { readPrototypeSources } from './prototype-sources.js';
-import { bridgeScriptSource, contentSizeScriptSource, figmaCaptureScriptSource } from '../../preview-bridge/src/index.js';
+import { bridgeScriptSource, contentSizeScriptSource, figmaCaptureScriptSource, prototypeBridgeScriptSource } from '../../preview-bridge/src/index.js';
 
 export type ManagementAppOptions = {
   instanceId: string;
   workspace: string;
   events: CanvasEvents;
   selection: SelectionStore;
+  getPreviewUrl: () => string | null;
   onShutdown: () => Promise<void>;
 };
 
@@ -146,6 +148,12 @@ export async function createManagementApp(options: ManagementAppOptions): Promis
     options.events.subscribe(reply);
   });
 
+  app.get('/api/preview', async () => {
+    const url = options.getPreviewUrl();
+    if (!url) throw new CanvasError('PREVIEW_UNAVAILABLE', 'Preview của phiên canvas này chưa sẵn sàng.', 503);
+    return success({ url });
+  });
+
   app.get('/api/projects', async () => success(await listProjects(options.workspace)));
 
   app.post('/api/projects', async (request, reply) => {
@@ -258,6 +266,7 @@ export async function createManagementApp(options: ManagementAppOptions): Promis
     if (!project.screens.some((screen) => screen.id === screenId)) {
       throw new CanvasError('SCREEN_NOT_FOUND', `Không tìm thấy màn hình “${screenId}”.`, 404);
     }
+    await ensureDesignIds(options.workspace, projectId, screenId);
     return success({ nonce: options.selection.issueNonce(projectId, screenId) });
   });
 
@@ -402,6 +411,8 @@ const bridgeQuerySchema = z.object({
   bridge: z.string().min(1).optional(),
   screen: projectIdSchema.optional(),
   figma: z.enum(['1']).optional(),
+  prototype: z.string().min(1).max(200).optional(),
+  parentOrigin: z.string().regex(/^http:\/\/127\.0\.0\.1:\d+$/).optional(),
 });
 
 function injectBridge(html: string, script: string): string {
@@ -432,8 +443,11 @@ export async function createPreviewApp(workspace: string): Promise<FastifyInstan
     const query = bridgeQuerySchema.parse(request.query);
     if (query.screen && file.endsWith('.html')) {
       let html = await readFile(file, 'utf8');
-      html = injectBridge(html, contentSizeScriptSource({ screenId: query.screen }));
+      // Canvas artboards expand to page height; the separate Play iframe must
+      // retain ordinary page scrolling instead of inheriting that overflow lock.
+      if (!query.prototype) html = injectBridge(html, contentSizeScriptSource({ screenId: query.screen }));
       if (query.bridge) html = injectBridge(html, bridgeScriptSource({ projectId, screenId: query.screen, nonce: query.bridge }));
+      if (query.prototype && query.parentOrigin) html = injectBridge(html, prototypeBridgeScriptSource({ projectId, screenId: query.screen, nonce: query.prototype, parentOrigin: query.parentOrigin }));
       if (query.figma) html = injectBridge(html, figmaCaptureScriptSource({ screenId: query.screen }));
       return reply.send(html);
     }

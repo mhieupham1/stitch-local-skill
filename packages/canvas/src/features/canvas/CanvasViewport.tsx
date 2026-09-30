@@ -1,12 +1,13 @@
 import { useRef, useState, type PointerEvent, type WheelEvent } from 'react';
-import type { Screen, ScreenLayoutPatch, SelectionContext } from '../../../../core/src/schema.js';
+import type { PrototypeView, Screen, ScreenLayoutPatch, SelectionContext } from '../../../../core/src/schema.js';
 import { clampZoom, isDragBand, rectFromPoints, rectsOverlap, screenToCanvas, type Point, type Rect, type Viewport } from './viewport-math.js';
-import { ScreenFrame, TITLE_BAR_HEIGHT, type CanvasMode } from './ScreenFrame.js';
+import { ScreenFrame, TITLE_BAR_HEIGHT } from './ScreenFrame.js';
 import { IconMaximize, IconMinus, IconPlus } from '../../icons.js';
+import { PrototypeCard, PROTOTYPE_CARD_HEIGHT, PROTOTYPE_CARD_WIDTH } from '../prototypes/PrototypeCard.js';
 
 type Props = {
-  projectId: string; screens: Screen[]; previewUrl: string; revision: number; screenRevisions: Record<string, number>; viewport: Viewport;
-  selectedScreenIds: string[]; mode: CanvasMode; bridgeNonce: string | null; selection: SelectionContext | null; selectionStale: boolean;
+  projectId: string; screens: Screen[]; prototypes: PrototypeView[]; previewUrl: string; revision: number; screenRevisions: Record<string, number>; viewport: Viewport;
+  selectedScreenIds: string[]; bridgeNonce: string | null; selection: SelectionContext | null; selectionStale: boolean;
   editingScreenId: string | null; userEditingScreenId: string | null; editingMessage: string | null;
   onViewport: (viewport: Viewport) => void;
   onSelect: (screenId: string | null, options?: { additive?: boolean }) => void;
@@ -14,6 +15,11 @@ type Props = {
   onSelectMany: (ids: string[]) => void;
   onDraft: (patches: ScreenLayoutPatch[]) => void;
   onPersist: (patches: ScreenLayoutPatch[]) => void;
+  onPrototypeDraft: (id: string, x: number, y: number) => void;
+  onPrototypePersist: (id: string, x: number, y: number) => void;
+  onRegeneratePrompt: (prototype: PrototypeView) => void;
+  onCopyPrototypeId: (id: string) => void;
+  onDeletePrototype: (prototype: PrototypeView) => void;
 };
 
 export function CanvasViewport(props: Props) {
@@ -23,6 +29,12 @@ export function CanvasViewport(props: Props) {
   const [contentHeights, setContentHeights] = useState<Record<string, number>>({});
   const [band, setBand] = useState<{ left: number; top: number; width: number; height: number } | null>(null);
   const frameHeight = (screen: Screen) => Math.max(screen.height, contentHeights[screen.id] ?? 0) + TITLE_BAR_HEIGHT;
+  const defaultPrototypeX = Math.max(0, ...props.screens.map((screen) => screen.x + screen.width)) + 80;
+  const defaultPrototypeY = Math.min(0, ...props.screens.map((screen) => screen.y));
+  const prototypePosition = (prototype: PrototypeView, index: number) => ({
+    x: prototype.x ?? defaultPrototypeX,
+    y: prototype.y ?? defaultPrototypeY + index * (PROTOTYPE_CARD_HEIGHT + 32),
+  });
   const reportContentHeight = (screenId: string, height: number) => {
     setContentHeights((current) => current[screenId] === height ? current : { ...current, [screenId]: height });
   };
@@ -33,9 +45,13 @@ export function CanvasViewport(props: Props) {
     props.onViewport({ zoom, x: pivotX - ((pivotX - props.viewport.x) / props.viewport.zoom) * zoom, y: pivotY - ((pivotY - props.viewport.y) / props.viewport.zoom) * zoom });
   };
   const fitAll = () => {
-    const rect = ref.current?.getBoundingClientRect(); if (!rect || !props.screens.length) return;
-    const minX = Math.min(...props.screens.map((s) => s.x)), minY = Math.min(...props.screens.map((s) => s.y));
-    const maxX = Math.max(...props.screens.map((s) => s.x + s.width)), maxY = Math.max(...props.screens.map((s) => s.y + frameHeight(s)));
+    const rect = ref.current?.getBoundingClientRect(); if (!rect || (!props.screens.length && !props.prototypes.length)) return;
+    const bounds = [
+      ...props.screens.map((screen) => ({ x: screen.x, y: screen.y, width: screen.width, height: frameHeight(screen) })),
+      ...props.prototypes.map((prototype, index) => ({ ...prototypePosition(prototype, index), width: PROTOTYPE_CARD_WIDTH, height: PROTOTYPE_CARD_HEIGHT })),
+    ];
+    const minX = Math.min(...bounds.map((item) => item.x)), minY = Math.min(...bounds.map((item) => item.y));
+    const maxX = Math.max(...bounds.map((item) => item.x + item.width)), maxY = Math.max(...bounds.map((item) => item.y + item.height));
     const zoom = clampZoom(Math.min((rect.width - 96) / (maxX - minX), (rect.height - 96) / (maxY - minY)));
     props.onViewport({ zoom, x: (rect.width - (maxX - minX) * zoom) / 2 - minX * zoom, y: (rect.height - (maxY - minY) * zoom) / 2 - minY * zoom });
   };
@@ -58,7 +74,7 @@ export function CanvasViewport(props: Props) {
     // frame is handled by ScreenFrame for multi-select and never reaches here.
     if (event.button === 1 || (event.shiftKey && event.button === 0)) {
       const target = event.target as HTMLElement | null;
-      if (event.button === 0 && target?.closest('.screen-frame')) return;
+      if (event.button === 0 && target?.closest('.screen-frame, .prototype-card')) return;
       // Middle-button panning must work over frames too, so claim the pointer from
       // the frame that the press landed on before any drag handler can react.
       event.stopPropagation();
@@ -68,7 +84,7 @@ export function CanvasViewport(props: Props) {
     }
     if (event.button !== 0) return;
     const target = event.target as HTMLElement | null;
-    if (!target || target.closest('.screen-frame') || target.closest('.canvas-toolbar')) return;
+    if (!target || target.closest('.screen-frame, .prototype-card') || target.closest('.canvas-toolbar')) return;
     const additive = event.metaKey || event.ctrlKey;
     event.currentTarget.setPointerCapture(event.pointerId);
     // A drag on empty canvas sweeps a selection band; without a modifier it
@@ -110,7 +126,11 @@ export function CanvasViewport(props: Props) {
         const selected = props.selectedScreenIds.includes(screen.id);
         const primary = props.selectedScreenIds[props.selectedScreenIds.length - 1] === screen.id;
         const editing = screen.id === props.editingScreenId;
-        return <ScreenFrame key={screen.id} projectId={props.projectId} screen={screen} screens={props.screens} selectedScreenIds={props.selectedScreenIds} previewUrl={props.previewUrl} revision={props.screenRevisions[screen.id] ?? props.revision} zoom={props.viewport.zoom} selected={selected} mode={props.mode} layerIndex={index} bridgeNonce={primary ? props.bridgeNonce : null} selection={primary ? props.selection : null} selectionStale={props.selectionStale} editing={editing || props.userEditingScreenId === screen.id} userEditing={props.userEditingScreenId === screen.id} editingMessage={editing ? props.editingMessage : null} onSelect={(additive) => props.onSelect(screen.id, { additive })} onDraft={props.onDraft} onPersist={props.onPersist} onContentHeight={reportContentHeight} />;
+        return <ScreenFrame key={screen.id} projectId={props.projectId} screen={screen} screens={props.screens} selectedScreenIds={props.selectedScreenIds} previewUrl={props.previewUrl} revision={props.screenRevisions[screen.id] ?? props.revision} zoom={props.viewport.zoom} selected={selected} layerIndex={index} bridgeNonce={primary ? props.bridgeNonce : null} selection={primary ? props.selection : null} selectionStale={props.selectionStale} editing={editing || props.userEditingScreenId === screen.id} userEditing={props.userEditingScreenId === screen.id} editingMessage={editing ? props.editingMessage : null} onSelect={(additive) => props.onSelect(screen.id, { additive })} onDraft={props.onDraft} onPersist={props.onPersist} onContentHeight={reportContentHeight} />;
+      })}
+      {props.prototypes.map((prototype, index) => {
+        const point = prototypePosition(prototype, index);
+        return <PrototypeCard key={prototype.id} projectId={props.projectId} prototype={prototype} x={point.x} y={point.y} zoom={props.viewport.zoom} layerIndex={props.screens.length + index + 1} onDraft={props.onPrototypeDraft} onPersist={props.onPrototypePersist} onRegeneratePrompt={props.onRegeneratePrompt} onCopyId={props.onCopyPrototypeId} onDelete={props.onDeletePrototype} />;
       })}
     </div>
   </main>;

@@ -1,4 +1,4 @@
-import type { CanvasEvent, Project, Result, ScreenLayoutPatch, SelectionContext } from '../../core/src/schema.js';
+import type { CanvasEvent, Project, PrototypeView, Result, ScreenLayoutPatch, SelectionContext } from '../../core/src/schema.js';
 
 export class ApiError extends Error {
   constructor(readonly code: string, message: string, readonly status: number) { super(message); }
@@ -18,7 +18,16 @@ export class CanvasApi {
   }
 
   listProjects() { return this.request<Project[]>('/api/projects'); }
+  getPreview() { return this.request<{ url: string }>('/api/preview'); }
   getProject(projectId: string) { return this.request<Project>(`/api/projects/${encodeURIComponent(projectId)}`); }
+  listPrototypes(projectId: string) { return this.request<PrototypeView[]>(`/api/projects/${encodeURIComponent(projectId)}/prototypes`); }
+  getPrototype(projectId: string, prototypeId: string) { return this.request<PrototypeView>(`/api/projects/${encodeURIComponent(projectId)}/prototypes/${encodeURIComponent(prototypeId)}`); }
+  updatePrototypePosition(projectId: string, prototypeId: string, x: number, y: number, expectedRevision: number) {
+    return this.request<PrototypeView>(`/api/projects/${encodeURIComponent(projectId)}/prototypes/${encodeURIComponent(prototypeId)}`, { method: 'PATCH', body: JSON.stringify({ x, y, expectedRevision }) });
+  }
+  deletePrototype(projectId: string, prototypeId: string, expectedRevision: number) {
+    return this.request<{ deleted: true }>(`/api/projects/${encodeURIComponent(projectId)}/prototypes/${encodeURIComponent(prototypeId)}`, { method: 'DELETE', body: JSON.stringify({ expectedRevision }) });
+  }
   renameProject(projectId: string, name: string, expectedRevision: number) {
     return this.request<Project>(`/api/projects/${encodeURIComponent(projectId)}`, { method: 'PATCH', body: JSON.stringify({ name, expectedRevision }) });
   }
@@ -46,14 +55,24 @@ export class CanvasApi {
   recordSelection(projectId: string, context: SelectionContext, nonce: string) { return this.request<SelectionContext>(`/api/projects/${encodeURIComponent(projectId)}/selection`, { method: 'POST', body: JSON.stringify({ context, nonce }) }); }
 }
 
+const previewStorageKey = 'local-canvas-preview-url';
+
 export function readSession(): { previewUrl: string | null } {
   const hash = new URLSearchParams(location.hash.slice(1));
-  const previewUrl = hash.get('previewUrl') ?? sessionStorage.getItem('local-canvas-preview-url');
+  const previewUrl = hash.get('previewUrl') ?? sessionStorage.getItem(previewStorageKey);
   if (hash.has('previewUrl')) {
-    if (previewUrl) sessionStorage.setItem('local-canvas-preview-url', previewUrl);
+    if (previewUrl) sessionStorage.setItem(previewStorageKey, previewUrl);
     history.replaceState(null, '', `${location.pathname}${location.search}`);
   }
   return { previewUrl };
+}
+
+export function savePreviewUrl(previewUrl: string): void {
+  sessionStorage.setItem(previewStorageKey, previewUrl);
+}
+
+export function clearPreviewUrl(): void {
+  sessionStorage.removeItem(previewStorageKey);
 }
 
 export function connectEvents(api: CanvasApi, onEvent: (event: CanvasEvent) => void, onState: (state: 'connected' | 'reconnecting') => void): () => void {

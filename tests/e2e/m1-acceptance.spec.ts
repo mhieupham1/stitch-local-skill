@@ -32,6 +32,10 @@ test.beforeAll(async () => {
   await createScreen('orders', 'Đơn hàng', 1);
   await createScreen('order-detail', 'Chi tiết đơn hàng', 2);
   await writeFile(join(workspace, 'projects', 'sales-dashboard', 'screens', 'overview', 'index.html'), `<!doctype html><button type="button" id="toggle">Mở sidebar</button><output>Đóng</output><script>document.querySelector('#toggle').onclick=()=>document.querySelector('output').textContent='Mở';</script>`);
+  // The watcher coalesces setup writes over its write-finish + flush window.
+  // Let those fixture events drain before asserting that a later edit reloads
+  // only its own frame; otherwise an old orders add event can race the assertion.
+  await new Promise<void>((done) => setTimeout(done, 700));
 });
 
 test.afterAll(async () => {
@@ -54,11 +58,11 @@ test('M1: ba màn hình, cập nhật source đúng frame, thao tác canvas và 
   await expect(overviewFrame).not.toHaveAttribute('src', oldOverviewSource ?? '');
   await expect(orders).toHaveAttribute('src', oldOrdersSource ?? '');
 
-  await page.getByRole('button', { name: 'Tương tác' }).click();
-  const frame = page.frameLocator('[data-screen-id="overview"] iframe');
-  await frame.getByRole('button', { name: 'Mở sidebar' }).click();
-  await expect(frame.getByText('Mở', { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'Sắp xếp' }).click();
+  const previewPage = await page.context().newPage();
+  await previewPage.goto(`${runtime.previewUrl}/projects/sales-dashboard/screens/overview/index.html`);
+  await previewPage.getByRole('button', { name: 'Mở sidebar' }).click();
+  await expect(previewPage.getByText('Mở', { exact: true })).toBeVisible();
+  await previewPage.close();
 
   await page.getByRole('button', { name: 'Phóng to' }).click();
   const dragHandle = overview.getByTestId('drag-handle');
