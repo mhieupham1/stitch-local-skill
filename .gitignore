@@ -5,3 +5,4 @@ dist/
 test-results/
 *.log
 .DS_Store
+projects/cgv-home/
