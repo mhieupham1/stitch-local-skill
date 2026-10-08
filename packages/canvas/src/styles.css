@@ -778,7 +778,12 @@ button {
   border-radius: var(--radius);
   box-shadow: 0 10px 34px #00000059, 0 0 0 1px #00000038;
   transition: box-shadow var(--speed) var(--ease);
+  /* The whole frame is the drag surface, so the cursor promises a grab over the
+     body too — not only the title bar. The editing overlay below restores its
+     own cursor, and the resize handle keeps its resize cursor. */
+  cursor: grab;
 }
+.screen-frame:active { cursor: grabbing; }
 .screen-frame:hover { box-shadow: 0 14px 44px #0000006b, 0 0 0 1px #00000045; }
 .screen-frame.selected {
   outline: 3px solid var(--accent);

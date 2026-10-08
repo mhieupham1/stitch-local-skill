@@ -400,27 +400,30 @@ test('mỗi màn hình được chọn chỉ có viền rõ mà không đổi m�
   }
 });
 
-test('kéo từ nội dung màn hình không làm trình duyệt tô màu preview', async ({ page }) => {
+test('kéo từ thân khung di chuyển cả khung, không tô chọn nội dung preview', async ({ page }) => {
   await page.goto(`${runtime.url}/?project=shop#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
   await page.getByRole('button', { name: 'Vừa khung hình' }).click();
   const overview = page.locator('[data-screen-id="overview"]');
-  const orders = page.locator('[data-screen-id="orders"]');
   await expect(overview).toBeVisible();
-  await expect(orders).toBeVisible();
   await page.frameLocator('[data-screen-id="overview"] iframe').locator('body').waitFor();
   const start = await overview.boundingBox();
-  const end = await orders.boundingBox();
-  if (!start || !end) throw new Error('Không đo được khung màn hình.');
-  const clip = { x: Math.round(start.x + 12), y: Math.round(start.y + 60), width: 4, height: 4 };
-  const before = await page.screenshot({ clip });
+  if (!start) throw new Error('Không đo được khung màn hình.');
+  const beforeX = (await (await api('/api/projects/shop')).json()).data.screens.find((screen: { id: string }) => screen.id === 'overview').x;
+
+  // A press well below the 32px title bar is the body: the whole frame drags.
   await page.mouse.move(start.x + start.width / 2, start.y + 100);
   await page.mouse.down();
-  await page.mouse.move(end.x + end.width / 2, end.y + 100, { steps: 12 });
-  const during = await page.screenshot({ clip });
+  await page.mouse.move(start.x + start.width / 2 + 60, start.y + 140, { steps: 12 });
+  // Without `user-select: none` on the frame, dragging across the preview would
+  // make the browser paint a selection highlight over it.
+  await expect(overview).toHaveCSS('user-select', 'none');
   await page.mouse.up();
-  const after = await page.screenshot({ clip });
-  expect(during.equals(before)).toBe(true);
-  expect(after.equals(before)).toBe(true);
+
+  const after = await overview.boundingBox();
+  if (!after) throw new Error('Khung màn hình biến mất sau khi kéo.');
+  expect(after.x).toBeGreaterThan(start.x + 40);
+  // The gesture is persisted, not only painted: the new position reaches the server.
+  await expect.poll(async () => (await (await api('/api/projects/shop')).json()).data.screens.find((screen: { id: string }) => screen.id === 'overview').x).toBeGreaterThan(beforeX);
 });
 
 test('kéo vùng trên nền canvas chọn nhiều màn hình rồi di chuyển cùng nhau', async ({ page }) => {

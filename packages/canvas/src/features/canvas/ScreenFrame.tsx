@@ -18,7 +18,7 @@ type Props = {
 };
 
 export function ScreenFrame({ projectId, screen, screens, selectedScreenIds, previewUrl, revision, zoom, selected, layerIndex, bridgeNonce, selection, selectionStale, editing, userEditing, editingMessage, onSelect, onDraft, onPersist, onContentHeight }: Props) {
-  const drag = useRef<{ x: number; y: number; origins: DragOrigin[] } | null>(null);
+  const drag = useRef<{ x: number; y: number; moved: boolean; origins: DragOrigin[] } | null>(null);
   const resize = useRef<{ x: number; y: number; width: number; height: number } | null>(null);
   const frameRef = useRef<HTMLElement>(null);
   const onContentHeightRef = useRef(onContentHeight);
@@ -26,10 +26,11 @@ export function ScreenFrame({ projectId, screen, screens, selectedScreenIds, pre
   const [contentHeight, setContentHeight] = useState<number | null>(null);
   const viewportHeight = Math.max(screen.height, contentHeight ?? 0);
   const clampDimension = (value: number) => Math.min(4096, Math.max(240, Math.round(value)));
-  const movePatches = (event: PointerEvent<HTMLDivElement>) => {
+  const movePatches = (event: PointerEvent<HTMLElement>) => {
     if (!drag.current) return null;
     const dx = (event.clientX - drag.current.x) / zoom;
     const dy = (event.clientY - drag.current.y) / zoom;
+    if (dx || dy) drag.current.moved = true;
     return drag.current.origins.map((origin) => ({ id: origin.id, x: Math.round(origin.x + dx), y: Math.round(origin.y + dy) }));
   };
   const sizePatch = (event: PointerEvent<HTMLDivElement>) => resize.current && ({
@@ -62,38 +63,47 @@ export function ScreenFrame({ projectId, screen, screens, selectedScreenIds, pre
   }, [screen.id]);
 
   return <article ref={frameRef} className={['screen-frame', selected ? 'selected' : '', editing ? 'editing' : ''].filter(Boolean).join(' ')} data-screen-id={screen.id} style={{ left: screen.x, top: screen.y, width: screen.width, height: viewportHeight + TITLE_BAR_HEIGHT, zIndex: layerIndex + 1, '--canvas-inverse-zoom': 1 / zoom } as CSSProperties} onPointerDown={(event) => {
-    // Only the primary button selects. Middle-click pans the canvas and
+    // The whole frame drags, like a prototype card, rather than only its title
+    // bar: the body is the part users reach for. The preview iframe keeps
+    // `pointer-events: none` unless editing, so a press on the body lands here.
+    // Only the primary button moves a frame. Middle-click pans the canvas and
     // right-click opens the context menu; neither should disturb the selection.
     if (event.button !== 0) return;
+    const target = event.target as Element | null;
+    // Controls inside the frame own their own clicks: the edit-lock overlay is
+    // not draggable, and the resize handle runs its own gesture.
+    if (target?.closest('.edit-lock, .resize-handle')) return;
     const additive = event.shiftKey || event.metaKey || event.ctrlKey;
-    // Keep an existing multi-selection when clicking a selected frame without modifiers.
-    if (!additive && selectedScreenIds.includes(screen.id)) return;
-    onSelect(additive);
-  }}>
-    <div className="screen-frame-bar" data-testid="drag-handle" onPointerDown={(event) => {
-      if (interactive || editing) return;
-      // Dragging a frame is a primary-button gesture. Letting middle-click through
-      // means it still pans the canvas, which is what users expect everywhere.
-      if (event.button !== 0) return;
+    // Shift/Cmd+click only toggles selection — do not start a drag.
+    if (additive) {
       event.stopPropagation();
-      const additive = event.shiftKey || event.metaKey || event.ctrlKey;
-      // Shift/Cmd+click only toggles selection — do not start a drag.
-      if (additive) {
-        onSelect(true);
-        return;
-      }
-      // Clicking an already-selected screen keeps the group; otherwise select just this one.
-      if (!selectedScreenIds.includes(screen.id)) onSelect(false);
-      event.currentTarget.setPointerCapture(event.pointerId);
-      const movingIds = selectedScreenIds.includes(screen.id) && selectedScreenIds.length > 0
-        ? selectedScreenIds
-        : [screen.id];
-      const origins = movingIds.flatMap((id) => {
-        const item = screens.find((candidate) => candidate.id === id);
-        return item ? [{ id: item.id, x: item.x, y: item.y }] : [];
-      });
-      drag.current = { x: event.clientX, y: event.clientY, origins: origins.length ? origins : [{ id: screen.id, x: screen.x, y: screen.y }] };
-    }} onPointerMove={(event) => { const patches = movePatches(event); if (patches) onDraft(patches); }} onPointerUp={(event) => { const patches = movePatches(event); drag.current = null; if (patches) onPersist(patches); }}>
+      onSelect(true);
+      return;
+    }
+    // A press on an already-selected frame keeps the group so the whole
+    // selection moves together; otherwise this frame becomes the selection.
+    if (!selectedScreenIds.includes(screen.id)) onSelect(false);
+    event.stopPropagation();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    const movingIds = selectedScreenIds.includes(screen.id) && selectedScreenIds.length > 0
+      ? selectedScreenIds
+      : [screen.id];
+    const origins = movingIds.flatMap((id) => {
+      const item = screens.find((candidate) => candidate.id === id);
+      return item ? [{ id: item.id, x: item.x, y: item.y }] : [];
+    });
+    drag.current = { x: event.clientX, y: event.clientY, moved: false, origins: origins.length ? origins : [{ id: screen.id, x: screen.x, y: screen.y }] };
+  }} onPointerMove={(event) => { const patches = movePatches(event); if (patches) onDraft(patches); }} onPointerUp={(event) => {
+    const patches = movePatches(event);
+    const moved = drag.current?.moved ?? false;
+    drag.current = null;
+    // A press without motion is a click: it selects, and the server is left alone.
+    // Persisting a zero-delta patch on every click would write the layout for a
+    // gesture the user never made, and every write bumps the revision other
+    // clients and background refreshes race against.
+    if (patches && moved) onPersist(patches);
+  }} onPointerCancel={() => { drag.current = null; }}>
+    <div className="screen-frame-bar" data-testid="drag-handle">
       <strong>{screen.name}</strong><span>{editing ? 'Đang chỉnh sửa' : `${screen.width} × ${viewportHeight}`}</span>
     </div>
     <iframe title={screen.name} src={src} sandbox="allow-scripts allow-same-origin" scrolling="no" referrerPolicy="no-referrer" style={{ pointerEvents: interactive && selected ? 'auto' : 'none' }} />
