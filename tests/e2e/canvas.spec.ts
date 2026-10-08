@@ -303,9 +303,14 @@ test('sao chép ID màn hình đang chọn để dán vào prompt', async ({ pag
   await page.locator('[data-screen-row="orders"]').click();
   const button = page.getByTestId('copy-screen-id');
   await expect(button).toBeVisible();
+  // The notice must float over the canvas, not sit in the column: a banner in
+  // the flow would push every frame down while it is visible.
+  const frameBefore = await page.locator('[data-screen-id="orders"]').boundingBox();
   await button.click();
 
   await expect(page.getByTestId('screen-id-notice')).toContainText('orders');
+  const frameAfter = await page.locator('[data-screen-id="orders"]').boundingBox();
+  expect(frameAfter?.y).toBe(frameBefore?.y);
   expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('orders');
 
   // Selecting another screen copies that one's id, not the previous one.
