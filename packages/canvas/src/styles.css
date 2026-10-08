@@ -743,6 +743,10 @@ button {
   border-radius: var(--radius-sm);
 }
 .canvas-toolbar button:hover { color: var(--text); background: var(--elevated); }
+/* An unavailable undo or redo stays in place so the toolbar does not reflow; it
+   only dims, which is enough to read as unavailable. */
+.canvas-toolbar button:disabled { color: var(--text-dim); opacity: 0.4; }
+.canvas-toolbar button:disabled:hover { background: none; }
 .canvas-toolbar output {
   min-width: 46px;
   color: var(--text);

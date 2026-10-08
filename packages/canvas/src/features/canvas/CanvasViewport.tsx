@@ -2,13 +2,14 @@ import { useRef, useState, type PointerEvent, type WheelEvent } from 'react';
 import type { PrototypeView, Screen, ScreenLayoutPatch, SelectionContext } from '../../../../core/src/schema.js';
 import { clampZoom, isDragBand, rectFromPoints, rectsOverlap, screenToCanvas, type Point, type Rect, type Viewport } from './viewport-math.js';
 import { ScreenFrame, TITLE_BAR_HEIGHT } from './ScreenFrame.js';
-import { IconMaximize, IconMinus, IconPlus } from '../../icons.js';
+import { IconMaximize, IconMinus, IconPlus, IconRedo, IconUndo } from '../../icons.js';
 import { PrototypeCard, PROTOTYPE_CARD_HEIGHT, PROTOTYPE_CARD_WIDTH } from '../prototypes/PrototypeCard.js';
 
 type Props = {
   projectId: string; screens: Screen[]; prototypes: PrototypeView[]; previewUrl: string; revision: number; screenRevisions: Record<string, number>; viewport: Viewport;
   selectedScreenIds: string[]; bridgeNonce: string | null; selection: SelectionContext | null; selectionStale: boolean;
   editingScreenId: string | null; userEditingScreenId: string | null; editingMessage: string | null;
+  canUndo: boolean; canRedo: boolean; onUndo: () => void; onRedo: () => void;
   onViewport: (viewport: Viewport) => void;
   onSelect: (screenId: string | null, options?: { additive?: boolean }) => void;
   // `ids` replaces the whole selection; used by the marquee band.
@@ -119,6 +120,8 @@ export function CanvasViewport(props: Props) {
       <p>Nhắn AI tạo các màn hình cho dự án <code>{props.projectId}</code> để bắt đầu thiết kế.</p>
     </div>}
     <div className="canvas-toolbar">
+      <button aria-label="Hoàn tác" title="Hoàn tác (Ctrl/Cmd+Z)" data-testid="undo-layout" disabled={!props.canUndo} onClick={props.onUndo}><IconUndo size={14} /></button>
+      <button aria-label="Làm lại" title="Làm lại (Ctrl/Cmd+Shift+Z)" data-testid="redo-layout" disabled={!props.canRedo} onClick={props.onRedo}><IconRedo size={14} /></button>
       <button aria-label="Thu nhỏ" title="Thu nhỏ" onClick={() => updateZoom(props.viewport.zoom / 1.2)}><IconMinus size={14} /></button>
       <output>{Math.round(props.viewport.zoom * 100)}%</output>
       <button aria-label="Phóng to" title="Phóng to" onClick={() => updateZoom(props.viewport.zoom * 1.2)}><IconPlus size={14} /></button>

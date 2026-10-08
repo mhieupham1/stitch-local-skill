@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { Project, PrototypeView, ScreenLayoutPatch, SelectionContext } from '../../core/src/schema.js';
+import type { Project, PrototypeView, Screen, ScreenLayoutPatch, SelectionContext } from '../../core/src/schema.js';
 import { ApiError, CanvasApi, clearPreviewUrl, connectEvents, readSession, savePreviewUrl } from './api.js';
 import { CanvasViewport } from './features/canvas/CanvasViewport.js';
+import { LayoutHistory } from './features/canvas/layout-history.js';
 import type { SaveState } from './features/canvas/layout-state.js';
 import type { Viewport } from './features/canvas/viewport-math.js';
 import { PreviewSizeMenu } from './features/canvas/PreviewSizeMenu.js';
@@ -11,7 +12,7 @@ import { createPrototypePrompt, regeneratePrototypePrompt } from './features/pro
 import { PrototypePlayer } from './features/prototypes/PrototypePlayer.js';
 import {
   IconAlert, IconCamera, IconCamera2, IconCheck, IconChevronLeft, IconCopy, IconFigma,
-  IconLoader, IconMonitor, IconRotateCcw, IconTrash, IconX,
+  IconLoader, IconMonitor, IconRedo, IconRotateCcw, IconTrash, IconUndo, IconX,
 } from './icons.js';
 
 const DEFAULT_VIEWPORT: Viewport = { x: 96, y: 96, zoom: 0.5 };
@@ -22,6 +23,23 @@ const readSidebarCollapsed = (): boolean => {
   try { return localStorage.getItem(sidebarCollapsedKey) === '1'; } catch { return false; }
 };
 type PendingLayout = { projectId: string; patch: ScreenLayoutPatch };
+
+// The four fields a drag, a resize or the inspector can change. Only these take
+// part in undo; name and source are handled by their own flows.
+const layoutOf = (screens: Screen[], ids: string[]): ScreenLayoutPatch[] =>
+  ids.flatMap((id) => {
+    const screen = screens.find((candidate) => candidate.id === id);
+    return screen ? [{ id, x: screen.x, y: screen.y, width: screen.width, height: screen.height }] : [];
+  });
+
+// Compare two layouts field by field. A gesture that ends where it began — a drag
+// out and back, or a width retyped to the same number — must not become an undo
+// step, and reference equality would not catch that.
+const sameLayout = (a: ScreenLayoutPatch[], b: ScreenLayoutPatch[]): boolean =>
+  a.length === b.length && a.every((patch, index) => {
+    const other = b[index];
+    return patch.id === other.id && patch.x === other.x && patch.y === other.y && patch.width === other.width && patch.height === other.height;
+  });
 
 // A successful save confirms only the fields its patch carried. Keep any other
 // local edit for that screen so one save cannot silently discard the rest.
@@ -90,6 +108,20 @@ function CanvasApp() {
   // Uncommitted local layout edits, keyed by screen id. A background refresh
   // must not overwrite what the user is still typing in the inspector.
   const draftRef = useRef<Record<string, ScreenLayoutPatch>>({});
+  // Undo/redo for layout gestures. The stack lives in a ref because the pointer
+  // handlers that record into it are not React state, but `canUndo`/`canRedo`
+  // are mirrored into React state so the toolbar buttons can enable themselves.
+  const historyRef = useRef(new LayoutHistory());
+  const [historyState, setHistoryState] = useState({ canUndo: false, canRedo: false });
+  // The layout as it stood before the gesture now in progress, and which screens
+  // it touched. Set on the first draft of a gesture, cleared when it is recorded.
+  const gestureRef = useRef<{ before: ScreenLayoutPatch[]; projectId: string } | null>(null);
+  // A history entry is recorded deep inside `persist`, which closes over the
+  // state at the time it was created. Replaying a step must use the latest
+  // project and save function, so the entry calls through these refs instead.
+  const restoreLayoutRef = useRef<(snapshot: ScreenLayoutPatch[]) => void>(() => undefined);
+  const undoLayoutRef = useRef<() => void>(() => undefined);
+  const redoLayoutRef = useRef<() => void>(() => undefined);
 
   useEffect(() => { projectRef.current = project; }, [project]);
 
@@ -391,6 +423,27 @@ function CanvasApp() {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, []);
 
+  // Cmd/Ctrl+Z undoes the last layout gesture, Shift+Cmd/Ctrl+Z redoes it. Kept in
+  // its own listener because it must fire even while an inspector input has focus.
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'z') return;
+      event.preventDefault();
+      if (event.shiftKey) redoLayoutRef.current();
+      else undoLayoutRef.current();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
+  // History entries name screens by id, so they are meaningless once another
+  // project is open. Clear only on an actual switch: a background refresh of the
+  // same project keeps its id, and clearing there would drop the user's history.
+  useEffect(() => {
+    historyRef.current.clear();
+    setHistoryState({ canUndo: false, canRedo: false });
+  }, [project?.id]);
+
   useEffect(() => { bridgeNonceRef.current = bridgeNonce; }, [bridgeNonce]);
 
   // A per-frame nonce lets the shell reject a postMessage that claims to be a
@@ -473,7 +526,10 @@ function CanvasApp() {
   useEffect(() => { if (selection && selectedScreenId && selection.screenId !== selectedScreenId) setSelection(null); }, [selectedScreenId, selection]);
 
   const updateViewport = (next: Viewport) => { setViewport(next); if (project) localStorage.setItem(viewportKey(project.id), JSON.stringify(next)); };
-  const applyDraft = (patches: ScreenLayoutPatch[]) => {
+  // Apply patches to the local project without touching the undo stack. Undo and
+  // redo use this directly: replaying a recorded state is not itself a gesture,
+  // so it must not open one.
+  const applyProjectPatches = (patches: ScreenLayoutPatch[]) => {
     if (!patches.length) return;
     const nextDrafts = { ...draftRef.current };
     for (const patch of patches) nextDrafts[patch.id] = { ...nextDrafts[patch.id], ...patch };
@@ -484,9 +540,23 @@ function CanvasApp() {
       return { ...current, screens: current.screens.map((screen) => byId.has(screen.id) ? { ...screen, ...byId.get(screen.id) } : screen) };
     });
   };
-  const persist = async (patches: ScreenLayoutPatch[], targetProject = project) => {
+  const applyDraft = (patches: ScreenLayoutPatch[]) => {
+    if (!patches.length) return;
+    // The first change of a gesture remembers where it started, so the whole
+    // drag undoes in one step rather than frame by frame.
+    const current = projectRef.current;
+    if (current && !gestureRef.current) {
+      const before = layoutOf(current.screens, [...new Set(patches.map((patch) => patch.id))]);
+      if (before.length) gestureRef.current = { before, projectId: current.id };
+    }
+    applyProjectPatches(patches);
+  };
+  const syncHistory = () => setHistoryState({ canUndo: historyRef.current.canUndo, canRedo: historyRef.current.canRedo });
+  const persist = async (patches: ScreenLayoutPatch[], targetProject = project, options?: { record?: boolean }) => {
     if (!api || !targetProject || !patches.length) return;
     const before = targetProject;
+    const record = options?.record !== false;
+    const gesture = gestureRef.current;
     setSaveState('saving');
     const applySaved = (saved: Project) => {
       const kept = { ...draftRef.current };
@@ -501,12 +571,32 @@ function CanvasApp() {
       const patchIds = new Set(patches.map((patch) => patch.id));
       setPending((items) => items.filter((item) => item.projectId !== saved.id || !patchIds.has(item.patch.id)));
       if (project?.id === saved.id) setSaveState('saved');
+      // One undo step for the gesture that just landed. A gesture that saved no
+      // real change (a press that never moved) leaves no entry behind.
+      if (record && gesture && gesture.projectId === saved.id) {
+        const after = layoutOf(saved.screens, gesture.before.map((patch) => patch.id));
+        if (after.length && !sameLayout(gesture.before, after)) {
+          const start = gesture.before;
+          historyRef.current.record({
+            undo: () => restoreLayoutRef.current(start),
+            redo: () => restoreLayoutRef.current(after),
+          });
+          syncHistory();
+        }
+      }
+      // Clear only the gesture this save recorded. A save resolves asynchronously,
+      // so an earlier one can land while the user has already started the next
+      // drag; clearing unconditionally would drop that drag's starting layout and
+      // make its undo jump back to a mid-drag position.
+      if (gestureRef.current === gesture) gestureRef.current = null;
     };
     try { applySaved(await api.updateLayout(before.id, patches, before.revision)); }
     catch (cause) {
       if (cause instanceof ApiError && cause.code === 'REVISION_CONFLICT') {
         try { const latest = await api.getProject(before.id); applySaved(await api.updateLayout(latest.id, patches, latest.revision)); return; } catch { /* show retry below */ }
       }
+      // The save is queued for retry; there is no confirmed new state to record.
+      if (gestureRef.current === gesture) gestureRef.current = null;
       setPending((items) => {
         let next = items.filter((item) => item.projectId !== before.id || !patches.some((patch) => patch.id === item.patch.id));
         for (const patch of patches) {
@@ -519,6 +609,19 @@ function CanvasApp() {
       setError('Bố cục chưa lưu được. Hãy thử lại khi server kết nối lại.');
     }
   };
+  // Undo and redo replay a recorded layout through the same local-apply + save
+  // path a gesture uses, then clear the bookmark so the replay is not itself
+  // recorded as a new step.
+  restoreLayoutRef.current = (snapshot: ScreenLayoutPatch[]) => {
+    const current = projectRef.current;
+    if (!current || !snapshot.length) return;
+    applyProjectPatches(snapshot);
+    void persist(snapshot, current, { record: false });
+  };
+  const undoLayout = () => { if (historyRef.current.undo()) syncHistory(); };
+  const redoLayout = () => { if (historyRef.current.redo()) syncHistory(); };
+  undoLayoutRef.current = undoLayout;
+  redoLayoutRef.current = redoLayout;
   const captureScreen = async () => {
     if (!api || !project || !selectedScreen) return;
     try { const result = await api.captureScreen(project.id, selectedScreen.id); setError(`Đã lưu ảnh capture: ${result.imagePath}`); }
@@ -813,7 +916,7 @@ function CanvasApp() {
         <button type="button" onClick={() => void recopyElementId(elementIdNotice.id!)}>Sao chép lại</button>
       </> : <span>Phần tử tạo động chưa có ID cố định. Hãy thêm <code>data-design-id</code> trong nguồn.</span>}
     </div>}
-    {project ? <CanvasViewport projectId={project.id} screens={project.screens} prototypes={prototypes} previewUrl={previewUrl} revision={project.revision} screenRevisions={screenRevisions} viewport={viewport} selectedScreenIds={selectedScreenIds} bridgeNonce={bridgeNonce} selection={selection} selectionStale={selectionStale} editingScreenId={editingScreenId} userEditingScreenId={userEditingScreenId} editingMessage={editingMessage} onViewport={updateViewport} onSelect={selectScreens} onSelectMany={selectScreenList} onDraft={applyDraft} onPersist={(patches) => void persist(patches)} onPrototypeDraft={(id, x, y) => setPrototypes((items) => items.map((item) => item.id === id ? { ...item, x, y } : item))} onPrototypePersist={(id, x, y) => void persistPrototypePosition(id, x, y)} onRegeneratePrompt={(prototype) => void copyPrototypePrompt(regeneratePrototypePrompt(project.id, prototype.id, prototype.screenIds))} onCopyPrototypeId={(id) => void copyPrototypeId(id)} onDeletePrototype={(prototype) => void removePrototype(prototype)} /> : <div className="app-message">Đang tải project…</div>}
+    {project ? <CanvasViewport projectId={project.id} screens={project.screens} prototypes={prototypes} previewUrl={previewUrl} revision={project.revision} screenRevisions={screenRevisions} viewport={viewport} selectedScreenIds={selectedScreenIds} bridgeNonce={bridgeNonce} selection={selection} selectionStale={selectionStale} editingScreenId={editingScreenId} userEditingScreenId={userEditingScreenId} editingMessage={editingMessage} canUndo={historyState.canUndo} canRedo={historyState.canRedo} onUndo={undoLayout} onRedo={redoLayout} onViewport={updateViewport} onSelect={selectScreens} onSelectMany={selectScreenList} onDraft={applyDraft} onPersist={(patches) => void persist(patches)} onPrototypeDraft={(id, x, y) => setPrototypes((items) => items.map((item) => item.id === id ? { ...item, x, y } : item))} onPrototypePersist={(id, x, y) => void persistPrototypePosition(id, x, y)} onRegeneratePrompt={(prototype) => void copyPrototypePrompt(regeneratePrototypePrompt(project.id, prototype.id, prototype.screenIds))} onCopyPrototypeId={(id) => void copyPrototypeId(id)} onDeletePrototype={(prototype) => void removePrototype(prototype)} /> : <div className="app-message">Đang tải project…</div>}
     </div></section>
   </div>;
 }

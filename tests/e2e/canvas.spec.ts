@@ -229,8 +229,66 @@ test('kéo khung khi zoom rồi reload để xác nhận vị trí được lưu
   await expect(page.getByLabel('Width')).toHaveValue('900');
 });
 
-test('thay đổi source chỉ reload iframe của màn hình liên quan', async ({ page }) => {
+test('hoàn tác và làm lại một cử chỉ kéo, có lưu xuống server', async ({ page }) => {
   await page.goto(`${runtime.url}/?project=shop#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
+  await expect(page.getByRole('heading', { name: 'Shop' })).toBeVisible();
+  const frame = page.locator('[data-screen-id="overview"]');
+  const undo = page.getByTestId('undo-layout');
+  const redo = page.getByTestId('redo-layout');
+  const startX = async () => (await (await api('/api/projects/shop')).json()).data.screens.find((screen: { id: string }) => screen.id === 'overview').x;
+
+  // Nothing has been arranged yet, so there is no step to walk back to.
+  await expect(undo).toBeDisabled();
+  await expect(redo).toBeDisabled();
+  const originX = await startX();
+
+  const before = await frame.boundingBox();
+  if (!before) throw new Error('Không đo được khung màn hình.');
+  await page.mouse.move(before.x + before.width / 2, before.y + 100);
+  await page.mouse.down();
+  await page.mouse.move(before.x + before.width / 2 + 120, before.y + 140, { steps: 12 });
+  await page.mouse.up();
+  await expect(page.getByText('Đã lưu')).toBeVisible();
+  const movedX = await startX();
+  expect(movedX).toBeGreaterThan(originX);
+
+  // Undo returns the frame and saves the restored position, not just the pixels.
+  await expect(undo).toBeEnabled();
+  await undo.click();
+  await expect.poll(startX).toBe(originX);
+  await expect(redo).toBeEnabled();
+
+  // Redo walks forward again to where the drag left the frame.
+  await redo.click();
+  await expect.poll(startX).toBe(movedX);
+
+  // A fresh gesture abandons the redo branch.
+  await undo.click();
+  await expect.poll(startX).toBe(originX);
+  await expect(redo).toBeEnabled();
+  const back = await frame.boundingBox();
+  if (!back) throw new Error('Khung màn hình biến mất.');
+  await page.mouse.move(back.x + back.width / 2, back.y + 100);
+  await page.mouse.down();
+  await page.mouse.move(back.x + back.width / 2 + 60, back.y + 100, { steps: 8 });
+  await page.mouse.up();
+  await expect(page.getByText('Đã lưu')).toBeVisible();
+  await expect(redo).toBeDisabled();
+
+  // The keyboard shortcut drives the same stack as the toolbar buttons.
+  await page.keyboard.press('Control+z');
+  await expect.poll(startX).toBe(originX);
+  await page.keyboard.press('Control+Shift+z');
+  await expect.poll(startX).toBeGreaterThan(originX);
+
+  // These specs share one project and later tests click these frames, so a frame
+  // left out of place would intercept their clicks. Walk back to where we started.
+  await undo.click();
+  await expect.poll(startX).toBe(originX);
+  await expect(undo).toBeDisabled();
+});
+
+test('thay đổi source chỉ reload iframe của màn hình liên quan', async ({ page }) => {  await page.goto(`${runtime.url}/?project=shop#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
   const overview = page.locator('[data-screen-id="overview"] iframe');
   const orders = page.locator('[data-screen-id="orders"] iframe');
   await expect(overview).toBeVisible();

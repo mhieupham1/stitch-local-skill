@@ -72,6 +72,14 @@ export const IconDownload = ({ size = 16 }: IconProps) => (
 export const IconRotateCcw = ({ size = 16 }: IconProps) => (
   <svg {...base(size)}><path d="M3 3v6h6" /><path d="M3.5 9a9 9 0 101.6-3" /></svg>
 );
+// Undo and redo are the same arrow mirrored; kept separate so call sites read as
+// intent rather than a transform.
+export const IconUndo = ({ size = 16 }: IconProps) => (
+  <svg {...base(size)}><path d="M9 14L4 9l5-5" /><path d="M4 9h10a6 6 0 010 12h-3" /></svg>
+);
+export const IconRedo = ({ size = 16 }: IconProps) => (
+  <svg {...base(size)}><path d="M15 14l5-5-5-5" /><path d="M20 9H10a6 6 0 000 12h3" /></svg>
+);
 export const IconMaximize = ({ size = 16 }: IconProps) => (
   <svg {...base(size)}><path d="M8 3H5a2 2 0 00-2 2v3M16 3h3a2 2 0 012 2v3M16 21h3a2 2 0 002-2v-3M8 21H5a2 2 0 01-2-2v-3" /></svg>
 );
