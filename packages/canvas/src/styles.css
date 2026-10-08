@@ -647,6 +647,33 @@ button {
   border-bottom: 1px solid #78350f;
 }
 
+/* Confirms a screen id reached the clipboard, or — when the write was refused —
+   shows it in full so it can still be selected by hand. */
+.screen-id-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  color: var(--ok);
+  font-size: 12px;
+  font-weight: 550;
+  background: #052e21;
+  border-bottom: 1px solid #065f46;
+}
+
+.screen-id-notice.failed {
+  color: #fde68a;
+  background: #451a03;
+  border-bottom-color: #78350f;
+}
+
+.screen-id-notice code {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text);
+  user-select: all;
+}
+
 /* ============================================================================
    Canvas viewport
    ========================================================================= */

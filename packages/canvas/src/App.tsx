@@ -74,6 +74,12 @@ function CanvasApp() {
   const versionMenuRef = useRef<HTMLDivElement>(null);
   const [saveState, setSaveState] = useState<SaveState>('saved');
   const [figmaState, setFigmaState] = useState<'idle' | 'copying' | 'copied'>('idle');
+  // Id of the screen whose id was just copied, so the header can confirm it.
+  // `failed` keeps the id on screen after a refused clipboard write, which is
+  // the only way the user can still copy it by hand. Distinct from
+  // `elementIdNotice`, which is about a `data-design-id` inside a preview and
+  // belongs to editing mode.
+  const [screenIdNotice, setScreenIdNotice] = useState<{ id: string; status: 'copied' | 'failed' } | null>(null);
   const [pending, setPending] = useState<PendingLayout[]>([]);
   const [connection, setConnection] = useState<'connected' | 'reconnecting'>('reconnecting');
   const hasConnectedRef = useRef(false);
@@ -654,6 +660,23 @@ function CanvasApp() {
     catch { setError(`Không sao chép được ID “${id}”. Bạn có thể chọn ID đang hiển thị.`); }
   };
 
+  /**
+   * Copies the selected screen's id so it can be pasted into a prompt for the
+   * agent. The id is the one the CLI addresses screens by, and it never appears
+   * on screen — the frame shows the name, the sidebar shows the name — so this
+   * is the only way to get it without opening DevTools. The confirmation is
+   * inline rather than an error banner: a failure to copy is not an error state.
+   */
+  const copyScreenId = async (id: string) => {
+    try {
+      await navigator.clipboard.writeText(id);
+      setScreenIdNotice({ id, status: 'copied' });
+    } catch {
+      setScreenIdNotice({ id, status: 'failed' });
+    }
+    window.setTimeout(() => setScreenIdNotice((current) => current?.id === id ? null : current), 4000);
+  };
+
   const removePrototype = async (prototype: PrototypeView) => {
     if (!project) return;
     if (!window.confirm(`Xóa prototype “${prototype.name}” (${prototype.id})?\n\nChỉ prototype này bị xóa; các màn hình gốc vẫn được giữ nguyên.`)) return;
@@ -731,6 +754,7 @@ function CanvasApp() {
           {selectedScreen && <div className="inspector">
             <label>W<input aria-label="Width" type="number" min="240" max="4096" value={selectedScreen.width} onChange={(event) => updateDimension('width', event.target.value)} onBlur={(event) => selectedScreen && void persist([{ id: selectedScreen.id, width: Number(event.target.value) }])} /></label>
             <label>H<input aria-label="Height" type="number" min="240" max="4096" value={selectedScreen.height} onChange={(event) => updateDimension('height', event.target.value)} onBlur={(event) => selectedScreen && void persist([{ id: selectedScreen.id, height: Number(event.target.value) }])} /></label>
+            <button type="button" className="header-btn" data-testid="copy-screen-id" onClick={() => void copyScreenId(selectedScreen.id)} title={`Sao chép ID màn hình (${selectedScreen.id}) để dán vào prompt`}><IconCopy size={14} />{screenIdNotice?.id === selectedScreen.id ? 'Đã sao chép ID' : 'Sao chép ID'}</button>
           </div>}
 
 
@@ -777,6 +801,11 @@ function CanvasApp() {
       <textarea readOnly value={prototypePrompt} aria-label="Nội dung prompt prototype" onFocus={(event) => event.currentTarget.select()} />
     </section>}
     {error && <div className="error-banner" role="alert"><span><IconAlert size={14} /> {error}</span><button onClick={() => setError(null)}><IconX size={13} />Đóng</button></div>}
+    {screenIdNotice && <div className={`screen-id-notice ${screenIdNotice.status}`} role="status" data-testid="screen-id-notice">
+      {screenIdNotice.status === 'copied' ? <IconCheck size={14} /> : <IconAlert size={14} />}
+      {screenIdNotice.status === 'copied' ? 'Đã sao chép ID màn hình: ' : 'Chưa sao chép được ID màn hình: '}
+      <code>{screenIdNotice.id}</code>
+    </div>}
     {editingScreenId && <div className="editing-banner" role="status">Đang chỉnh sửa: {editingMessage ?? editingScreenId}</div>}
     {userEditingScreenId && elementIdNotice && <div className="element-id-notice" role="status" data-testid="element-id-notice">
       {elementIdNotice.id ? <>

@@ -295,6 +295,45 @@ test('header chứa dropdown kích thước và không che canvas', async ({ pag
   })).toBe(true);
 });
 
+test('sao chép ID màn hình đang chọn để dán vào prompt', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: runtime.url });
+  await page.goto(`${runtime.url}/?project=shop#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
+  await expect(page.getByRole('heading', { name: 'Shop' })).toBeVisible();
+
+  await page.locator('[data-screen-row="orders"]').click();
+  const button = page.getByTestId('copy-screen-id');
+  await expect(button).toBeVisible();
+  await button.click();
+
+  await expect(page.getByTestId('screen-id-notice')).toContainText('orders');
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('orders');
+
+  // Selecting another screen copies that one's id, not the previous one.
+  await page.locator('[data-screen-row="overview"]').click();
+  await expect(page.getByTestId('screen-id-notice')).toHaveCount(0);
+  await page.getByTestId('copy-screen-id').click();
+  // The notice only renders after the clipboard write resolves, so waiting for
+  // it is what makes the read below deterministic.
+  await expect(page.getByTestId('screen-id-notice')).toContainText('overview');
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('overview');
+
+  // The copy control follows the selection, so an empty selection drops it.
+  await page.keyboard.press('Escape');
+  await expect(page.getByTestId('copy-screen-id')).toHaveCount(0);
+});
+
+test('clipboard bị từ chối thì ID màn hình vẫn hiện để sao chép tay', async ({ page }) => {
+  await page.goto(`${runtime.url}/?project=shop#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
+  await expect(page.getByRole('heading', { name: 'Shop' })).toBeVisible();
+  await page.locator('[data-screen-row="orders"]').click();
+  await page.evaluate(() => {
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: () => Promise.reject(new Error('denied')) } });
+  });
+
+  await page.getByTestId('copy-screen-id').click();
+  await expect(page.getByTestId('screen-id-notice')).toContainText('Chưa sao chép được ID màn hình: orders');
+});
+
 test('Canvas không hiển thị nút thêm màn hình', async ({ page }) => {
   await page.goto(`${runtime.url}/?project=shop#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
   await expect(page.getByRole('heading', { name: 'Shop' })).toBeVisible();
