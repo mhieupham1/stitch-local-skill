@@ -18,6 +18,9 @@ export class CanvasApi {
   }
 
   listProjects() { return this.request<Project[]>('/api/projects'); }
+  createProject(input: { id: string; name: string }) {
+    return this.request<{ project: Project; path: string }>('/api/projects', { method: 'POST', body: JSON.stringify(input) });
+  }
   getPreview() { return this.request<{ url: string }>('/api/preview'); }
   getProject(projectId: string) { return this.request<Project>(`/api/projects/${encodeURIComponent(projectId)}`); }
   listPrototypes(projectId: string) { return this.request<PrototypeView[]>(`/api/projects/${encodeURIComponent(projectId)}/prototypes`); }

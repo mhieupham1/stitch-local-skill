@@ -5,4 +5,8 @@ dist/
 test-results/
 *.log
 .DS_Store
-projects/cgv-home/
+# Server-owned runtime state and the workspace's generated projects.
+# Anchored to the repo root: an unanchored `projects/` would also match
+# packages/canvas/src/features/projects/.
+/.local-canvas/
+/projects/

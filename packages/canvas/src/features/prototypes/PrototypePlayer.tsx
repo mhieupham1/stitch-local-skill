@@ -113,7 +113,7 @@ export function PrototypePlayer({ projectId, prototypeId }: { projectId: string;
       <button type="button" onClick={back} disabled={navigation.history.length <= 1}>Quay lại</button>
       <button type="button" onClick={restart} disabled={!data}>Chạy lại</button>
       <button type="button" onClick={retry}>Tải lại</button>
-      <a href={data ? `/#previewUrl=${encodeURIComponent(data.previewUrl)}` : '/'}>Về Canvas</a>
+      <a href={`/?project=${encodeURIComponent(projectId)}${data ? `#previewUrl=${encodeURIComponent(data.previewUrl)}` : ''}`}>Về Canvas</a>
     </header>
     {data?.prototype.stale && <p className="prototype-player-warning" role="status">Cần tạo lại: UI gốc đã đổi. Play vẫn dùng giao diện mới nhất và liên kết đã lưu.</p>}
     {missingIds.length > 0 && <p className="prototype-player-warning" role="status">Không tìm thấy điểm bấm: {missingIds.join(', ')}. Hãy tạo lại prototype nếu liên kết đã đổi.</p>}

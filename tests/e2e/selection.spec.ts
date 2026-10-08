@@ -39,7 +39,7 @@ test.afterAll(async () => {
 });
 
 async function openCanvas(page: import('playwright/test').Page): Promise<void> {
-  await page.goto(`${runtime.url}/#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
+  await page.goto(`${runtime.url}/?project=shop#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
   await expect(page.getByRole('heading', { name: 'Shop' })).toBeVisible();
 }
 

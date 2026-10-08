@@ -43,7 +43,11 @@ node dist/release/local-design-canvas/scripts/run.mjs start \
 
 `--workspace` trỏ tới nơi bạn muốn lưu các thiết kế. Nếu bỏ qua, CLI dùng thư mục làm việc hiện tại. `--open` mở canvas trong trình duyệt; `--json` in đúng một kết quả JSON ra stdout.
 
-Canvas không dùng token: sau khi server chạy, bạn có thể mở thẳng `http://127.0.0.1:<port>/`. Lần đầu, Canvas hiện preview do chính phiên server này quản lý; bấm **Dùng preview này** để tải giao diện. Canvas nhớ lựa chọn cho các lần reload; dùng **Đổi preview** trên header khi cần chọn lại. `--open` vẫn truyền sẵn preview để mở thẳng vào canvas. API quản lý vẫn kiểm tra `Host`/`Origin`, nên một trang web khác không gọi được vào workspace của bạn.
+Canvas không dùng token: sau khi server chạy, bạn có thể mở thẳng `http://127.0.0.1:<port>/`. Lần đầu, Canvas hiện preview do chính phiên server này quản lý; bấm **Dùng preview này** để tới **Dự án của bạn**, rồi chọn thẻ dự án để mở Canvas. Canvas nhớ preview cho các lần reload; dùng **Đổi preview** trên header khi cần chọn lại. `--open` truyền sẵn preview và mở danh sách dự án. API quản lý vẫn kiểm tra `Host`/`Origin`, nên một trang web khác không gọi được vào workspace của bạn.
+
+Mỗi dự án có Canvas riêng; thanh bên chỉ hiện các màn hình của dự án đang mở. Bấm **Danh sách dự án** trên header để chuyển dự án mà không cần chọn lại preview. URL `/?project=<projectId>` mở trực tiếp dự án đó và giữ đúng dự án khi reload. **Về Canvas** từ Play cũng trở về đúng dự án của prototype.
+
+Ở màn danh sách, bấm **Tạo dự án**, nhập tên rồi xác nhận. ID được tạo tự động từ tên, bỏ dấu tiếng Việt và thêm hậu tố số nếu ID đã tồn tại. Canvas mở dự án mới chưa có màn hình; bạn nhắn AI tạo các màn hình cho ID dự án được hiển thị. Bạn cũng có thể nhờ agent tạo dự án qua CLI; danh sách tự cập nhật khi dự án được tạo.
 
 ## 3. Cài skill cho agent
 

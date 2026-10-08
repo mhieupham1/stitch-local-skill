@@ -114,6 +114,10 @@ export function CanvasViewport(props: Props) {
   };
   const wheel = (event: WheelEvent<HTMLElement>) => { event.preventDefault(); if (event.ctrlKey || event.metaKey) updateZoom(props.viewport.zoom * (event.deltaY > 0 ? 0.9 : 1.1)); else props.onViewport({ ...props.viewport, x: props.viewport.x - event.deltaX, y: props.viewport.y - event.deltaY }); };
   return <main ref={ref} className="canvas-viewport" onWheel={wheel} onPointerDown={startPan} onPointerMove={movePointer} onPointerUp={endPointer}>
+    {!props.screens.length && !props.prototypes.length && <div className="canvas-empty" onPointerDown={(event) => event.stopPropagation()}>
+      <h2>Chưa có màn hình</h2>
+      <p>Nhắn AI tạo các màn hình cho dự án <code>{props.projectId}</code> để bắt đầu thiết kế.</p>
+    </div>}
     <div className="canvas-toolbar">
       <button aria-label="Thu nhỏ" title="Thu nhỏ" onClick={() => updateZoom(props.viewport.zoom / 1.2)}><IconMinus size={14} /></button>
       <output>{Math.round(props.viewport.zoom * 100)}%</output>

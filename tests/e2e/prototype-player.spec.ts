@@ -131,5 +131,5 @@ test('Về Canvas từ tab Play giữ preview đang chạy mà không cần ch�
   await expect(page.getByRole('heading', { name: 'Shop' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Chọn preview' })).toHaveCount(0);
   expect(await page.evaluate(() => sessionStorage.getItem('local-canvas-preview-url'))).toBe(runtime.previewUrl);
-  expect(page.url()).toBe(`${runtime.url}/`);
+  expect(page.url()).toBe(`${runtime.url}/?project=shop`);
 });

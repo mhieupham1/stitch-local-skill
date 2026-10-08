@@ -45,7 +45,7 @@ test.afterAll(async () => {
 });
 
 test('M1: ba màn hình, cập nhật source đúng frame, thao tác canvas và khôi phục sau restart', async ({ page }) => {
-  await page.goto(`${runtime.url}/#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
+  await page.goto(`${runtime.url}/?project=sales-dashboard#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
   await expect(page.getByRole('heading', { name: 'Bán hàng' })).toBeVisible();
   await expect(page.locator('[data-screen-id]')).toHaveCount(3);
 
@@ -80,7 +80,7 @@ test('M1: ba màn hình, cập nhật source đúng frame, thao tác canvas và 
   await stopServer(workspace);
   await expect(page.getByText('Đang kết nối lại…')).toBeVisible({ timeout: 10_000 });
   runtime = await ensureServer(workspace);
-  await page.goto(`${runtime.url}/#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
+  await page.goto(`${runtime.url}/?project=sales-dashboard#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
   await expect(page.getByRole('heading', { name: 'Bán hàng' })).toBeVisible();
   await expect(page.getByLabel('Width')).toHaveValue('900');
   await expect(page.locator('[data-screen-id]')).toHaveCount(3);
@@ -92,7 +92,7 @@ test('canvas đang mở workspace trống nhận project được CLI hoặc API
   try {
     const publicRuntime = await ensureServer(emptyWorkspace);
     await page.goto(`${publicRuntime.url}/#previewUrl=${encodeURIComponent(publicRuntime.previewUrl)}`);
-    await expect(page.getByText('Đang tải project…')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Chưa có dự án' })).toBeVisible();
     // The canvas learns about a later project over the SSE stream. Creating it
     // before the subscription is live drops the event, leaving an empty canvas
     // that never refreshes — wait for the connection indicator instead of
@@ -106,13 +106,16 @@ test('canvas đang mở workspace trống nhận project được CLI hoặc API
     });
     expect(created.status).toBe(201);
     await expect(page.getByRole('heading', { name: 'Project tạo sau' })).toBeVisible();
+    await expect(page.locator('.canvas-viewport')).toHaveCount(0);
+    await page.getByRole('link', { name: 'Mở dự án Project tạo sau' }).click();
+    await expect(page.locator('.canvas-viewport')).toBeVisible();
   } finally {
     await stopServer(emptyWorkspace).catch(() => undefined);
     await rm(emptyRoot, { force: true, recursive: true });
   }
 });
 
-test('retry layout chỉ hiện cho project có thay đổi chưa lưu', async ({ page }) => {
+test('rời dự án có layout chưa lưu cần xác nhận, dự án kế tiếp không nhận layout đó', async ({ page }) => {
   const retryRoot = await mkdtemp(join(tmpdir(), 'local-canvas-retry-'));
   const retryWorkspace = join(retryRoot, 'workspace');
   try {
@@ -125,7 +128,7 @@ test('retry layout chỉ hiện cho project có thay đổi chưa lưu', async (
     await request('/api/projects/alpha/screens', { id: 'overview', name: 'Overview', width: 800, height: 600, expectedRevision: 0 });
     await request('/api/projects/beta/screens', { id: 'overview', name: 'Overview', width: 800, height: 600, expectedRevision: 0 });
 
-    await page.goto(`${publicRuntime.url}/#previewUrl=${encodeURIComponent(publicRuntime.previewUrl)}`);
+    await page.goto(`${publicRuntime.url}/?project=alpha#previewUrl=${encodeURIComponent(publicRuntime.previewUrl)}`);
     await expect(page.getByRole('heading', { name: 'Alpha' })).toBeVisible();
     await page.route(`${publicRuntime.url}/api/projects/alpha/layout`, (route) => route.fulfill({
       status: 503, contentType: 'application/json', body: JSON.stringify({ ok: false, error: { code: 'SERVER_UNAVAILABLE', message: 'Tạm thời không lưu được.' } }),
@@ -139,9 +142,18 @@ test('retry layout chỉ hiện cho project có thay đổi chưa lưu', async (
     await page.mouse.up();
     await expect(page.getByRole('button', { name: 'Thử lại' })).toBeVisible();
 
-    await page.getByRole('button', { name: 'Beta' }).click();
+    const cancelled = page.waitForEvent('dialog');
+    const leave = page.getByRole('link', { name: 'Danh sách dự án', exact: true }).click({ noWaitAfter: true });
+    await (await cancelled).dismiss();
+    await leave;
+    await expect(page.getByRole('heading', { name: 'Alpha' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Thử lại' })).toBeVisible();
+    page.once('dialog', (dialog) => void dialog.accept());
+    await page.getByRole('link', { name: 'Danh sách dự án', exact: true }).click();
+    await page.getByRole('link', { name: 'Mở dự án Beta' }).click();
     await expect(page.getByRole('heading', { name: 'Beta' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Thử lại' })).toHaveCount(0);
+    await expect(page.getByLabel('Width')).toHaveValue('800');
   } finally {
     await stopServer(retryWorkspace).catch(() => undefined);
     await rm(retryRoot, { force: true, recursive: true });
@@ -151,7 +163,7 @@ test('retry layout chỉ hiện cho project có thay đổi chưa lưu', async (
 test('kết nối lại làm mới preview đã bỏ lỡ thay đổi source', async ({ page }) => {
   let blockEvents = true;
   await page.route(`${runtime.url}/api/events`, (route) => blockEvents ? route.abort('failed') : route.continue());
-  await page.goto(`${runtime.url}/#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
+  await page.goto(`${runtime.url}/?project=sales-dashboard#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
   await expect(page.getByRole('heading', { name: 'Bán hàng' })).toBeVisible();
   const overview = page.locator('[data-screen-id="overview"] iframe');
   const oldSource = await overview.getAttribute('src');

@@ -135,6 +135,47 @@ button {
 }
 .app-shell.sidebar-collapsed { grid-template-columns: 56px 1fr; }
 
+.project-directory { height: 100%; overflow-y: auto; background: var(--bg); }
+.project-directory-header { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 20px 32px; border-bottom: 1px solid var(--line); background: var(--surface); }
+.project-directory-brand { display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 650; }
+.project-directory-brand svg { color: var(--accent-ring); }
+.project-directory-header > div { display: flex; align-items: center; gap: 16px; }
+.project-directory-content { max-width: 1200px; margin: 0 auto; padding: 52px 32px; }
+.project-directory-intro { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 24px; margin-bottom: 32px; }
+.project-directory-eyebrow { color: var(--accent-ring); font-size: 11px; font-weight: 600; letter-spacing: .12em; }
+.project-directory-intro h1 { margin: 12px 0; font-size: 30px; letter-spacing: -.6px; }
+.project-directory-intro p { margin: 0; color: var(--text-dim); font-size: 14px; line-height: 1.6; }
+.project-directory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+.project-directory-card { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; padding: 24px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface); color: var(--text); text-decoration: none; transition: border-color var(--speed), background var(--speed); }
+.project-directory-card:hover { border-color: var(--accent-ring); background: var(--elevated); }
+.project-directory-card-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; width: 100%; margin-bottom: 28px; color: var(--text-dim); font-size: 12px; }
+.project-directory-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: var(--radius); color: var(--accent-ring); background: var(--accent-soft); }
+.project-directory-card h2 { margin: 0 0 8px; font-size: 19px; line-height: 1.4; overflow-wrap: anywhere; }
+.project-directory-card code { margin-bottom: 28px; color: var(--text-dim); font: 12px var(--mono); overflow-wrap: anywhere; }
+.project-directory-card-open { display: flex; align-items: center; justify-content: space-between; width: 100%; padding-top: 16px; margin-top: auto; border-top: 1px solid var(--line); color: var(--accent-ring); font-size: 12px; font-weight: 600; }
+.project-directory-empty { padding: 60px 24px; text-align: center; border: 1px dashed var(--line-strong); border-radius: var(--radius-lg); color: var(--text-dim); }
+.project-directory-empty h2 { color: var(--text); font-size: 20px; }
+.project-directory-empty p { margin-bottom: 0; font-size: 14px; }
+.project-directory-back { flex: none; color: var(--text-dim); text-decoration: none; }
+.app-message > a { color: var(--accent-ring); }
+.project-primary-btn { display: inline-flex; align-items: center; justify-content: center; flex: none; gap: 8px; min-height: 40px; padding: 0 18px; background: var(--accent); color: #fff; font-size: 13px; font-weight: 600; }
+.project-primary-btn:hover:not(:disabled) { background: var(--accent-hover); }
+.project-primary-btn:disabled, .create-project-dialog button:disabled { opacity: .5; cursor: default; }
+.create-project-dialog { width: min(460px, calc(100vw - 48px)); max-height: calc(100vh - 48px); overflow: auto; padding: 28px; border: 1px solid var(--line-strong); border-radius: var(--radius-lg); color: var(--text); background: var(--surface); box-shadow: var(--shadow-lg); }
+.create-project-dialog::backdrop { background: #0009; }
+.create-project-dialog h2 { margin: 0 0 8px; font-size: 22px; }
+.create-project-dialog p { color: var(--text-dim); font-size: 13px; line-height: 1.6; }
+.create-project-dialog label { display: block; margin: 24px 0 8px; font-size: 13px; font-weight: 600; }
+.create-project-dialog input { width: 100%; padding: 12px; background: var(--bg); border: 1px solid var(--line-strong); border-radius: var(--radius-sm); }
+.create-project-id { overflow-wrap: anywhere; }
+.create-project-id code { color: var(--accent-ring); font-family: var(--mono); }
+.create-project-dialog .create-project-error { color: var(--danger); }
+.create-project-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+.canvas-empty { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); width: min(480px, 80%); text-align: center; color: var(--text-dim); }
+.canvas-empty h2 { color: var(--text); font-size: 22px; }
+.canvas-empty p { font-size: 14px; line-height: 1.7; }
+.canvas-empty code { color: var(--accent-ring); overflow-wrap: anywhere; }
+
 /* ============================================================================
    Sidebar
    ========================================================================= */

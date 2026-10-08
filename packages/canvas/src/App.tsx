@@ -6,10 +6,11 @@ import type { SaveState } from './features/canvas/layout-state.js';
 import type { Viewport } from './features/canvas/viewport-math.js';
 import { PreviewSizeMenu } from './features/canvas/PreviewSizeMenu.js';
 import { ProjectSidebar } from './features/projects/ProjectSidebar.js';
+import { ProjectDirectory } from './features/projects/ProjectDirectory.js';
 import { createPrototypePrompt, regeneratePrototypePrompt } from './features/prototypes/prompts.js';
 import { PrototypePlayer } from './features/prototypes/PrototypePlayer.js';
 import {
-  IconAlert, IconCamera, IconCamera2, IconCheck, IconCopy, IconFigma,
+  IconAlert, IconCamera, IconCamera2, IconCheck, IconChevronLeft, IconCopy, IconFigma,
   IconLoader, IconMonitor, IconRotateCcw, IconTrash, IconX,
 } from './icons.js';
 
@@ -42,6 +43,7 @@ export function App() {
 }
 
 function CanvasApp() {
+  const requestedProjectId = useMemo(() => new URLSearchParams(window.location.search).get('project'), []);
   const session = useMemo(readSession, []);
   const api = useMemo(() => new CanvasApi(), []);
   // A URL from the fragment or storage is only a request: the management API
@@ -53,6 +55,7 @@ function CanvasApp() {
   const [previewError, setPreviewError] = useState<string | null>(null);
   const [previewRequest, setPreviewRequest] = useState(0);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [projectsLoading, setProjectsLoading] = useState(true);
   const [project, setProject] = useState<Project | null>(null);
   const [prototypes, setPrototypes] = useState<PrototypeView[]>([]);
   const [prototypePrompt, setPrototypePrompt] = useState<string | null>(null);
@@ -156,12 +159,13 @@ function CanvasApp() {
 
   const refreshProjects = useCallback(async () => {
     if (!api) return;
-    const items = await api.listProjects();
-    setProjects(items);
-    const activeProjectId = project?.id && items.some((item) => item.id === project.id) ? project.id : items[0]?.id;
-    if (activeProjectId) await loadProject(activeProjectId);
-    else { setProject(null); setSelectedScreenIds([]); }
-  }, [api, loadProject, project?.id]);
+    try {
+      const items = await api.listProjects();
+      setProjects(items);
+      if (requestedProjectId) await loadProject(requestedProjectId);
+      if (!requestedProjectId) setError(null);
+    } finally { setProjectsLoading(false); }
+  }, [api, loadProject, requestedProjectId]);
   const refreshProjectsRef = useRef(refreshProjects);
   refreshProjectsRef.current = refreshProjects;
 
@@ -223,6 +227,18 @@ function CanvasApp() {
   useEffect(() => {
     if (project) setSaveState(pending.some((item) => item.projectId === project.id) ? 'unsaved' : 'saved');
   }, [pending, project?.id]);
+
+  // Project navigation creates a fresh document so editing state cannot leak
+  // between projects with matching screen IDs. Protect unfinished layout saves.
+  useEffect(() => {
+    const beforeUnload = (event: BeforeUnloadEvent) => {
+      if (saveState !== 'saving' && !pending.length && !Object.keys(draftRef.current).length) return;
+      event.preventDefault();
+      event.returnValue = '';
+    };
+    window.addEventListener('beforeunload', beforeUnload);
+    return () => window.removeEventListener('beforeunload', beforeUnload);
+  }, [saveState, pending.length]);
 
   const selectedScreenId = selectedScreenIds[selectedScreenIds.length - 1] ?? null;
   const selectedScreen = project?.screens.find((screen) => screen.id === selectedScreenId) ?? null;
@@ -598,8 +614,7 @@ function CanvasApp() {
   const changePreview = () => {
     clearPreviewUrl();
     previewCandidateUrl.current = null;
-    setAvailablePreviewUrl(null);
-    setPreviewUrl(null);
+    window.location.assign('/');
   };
   const recopyElementId = async (id: string) => {
     const input = document.createElement('textarea');
@@ -690,11 +705,16 @@ function CanvasApp() {
     </section>}
     {previewError && <><p role="alert">{previewError}</p><button type="button" onClick={retryPreview}>Thử lại</button></>}
   </main>;
-  if (error && !project) return <div className="app-message"><h1>Không mở được canvas</h1><p>{error}</p></div>;
+  if (!requestedProjectId) return <ProjectDirectory projects={projects} loading={projectsLoading} error={error} connection={connection} onChangePreview={changePreview} onCreate={async (input) => (await api.createProject(input)).project} onRetry={() => {
+    setProjectsLoading(true);
+    void refreshProjects().catch((cause: unknown) => setError(cause instanceof Error ? cause.message : 'Không tải được dự án.'));
+  }} />;
+  if (error && !project) return <div className="app-message"><h1>Không mở được dự án</h1><p role="alert">{error}</p><a className="header-btn" href="/">Về danh sách dự án</a></div>;
   return <div className={sidebarCollapsed ? 'app-shell sidebar-collapsed' : 'app-shell'}>
-    <ProjectSidebar projects={projects} selectedProjectId={project?.id ?? null} selectedScreenIds={selectedScreenIds} onProjectSelect={(id) => void loadProject(id)} onScreenSelect={selectScreens} onReorderScreens={(projectId, order) => void reorderScreens(projectId, order)} onRenameProject={(projectId, name) => void renameProject(projectId, name)} collapsed={sidebarCollapsed} onCollapsedChange={updateSidebarCollapsed} />
+    <ProjectSidebar projects={project ? [project] : []} selectedProjectId={project?.id ?? null} selectedScreenIds={selectedScreenIds} onProjectSelect={(id) => void loadProject(id)} onScreenSelect={selectScreens} onReorderScreens={(projectId, order) => void reorderScreens(projectId, order)} onRenameProject={(projectId, name) => void renameProject(projectId, name)} collapsed={sidebarCollapsed} onCollapsedChange={updateSidebarCollapsed} />
     <section className="canvas-shell">
       <header className="app-header">
+        <a className="header-btn project-directory-back" href="/" title="Về danh sách dự án"><IconChevronLeft size={14} />Danh sách dự án</a>
         <div className="header-title">
           {project ? <h2>{project.name}</h2> : <span>Đang tải…</span>}
           <small className={`status-pill ${connection}`} data-testid="connection-status">

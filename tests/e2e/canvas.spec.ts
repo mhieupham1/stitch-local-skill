@@ -48,7 +48,7 @@ test.afterAll(async () => {
 
 test('prototype: chọn nhiều màn chỉ sao chép prompt, rồi hiện ID và trạng thái cần tạo lại', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
-  await page.goto(`${runtime.url}/#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
+  await page.goto(`${runtime.url}/?project=shop#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
   await expect(page.getByRole('heading', { name: 'Shop' })).toBeVisible();
   await page.locator('[data-screen-row="orders"]').click();
   await page.locator('[data-screen-row="overview"]').click({ modifiers: ['Control'] });
@@ -81,7 +81,7 @@ test('prototype: kéo từ thân thẻ trong canvas, lưu vị trí và Play m�
     transitions: [], expectedSourceBaseline: baseline,
   }) });
   expect(created.ok).toBe(true);
-  await page.goto(`${runtime.url}/#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
+  await page.goto(`${runtime.url}/?project=shop#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
   const card = page.getByTestId('prototype-movable-flow');
   await expect(card).toBeVisible();
   await page.getByRole('button', { name: 'Vừa khung hình' }).click();
@@ -123,7 +123,7 @@ test('prototype: chỉ xóa thẻ sau khi người dùng xác nhận và giữ m
     transitions: [], expectedSourceBaseline: baseline,
   }) });
   expect(created.ok).toBe(true);
-  await page.goto(`${runtime.url}/#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
+  await page.goto(`${runtime.url}/?project=shop#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
   const card = page.getByTestId('prototype-delete-me');
   await expect(card).toBeVisible();
   await page.getByRole('button', { name: 'Vừa khung hình' }).click();
@@ -145,7 +145,7 @@ test('prototype: clipboard từ chối vẫn hiện prompt và cho thử lại',
   await page.addInitScript(() => {
     Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: () => Promise.reject(new Error('denied')) } });
   });
-  await page.goto(`${runtime.url}/#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
+  await page.goto(`${runtime.url}/?project=shop#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
   await page.locator('[data-screen-row="orders"]').click();
   await page.locator('[data-screen-row="overview"]').click({ modifiers: ['Control'] });
   await page.getByRole('button', { name: 'Tạo prototype' }).click();
@@ -159,6 +159,9 @@ test('mở Canvas trực tiếp cho chọn preview của phiên hiện tại', a
   await expect(page.getByRole('heading', { name: 'Chọn preview' })).toBeVisible();
   await expect(page.getByText(runtime.previewUrl, { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Dùng preview này', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Dự án của bạn' })).toBeVisible();
+  await expect(page.locator('.canvas-viewport')).toHaveCount(0);
+  await page.getByRole('link', { name: 'Mở dự án Shop', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Shop' })).toBeVisible();
 
   await page.reload();
@@ -168,7 +171,7 @@ test('mở Canvas trực tiếp cho chọn preview của phiên hiện tại', a
 });
 
 test('không tự dùng preview URL không thuộc phiên hiện tại', async ({ page }) => {
-  await page.goto(`${runtime.url}/#previewUrl=${encodeURIComponent('https://untrusted.example')}`);
+  await page.goto(`${runtime.url}/?project=shop#previewUrl=${encodeURIComponent('https://untrusted.example')}`);
 
   await expect(page.getByRole('heading', { name: 'Chọn preview' })).toBeVisible();
   await expect(page.getByText(runtime.previewUrl, { exact: true })).toBeVisible();
@@ -199,7 +202,7 @@ test('có thể tải lại preview khi API tạm thời chưa sẵn sàng', asy
 });
 
 test('kéo khung khi zoom rồi reload để xác nhận vị trí được lưu', async ({ page }) => {
-  await page.goto(`${runtime.url}/#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
+  await page.goto(`${runtime.url}/?project=shop#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
   await expect(page.getByRole('heading', { name: 'Shop' })).toBeVisible();
   const shell = await page.locator('.app-shell').boundingBox();
   const viewportBox = await page.locator('.canvas-viewport').boundingBox();
@@ -237,7 +240,7 @@ test('kéo khung khi zoom rồi reload để xác nhận vị trí được lưu
 });
 
 test('thay đổi source chỉ reload iframe của màn hình liên quan', async ({ page }) => {
-  await page.goto(`${runtime.url}/#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
+  await page.goto(`${runtime.url}/?project=shop#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
   const overview = page.locator('[data-screen-id="overview"] iframe');
   const orders = page.locator('[data-screen-id="orders"] iframe');
   await expect(overview).toBeVisible();
@@ -258,7 +261,7 @@ test('trang dài hiện trọn trong khung và canvas không cuộn cả trang',
   });
   expect(created.ok).toBe(true);
   await writeFile(join(workspace, 'projects', 'shop', 'screens', 'tall', 'index.html'), '<!doctype html><html><head><style>body{margin:0}.page{height:1800px;background:#eee}</style></head><body><div class="page">Tall page</div></body></html>');
-  await page.goto(`${runtime.url}/#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
+  await page.goto(`${runtime.url}/?project=shop#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
   const frame = page.locator('[data-screen-id="tall"]');
   await expect.poll(async () => {
     try {
@@ -285,7 +288,7 @@ test('trang dài hiện trọn trong khung và canvas không cuộn cả trang',
 });
 
 test('header chứa dropdown kích thước và không che canvas', async ({ page }) => {
-  await page.goto(`${runtime.url}/#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
+  await page.goto(`${runtime.url}/?project=shop#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
   await page.locator('[data-screen-id="overview"]').click();
   const menu = page.locator('.app-header').getByRole('combobox', { name: 'Kích thước xem trước' });
   await expect(menu).toBeVisible();
@@ -303,14 +306,14 @@ test('header chứa dropdown kích thước và không che canvas', async ({ pag
 });
 
 test('Canvas không hiển thị nút thêm màn hình', async ({ page }) => {
-  await page.goto(`${runtime.url}/#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
+  await page.goto(`${runtime.url}/?project=shop#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
   await expect(page.getByRole('heading', { name: 'Shop' })).toBeVisible();
   await expect(page.locator('[data-screen-id="overview"]')).toBeVisible();
   await expect(page.locator('.app-header').getByRole('button', { name: 'Thêm màn hình' })).toHaveCount(0);
 });
 
 test('menu Phiên bản giữ thao tác lưu project ngoài header chính', async ({ page }) => {
-  await page.goto(`${runtime.url}/#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
+  await page.goto(`${runtime.url}/?project=shop#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
   await expect(page.getByRole('heading', { name: 'Shop' })).toBeVisible();
   const header = page.locator('.app-header');
   await expect(header.getByRole('button', { name: 'Lưu ảnh chụp' })).toHaveCount(0);
@@ -326,7 +329,7 @@ test('menu Phiên bản giữ thao tác lưu project ngoài header chính', asyn
 });
 
 test('bỏ chọn màn hình bằng click nền canvas hoặc Escape', async ({ page }) => {
-  await page.goto(`${runtime.url}/#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
+  await page.goto(`${runtime.url}/?project=shop#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
   await page.locator('[data-screen-id="overview"]').click();
   await expect(page.locator('.app-header').getByRole('combobox', { name: 'Kích thước xem trước' })).toBeVisible();
   await page.locator('.canvas-viewport').click({ position: { x: 20, y: 40 } });
@@ -338,7 +341,7 @@ test('bỏ chọn màn hình bằng click nền canvas hoặc Escape', async ({ 
 });
 
 test('mỗi màn hình được chọn chỉ có viền rõ mà không đổi màu preview', async ({ page }) => {
-  await page.goto(`${runtime.url}/#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
+  await page.goto(`${runtime.url}/?project=shop#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
   const overview = page.locator('[data-screen-id="overview"]');
   const orders = page.locator('[data-screen-id="orders"]');
   await expect(overview).toBeVisible();
@@ -364,7 +367,7 @@ test('mỗi màn hình được chọn chỉ có viền rõ mà không đổi m�
 });
 
 test('kéo từ nội dung màn hình không làm trình duyệt tô màu preview', async ({ page }) => {
-  await page.goto(`${runtime.url}/#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
+  await page.goto(`${runtime.url}/?project=shop#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
   await page.getByRole('button', { name: 'Vừa khung hình' }).click();
   const overview = page.locator('[data-screen-id="overview"]');
   const orders = page.locator('[data-screen-id="orders"]');
@@ -387,7 +390,7 @@ test('kéo từ nội dung màn hình không làm trình duyệt tô màu previe
 });
 
 test('kéo vùng trên nền canvas chọn nhiều màn hình rồi di chuyển cùng nhau', async ({ page }) => {
-  await page.goto(`${runtime.url}/#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
+  await page.goto(`${runtime.url}/?project=shop#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
   await page.getByRole('button', { name: 'Shop', exact: true }).click();
   await page.getByRole('button', { name: 'Vừa khung hình' }).click();
   // Only assert the two frames the band is aimed at, so another test adding a
