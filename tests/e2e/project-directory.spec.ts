@@ -38,7 +38,7 @@ test('chọn server → danh sách → từng canvas, giữ phiên preview và t
   await page.getByRole('link', { name: 'Mở dự án Alpha' }).click();
   await expect(page).toHaveURL(`${runtime.url}/?project=alpha`);
   await expect(page.getByLabel('Width')).toHaveValue('800');
-  await expect(page.locator('.project-sidebar .project-button')).toHaveCount(1);
+  await expect(page.locator('.project-sidebar .project-name')).toHaveText('Alpha');
   await expect(page.locator('.project-sidebar')).not.toContainText('Beta');
   await page.getByRole('button', { name: 'Chỉnh sửa', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Thoát chỉnh sửa' })).toBeVisible();

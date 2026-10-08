@@ -711,7 +711,7 @@ function CanvasApp() {
   }} />;
   if (error && !project) return <div className="app-message"><h1>Không mở được dự án</h1><p role="alert">{error}</p><a className="header-btn" href="/">Về danh sách dự án</a></div>;
   return <div className={sidebarCollapsed ? 'app-shell sidebar-collapsed' : 'app-shell'}>
-    <ProjectSidebar projects={project ? [project] : []} selectedProjectId={project?.id ?? null} selectedScreenIds={selectedScreenIds} onProjectSelect={(id) => void loadProject(id)} onScreenSelect={selectScreens} onReorderScreens={(projectId, order) => void reorderScreens(projectId, order)} onRenameProject={(projectId, name) => void renameProject(projectId, name)} collapsed={sidebarCollapsed} onCollapsedChange={updateSidebarCollapsed} />
+    <ProjectSidebar projects={project ? [project] : []} selectedProjectId={project?.id ?? null} selectedScreenIds={selectedScreenIds} onScreenSelect={selectScreens} onReorderScreens={(projectId, order) => void reorderScreens(projectId, order)} onRenameProject={(projectId, name) => void renameProject(projectId, name)} collapsed={sidebarCollapsed} onCollapsedChange={updateSidebarCollapsed} />
     <section className="canvas-shell">
       <header className="app-header">
         <a className="header-btn project-directory-back" href="/" title="Về danh sách dự án"><IconChevronLeft size={14} />Danh sách dự án</a>

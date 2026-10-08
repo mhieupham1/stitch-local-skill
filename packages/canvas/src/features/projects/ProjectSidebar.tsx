@@ -7,7 +7,6 @@ type Props = {
   projects: Project[];
   selectedProjectId: string | null;
   selectedScreenIds: string[];
-  onProjectSelect: (id: string) => void;
   onScreenSelect: (id: string | null, options?: { additive?: boolean }) => void;
   // Receives the full new layer order (back of the stack first).
   onReorderScreens: (projectId: string, order: string[]) => void;
@@ -40,7 +39,7 @@ type DragState = {
 // immediate, large enough that a click to select never nudges the list.
 const DRAG_THRESHOLD = 4;
 
-export function ProjectSidebar({ projects, selectedProjectId, selectedScreenIds, onProjectSelect, onScreenSelect, onReorderScreens, onRenameProject, collapsed, onCollapsedChange }: Props) {
+export function ProjectSidebar({ projects, selectedProjectId, selectedScreenIds, onScreenSelect, onReorderScreens, onRenameProject, collapsed, onCollapsedChange }: Props) {
   const listRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<DragState | null>(null);
   const [drag, setDrag] = useState<{ ids: string[]; fromIndex: number; toIndex: number; offsetY: number } | null>(null);
@@ -211,13 +210,14 @@ export function ProjectSidebar({ projects, selectedProjectId, selectedScreenIds,
             if (event.key === 'Escape') { event.preventDefault(); setRenameId(null); }
           }}
         />
-        : <button
-          className={item.id === selectedProjectId ? 'project-button selected' : 'project-button'}
-          onClick={() => onProjectSelect(item.id)}
-          // Double-click to rename keeps the single-click select behaviour intact.
+        : <div
+          className="project-name"
+          // The directory screen and the header link own project switching, so
+          // this is a label for the open project rather than a switcher. It
+          // keeps the double-click, which is the only rename affordance.
           onDoubleClick={() => startRename(item)}
           title={`${item.name} — nhấp đôi để đổi tên`}
-        >{item.name}</button>}
+        >{item.name}</div>}
       {item.id === selectedProjectId && !collapsed && <div className="screen-list" ref={listRef}>
         {order.map((screenId, index) => {
           const screen = item.screens.find((candidate) => candidate.id === screenId);

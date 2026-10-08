@@ -37,7 +37,6 @@ test('preview sandbox cô lập app shell và chặn ghi API, nhưng vẫn cho t
   expect(previewResponse.headers()['content-security-policy']).toContain('sandbox allow-scripts');
 
   await page.goto(`${runtime.url}/?project=isolation#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
-  await page.getByRole('button', { name: 'Isolation' }).click();
   await expect(page.locator('[data-screen-id="demo"] iframe')).toHaveAttribute('sandbox', 'allow-scripts allow-same-origin');
   await expect(page.locator('[data-screen-id="demo"] iframe')).toHaveCSS('pointer-events', 'none');
 

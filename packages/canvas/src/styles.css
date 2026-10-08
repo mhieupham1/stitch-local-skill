@@ -237,7 +237,7 @@ button {
 
 .project-sidebar.collapsed { padding: 14px 8px; align-items: center; }
 .project-sidebar.collapsed .sidebar-head { flex-direction: column; gap: 10px; }
-.project-sidebar.collapsed .project-button {
+.project-sidebar.collapsed .project-name {
   width: 40px;
   padding: 10px 0;
   font-size: 11px;
@@ -248,27 +248,26 @@ button {
   text-orientation: mixed;
 }
 
-/* ---------- Project switcher ---------- */
+/* ---------- Project label ---------- */
 
-.project-button {
+/* A static label for the open project, not a switcher: switching lives on the
+   directory screen and the header link. `cursor: default` keeps it from
+   promising a click, and there is no hover state for the same reason. */
+.project-name {
   display: block;
   width: 100%;
   padding: 9px 11px;
   overflow: hidden;
-  color: var(--text-dim);
+  color: var(--text);
   font-size: 13px;
   font-weight: 550;
   text-align: left;
   text-overflow: ellipsis;
   white-space: nowrap;
-  background: transparent;
-  border-radius: var(--radius-sm);
-}
-.project-button:hover { color: var(--text); background: var(--elevated); }
-.project-button.selected {
-  color: var(--text);
   background: var(--elevated);
+  border-radius: var(--radius-sm);
   box-shadow: inset 0 0 0 1px var(--line-strong);
+  cursor: default;
 }
 
 .project-rename {

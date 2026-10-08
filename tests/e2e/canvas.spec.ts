@@ -381,7 +381,6 @@ test('kéo từ nội dung màn hình không làm trình duyệt tô màu previe
 
 test('kéo vùng trên nền canvas chọn nhiều màn hình rồi di chuyển cùng nhau', async ({ page }) => {
   await page.goto(`${runtime.url}/?project=shop#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
-  await page.getByRole('button', { name: 'Shop', exact: true }).click();
   await page.getByRole('button', { name: 'Vừa khung hình' }).click();
   // Only assert the two frames the band is aimed at, so another test adding a
   // screen to this shared project cannot fail this assertion.
