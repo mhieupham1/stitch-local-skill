@@ -2,6 +2,9 @@ import { defineConfig } from 'playwright/test';
 
 export default defineConfig({
   testDir: './tests/e2e',
+  // The canvas bundle is built once here, not per spec: concurrent `vite build`
+  // runs empty packages/canvas/dist while another worker is serving it.
+  globalSetup: './tests/e2e/global-setup.ts',
   timeout: 60_000,
   // Playwright's default expect timeout is 5s, which the m1-acceptance width
   // assertion exceeded when the box ran alongside the other browser suites.

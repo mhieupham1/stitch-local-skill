@@ -1,12 +1,8 @@
-import { execFile } from 'node:child_process';
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { promisify } from 'node:util';
 import { expect, test } from 'playwright/test';
 import { ensureServer, stopServer, type RuntimeInfo } from '../../packages/server/src/lifecycle.js';
-
-const execute = promisify(execFile);
 
 let root: string;
 let workspace: string;
@@ -20,7 +16,6 @@ async function api(path: string, init: RequestInit = {}): Promise<Response> {
 }
 
 test.beforeAll(async () => {
-  await execute(process.execPath, [resolve('node_modules/vite/bin/vite.js'), 'build', '--config', resolve('packages/canvas/vite.config.ts')]);
   root = await mkdtemp(join(tmpdir(), 'local-canvas-selection-'));
   workspace = join(root, 'workspace');
   process.env.LOCAL_CANVAS_STATIC_DIR = resolve('packages/canvas/dist');

@@ -25,7 +25,6 @@ const detail = '<!doctype html><html><body><h1>Detail</h1><button data-design-id
 const seat = '<!doctype html><html><body><h1>Seat</h1></body></html>';
 
 test.beforeAll(async () => {
-  await execute(process.execPath, [resolve('node_modules/vite/bin/vite.js'), 'build', '--config', resolve('packages/canvas/vite.config.ts')]);
   root = await mkdtemp(join(tmpdir(), 'local-prototype-e2e-'));
   workspace = join(root, 'workspace');
   process.env.LOCAL_CANVAS_STATIC_DIR = resolve('packages/canvas/dist');
