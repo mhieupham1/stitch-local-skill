@@ -697,7 +697,10 @@ function CanvasApp() {
     try { const result = await api.restoreSnapshot(project.id, snapshotId); await loadProject(project.id); setError(`Đã khôi phục snapshot. Backup hiện tại: ${result.backupSnapshotId}`); }
     catch (cause) { setError(cause instanceof Error ? cause.message : 'Không thể khôi phục snapshot.'); }
   };
-  const pendingForProject = project ? pending.find((item) => item.projectId === project.id) : undefined;
+  // Every unsaved screen for this project, not just the first. A failed save
+  // queues one entry per screen, so retrying a single entry would clear it and
+  // leave the rest silently unsaved.
+  const pendingForProject = project ? pending.filter((item) => item.projectId === project.id) : [];
   const updateDimension = (property: 'width' | 'height', value: string) => {
     if (!selectedScreen) return;
     const dimension = Number(value);
@@ -865,7 +868,7 @@ function CanvasApp() {
             {saveState === 'saving' ? <IconLoader size={13} /> : saveState === 'saved' ? <IconCheck size={13} /> : null}
             {saveState === 'saved' ? 'Đã lưu' : saveState === 'saving' ? 'Đang lưu…' : 'Chưa lưu'}
           </span>
-          {pendingForProject && <button type="button" className="header-btn" onClick={() => void persist([pendingForProject.patch], project)}><IconRotateCcw size={14} />Thử lại</button>}
+          {pendingForProject.length > 0 && <button type="button" className="header-btn" onClick={() => void persist(pendingForProject.map((item) => item.patch), project)}><IconRotateCcw size={14} />Thử lại</button>}
 
           <span className="header-sep" aria-hidden="true" />
 

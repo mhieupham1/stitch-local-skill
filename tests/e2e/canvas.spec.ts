@@ -288,6 +288,62 @@ test('hoàn tác và làm lại một cử chỉ kéo, có lưu xuống server',
   await expect(undo).toBeDisabled();
 });
 
+test('thử lại gửi mọi màn hình đang chờ, không chỉ màn hình đầu', async ({ page }) => {
+  await page.goto(`${runtime.url}/?project=shop#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
+  await expect(page.getByRole('heading', { name: 'Shop' })).toBeVisible();
+  const layout = async () => {
+    const data = (await (await api('/api/projects/shop')).json()).data as {
+      revision: number; screens: { id: string; x: number; y: number }[];
+    };
+    const byId = new Map(data.screens.map((screen) => [screen.id, screen]));
+    return { revision: data.revision, overview: byId.get('overview')!, orders: byId.get('orders')! };
+  };
+
+  // One group gesture queues one patch per selected screen, which is the state a
+  // partial retry would corrupt: it would clear the first entry and leave the
+  // rest unsaved while the button disappeared.
+  const frame = (id: string) => page.locator(`[data-screen-id="${id}"]`);
+  await frame('overview').click();
+  await frame('orders').click({ modifiers: ['Shift'] });
+  await expect(page.locator('.screen-frame.selected')).toHaveCount(2);
+  const origin = await layout();
+  const box = await frame('overview').boundingBox();
+  if (!box) throw new Error('Không đo được khung màn hình.');
+
+  await page.route(`${runtime.url}/api/projects/shop/layout`, (route) => route.fulfill({
+    status: 503, contentType: 'application/json', body: JSON.stringify({ ok: false, error: { code: 'SERVER_UNAVAILABLE', message: 'Tạm thời không lưu được.' } }),
+  }));
+  await page.mouse.move(box.x + box.width / 2, box.y + 100);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2 + 140, box.y + 160, { steps: 12 });
+  await page.mouse.up();
+  const retry = page.getByRole('button', { name: 'Thử lại', exact: true });
+  await expect(retry).toBeVisible();
+
+  await page.unroute(`${runtime.url}/api/projects/shop/layout`);
+  await retry.click();
+  // Both screens were queued, so a retry that sent only the first would persist
+  // one and hide the button while the other stayed behind.
+  await expect.poll(async () => (await layout()).overview.x).toBeGreaterThan(origin.overview.x);
+  await expect.poll(async () => (await layout()).orders.x).toBeGreaterThan(origin.orders.x);
+  await expect(retry).toHaveCount(0);
+
+  // These specs share one project and later tests click these frames, so put
+  // both back where the gesture found them.
+  const moved = await layout();
+  const reset = await api('/api/projects/shop/layout', {
+    method: 'PATCH',
+    body: JSON.stringify({
+      expectedRevision: moved.revision,
+      patches: [
+        { id: 'overview', x: origin.overview.x, y: origin.overview.y },
+        { id: 'orders', x: origin.orders.x, y: origin.orders.y },
+      ],
+    }),
+  });
+  expect(reset.ok).toBe(true);
+});
+
 test('thay đổi source chỉ reload iframe của màn hình liên quan', async ({ page }) => {  await page.goto(`${runtime.url}/?project=shop#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
   const overview = page.locator('[data-screen-id="overview"] iframe');
   const orders = page.locator('[data-screen-id="orders"] iframe');
