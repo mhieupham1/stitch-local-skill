@@ -97,6 +97,17 @@ describe('CLI commands that mirror the management API', () => {
     expect(JSON.parse(gone.stdout)).toMatchObject({ ok: true, data: [] });
   });
 
+  it('audit tokens đọc được báo cáo của server', async () => {
+    const space = await setup();
+    const audited = await cli('audit', 'tokens', '--project', 'shop', '--workspace', space, '--json');
+    expect(audited.code).toBe(0);
+    const report = JSON.parse(audited.stdout) as { ok: boolean; data: { tokens: unknown[]; findings: unknown[]; summary: { errors: number } } };
+    expect(report.ok).toBe(true);
+    // A freshly scaffolded project has no tokens yet, so the audit is empty but valid.
+    expect(report.data.summary.errors).toBe(0);
+    expect(Array.isArray(report.data.findings)).toBe(true);
+  });
+
   it('figma export đi đúng route của server', async () => {
     const space = await setup();
     // Màn hình không tồn tại để không phải khởi động Chromium: server trả SCREEN_NOT_FOUND

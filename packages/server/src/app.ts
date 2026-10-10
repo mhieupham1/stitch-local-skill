@@ -21,6 +21,7 @@ import { CanvasEvents } from './events.js';
 import { captureScreen } from './capture.js';
 import { exportScreenForFigma } from './figma-export.js';
 import { fetchReference } from './reference.js';
+import { auditDesignTokens } from './token-audit.js';
 import { createSnapshot, duplicateScreen, restoreSnapshot } from './snapshots.js';
 import { SelectionStore } from './selection.js';
 import { ensureDesignIds } from './design-ids.js';
@@ -242,6 +243,9 @@ export async function createManagementApp(options: ManagementAppOptions): Promis
     }
     return success(deletion);
   });
+
+  app.get<{ Params: { projectId: string } }>('/api/projects/:projectId/token-audit', async (request) =>
+    success(await auditDesignTokens(options.workspace, request.params.projectId)));
 
   app.patch<{ Params: { projectId: string } }>('/api/projects/:projectId/layout', async (request) => {
     const body = layoutBodySchema.parse(request.body);

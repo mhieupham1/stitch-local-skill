@@ -25,6 +25,7 @@ Every command accepts `--workspace "$workspace"` and can emit exactly one JSON r
 | Duplicate a screen | `$canvas screen duplicate overview --new-id overview-alt --project shop-dashboard --workspace "$workspace" --json` |
 | Delete screens | `$canvas screen delete overview-alt stale-draft --project shop-dashboard --workspace "$workspace" --json` |
 | Change layer order | `$canvas screen order detail home --project shop-dashboard --workspace "$workspace" --json` |
+| Audit design tokens | `$canvas audit tokens --project shop-dashboard --workspace "$workspace" --json` |
 | Export a screen for Figma | `$canvas figma export overview --project shop-dashboard --workspace "$workspace" --json` |
 | Save/restore a snapshot | `$canvas snapshot create --project shop-dashboard --workspace "$workspace" --json` / `$canvas snapshot restore <snapshot-id> --project shop-dashboard --workspace "$workspace" --json` |
 | Read the screen highlighted on the canvas | `$canvas screen focus --project shop-dashboard --workspace "$workspace" --json` |
@@ -54,6 +55,8 @@ Every command accepts `--workspace "$workspace"` and can emit exactly one JSON r
 `project delete` removes the project, every screen, its whole snapshot history and its prototypes. There is no trash and no undo, so run it with `--dry-run` first: that returns the exact counts and screen IDs without touching anything. Deleting a project is the one case where a snapshot does not help — snapshots live inside the project and go with it.
 
 `figma export` renders one screen in a headless browser and returns its element tree, layout, styles and text as structured JSON for pasting into Figma. It is the same export the canvas UI offers.
+
+`audit tokens` checks every screen's HTML and CSS against `design-system.css` and returns findings that name the file and line to fix. It reports `error` for a `var()` reference with no matching token, `warning` for a color written as a literal (naming the token that already holds that value, when one exists), a `font-family` set without a token, and a `var()` that only survives on its fallback, and `info` for spacing off the scale, two tokens holding the same value, and tokens no screen uses. Run it after adding or editing screens: token drift is invisible on a single screen and only shows up across the set, which is exactly what a batch of generated screens produces. Findings are capped at 30 per kind, so a `summary.truncated` above zero means fix and re-run.
 
 Prototype input JSON for `create` has `{ "id", "name", "screenIds", "startScreenId", "transitions", "expectedSourceBaseline" }`; each transition has `{ "fromScreenId", "elementId", "toScreenId" }`. `update` accepts `{ "expectedRevision", "name"?, "screenIds"?, "startScreenId"?, "transitions"? }`. If adding/removing screens, keep the start and transitions inside the new set; this keeps existing fingerprints and marks new membership stale until regeneration. `regenerate` accepts `{ "expectedRevision", "screenIds", "startScreenId", "transitions", "expectedSourceBaseline" }`. Use `prototype sources` before analysis and again before saving; if the values changed, inspect the UI again. Prototype IDs are stable and unique within their project. The preview is live, while stale links are changed only on the user's request to regenerate or edit.
 

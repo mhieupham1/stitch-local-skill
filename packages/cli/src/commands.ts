@@ -242,6 +242,11 @@ export const COMMANDS: CommandSpec[] = [
     run: async ({ args }) => managementRequest(args.workspace, `${projectPath(option(args, '--project'))}/selection`),
   },
   {
+    words: ['audit', 'tokens'],
+    route: 'GET /api/projects/:projectId/token-audit',
+    run: async ({ args }) => managementRequest(args.workspace, `${projectPath(option(args, '--project'))}/token-audit`),
+  },
+  {
     words: ['reference', 'fetch'],
     route: 'POST /api/projects/:projectId/reference',
     run: async ({ args, rest }) => {

@@ -178,6 +178,15 @@ export function createMcpServer(workspace: string): McpServer {
     return managementRequest(workspace, `${projectPath(project)}/snapshots/${encodeURIComponent(snapshot)}/restore`, { method: 'POST' });
   }));
 
+  server.registerTool('audit_tokens', {
+    title: 'Audit design tokens',
+    description: 'Check every screen against design-system.css: colors written as literals instead of tokens, font-family set without a token, spacing off the scale, var() references with no matching token, and tokens nothing uses. Findings name the file and line to fix. Run it after adding or editing screens, before saying the work is done.',
+    inputSchema: { project: z.string() },
+  }, async ({ project }) => runTool(async () => {
+    await ensureServer(workspace);
+    return managementRequest(workspace, `${projectPath(project)}/token-audit`);
+  }));
+
   server.registerTool('reference_fetch', {
     title: 'Fetch design reference',
     description: 'Open a real URL in a headless browser and extract its title, headings, section text, links, and a full-page screenshot as a design reference. Runs a browser on the local machine; confirm the URL with the user first.',
