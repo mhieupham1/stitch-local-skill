@@ -37,10 +37,28 @@ export const screenLayoutPatchSchema = z.object({
 // the same time cannot silently collapse two screens onto the same layer.
 export const screenOrderSchema = z.array(projectIdSchema);
 
+export const PROTOTYPE_TRANSITION_KINDS = ['push', 'back', 'overlay', 'scroll'] as const;
+export const prototypeTransitionKindSchema = z.enum(PROTOTYPE_TRANSITION_KINDS);
+
+// `push` and `overlay` name a destination screen; `back` returns along the run's
+// own history and `scroll` moves inside the current screen, so neither of those
+// stores a `toScreenId` — a stored one would leave the file with two answers.
 export const prototypeTransitionSchema = z.object({
   fromScreenId: projectIdSchema,
   elementId: z.string().trim().min(1).max(200),
-  toScreenId: projectIdSchema,
+  kind: prototypeTransitionKindSchema.default('push'),
+  toScreenId: projectIdSchema.optional(),
+  toElementId: z.string().trim().min(1).max(200).optional(),
+}).refine((value) => {
+  const needsScreen = value.kind === 'push' || value.kind === 'overlay';
+  return value.kind === 'scroll'
+    ? value.toElementId !== undefined && value.toScreenId === undefined
+    : needsScreen
+      ? value.toScreenId !== undefined && value.toElementId === undefined
+      : value.toScreenId === undefined && value.toElementId === undefined;
+}, {
+  message: 'Chuyển cảnh sai đích: `push`/`overlay` cần `toScreenId`, `scroll` cần `toElementId`, `back` không nhận đích nào.',
+  path: ['toScreenId'],
 });
 
 const prototypeFieldsSchema = z.object({
@@ -53,13 +71,13 @@ const prototypeFieldsSchema = z.object({
 
 const sourceBaselineSchema = z.record(projectIdSchema, z.string().regex(/^[a-f0-9]{64}$/));
 
-function checkPrototypeLinks(value: { screenIds: string[]; startScreenId: string; transitions: { fromScreenId: string; elementId: string; toScreenId: string }[] }, context: z.RefinementCtx): void {
+function checkPrototypeLinks(value: { screenIds: string[]; startScreenId: string; transitions: { fromScreenId: string; elementId: string; kind?: string; toScreenId?: string }[] }, context: z.RefinementCtx): void {
   const ids = new Set(value.screenIds);
   if (ids.size !== value.screenIds.length) context.addIssue({ code: 'custom', message: 'Màn hình prototype bị trùng.' });
   if (!ids.has(value.startScreenId)) context.addIssue({ code: 'custom', message: 'Màn hình bắt đầu không thuộc prototype.' });
   const links = new Set<string>();
   for (const transition of value.transitions) {
-    if (!ids.has(transition.fromScreenId) || !ids.has(transition.toScreenId)) context.addIssue({ code: 'custom', message: 'Liên kết trỏ tới màn hình ngoài prototype.' });
+    if (!ids.has(transition.fromScreenId) || (transition.toScreenId !== undefined && !ids.has(transition.toScreenId))) context.addIssue({ code: 'custom', message: 'Liên kết trỏ tới màn hình ngoài prototype.' });
     const key = `${transition.fromScreenId}\0${transition.elementId}`;
     if (links.has(key)) context.addIssue({ code: 'custom', message: 'Một phần tử chỉ được nối tới một màn hình.' });
     links.add(key);
@@ -126,10 +144,13 @@ export type Project = z.infer<typeof projectSchema>;
 export type ScreenLayoutPatch = z.infer<typeof screenLayoutPatchSchema>;
 export type ScreenOrder = z.infer<typeof screenOrderSchema>;
 export type Prototype = z.infer<typeof prototypeSchema>;
+export type PrototypeTransition = z.infer<typeof prototypeTransitionSchema>;
+export type PrototypeTransitionKind = z.infer<typeof prototypeTransitionKindSchema>;
 export type PrototypeView = Prototype & { stale: boolean; changedScreenIds: string[]; missingScreenIds: string[] };
-export type PrototypeCreateInput = z.infer<typeof prototypeCreateInputSchema>;
-export type PrototypePatchInput = z.infer<typeof prototypePatchInputSchema>;
-export type PrototypeRegenerateInput = z.infer<typeof prototypeRegenerateInputSchema>;
+// `z.input` so callers may omit fields the schema defaults (e.g. transition `kind`).
+export type PrototypeCreateInput = z.input<typeof prototypeCreateInputSchema>;
+export type PrototypePatchInput = z.input<typeof prototypePatchInputSchema>;
+export type PrototypeRegenerateInput = z.input<typeof prototypeRegenerateInputSchema>;
 export type CanvasEvent = z.infer<typeof canvasEventSchema>;
 export type SelectionBounds = z.infer<typeof selectionBoundsSchema>;
 export type SelectionContext = z.infer<typeof selectionContextSchema>;
