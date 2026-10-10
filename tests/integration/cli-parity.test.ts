@@ -82,6 +82,21 @@ describe('CLI commands that mirror the management API', () => {
     expect(JSON.parse(listed.stdout)).toMatchObject({ ok: true, data: [{ id: 'detail' }, { id: 'home' }] });
   });
 
+  it('xoá project, có dry run giữ nguyên dự án', async () => {
+    const space = await setup();
+    const preview = await cli('project', 'delete', 'shop', '--dry-run', '--workspace', space, '--json');
+    expect(preview.code).toBe(0);
+    expect(JSON.parse(preview.stdout)).toMatchObject({ ok: true, data: { projectId: 'shop', screens: ['home', 'detail'], deleted: false } });
+    const stillThere = await cli('project', 'list', '--workspace', space, '--json');
+    expect(JSON.parse(stillThere.stdout)).toMatchObject({ ok: true, data: [{ id: 'shop' }] });
+
+    const deleted = await cli('project', 'delete', 'shop', '--workspace', space, '--json');
+    expect(deleted.code).toBe(0);
+    expect(JSON.parse(deleted.stdout)).toMatchObject({ ok: true, data: { deleted: true } });
+    const gone = await cli('project', 'list', '--workspace', space, '--json');
+    expect(JSON.parse(gone.stdout)).toMatchObject({ ok: true, data: [] });
+  });
+
   it('figma export đi đúng route của server', async () => {
     const space = await setup();
     // Màn hình không tồn tại để không phải khởi động Chromium: server trả SCREEN_NOT_FOUND

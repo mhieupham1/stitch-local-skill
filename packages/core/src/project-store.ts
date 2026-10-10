@@ -345,3 +345,56 @@ export async function deleteScreens(
     return next;
   });
 }
+
+/** What `deleteProject` removed, or what it would remove under `dryRun`. */
+export type ProjectDeletion = {
+  projectId: string;
+  name: string;
+  screens: string[];
+  snapshots: number;
+  prototypes: number;
+  deleted: boolean;
+};
+
+async function countChildDirectories(root: string, name: string): Promise<number> {
+  try {
+    const entries = await readdir(join(root, name), { withFileTypes: true });
+    return entries.filter((entry) => entry.isDirectory()).length;
+  } catch (error) {
+    // A project need not have taken a snapshot or built a prototype yet.
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return 0;
+    throw error;
+  }
+}
+
+export async function deleteProject(
+  workspace: string,
+  projectId: string,
+  expectedRevision: number,
+  options: { dryRun?: boolean } = {},
+): Promise<ProjectDeletion> {
+  const id = projectIdSchema.parse(projectId);
+  const canonicalWorkspacePath = await canonicalWorkspace(workspace);
+  return withProjectQueue(`${canonicalWorkspacePath}:${id}`, async () => {
+    const root = await getProjectRoot(canonicalWorkspacePath, id);
+    const project = await readManifest(root, id);
+    if (project.revision !== expectedRevision) {
+      throw new CanvasError('REVISION_CONFLICT', 'Project đã thay đổi; hãy tải lại rồi thử lại.', 409);
+    }
+    const summary: ProjectDeletion = {
+      projectId: project.id,
+      name: project.name,
+      screens: project.screens.map((screen) => screen.id),
+      snapshots: await countChildDirectories(root, 'snapshots'),
+      prototypes: await countChildDirectories(root, 'prototypes'),
+      deleted: false,
+    };
+    if (options.dryRun) return summary;
+    // Drop the manifest first for the same reason `deleteScreens` shrinks it first: the
+    // project leaves every listing atomically, so a tree that survives a partial failure
+    // is invisible and inert rather than half-readable.
+    await rm(join(root, 'project.json'), { force: true });
+    await rm(root, { force: true, recursive: true });
+    return { ...summary, deleted: true };
+  });
+}

@@ -5,17 +5,19 @@ export type Parsed = {
   workspace: string;
   json: boolean;
   open: boolean;
+  dryRun: boolean;
   port?: number;
   options: Map<string, string>;
 };
 
 export function parseArguments(argv: string[]): Parsed {
-  const parsed: Parsed = { positionals: [], workspace: cwd(), json: false, open: false, options: new Map() };
+  const parsed: Parsed = { positionals: [], workspace: cwd(), json: false, open: false, dryRun: false, options: new Map() };
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index];
     if (argument === '--workspace') parsed.workspace = argv[++index] ?? '';
     else if (argument === '--json') parsed.json = true;
     else if (argument === '--open') parsed.open = true;
+    else if (argument === '--dry-run') parsed.dryRun = true;
     else if (argument === '--port') parsed.port = Number(argv[++index]);
     else if (argument.startsWith('--')) parsed.options.set(argument, argv[++index] ?? '');
     else parsed.positionals.push(argument);

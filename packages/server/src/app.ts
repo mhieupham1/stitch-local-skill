@@ -12,6 +12,7 @@ import {
   updateLayout,
   reorderScreens,
   deleteScreens,
+  deleteProject,
   renameProject,
 } from '../../core/src/project-store.js';
 import { canonicalWorkspace, resolveProjectDirectory, resolveProjectFile } from '../../core/src/paths.js';
@@ -63,6 +64,7 @@ const layoutBodySchema = z.object({ patches: z.array(screenLayoutPatchSchema), e
 const screenOrderBodySchema = z.object({ order: screenOrderSchema, expectedRevision: z.number().int().nonnegative() });
 const screenDeleteBodySchema = z.object({ screenIds: screenOrderSchema.min(1), expectedRevision: z.number().int().nonnegative() });
 const projectRenameBodySchema = z.object({ name: z.string().min(1).max(120), expectedRevision: z.number().int().nonnegative() });
+const projectDeleteBodySchema = z.object({ expectedRevision: z.number().int().nonnegative(), dryRun: z.boolean().optional() });
 
 function escapeHtml(value: string): string {
   return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
@@ -229,6 +231,16 @@ export async function createManagementApp(options: ManagementAppOptions): Promis
     const screen = project.screens.find((item) => item.id === body.id);
     options.events.publish({ type: 'project.updated', projectId, screenIds: [body.id] });
     return reply.code(201).send(success({ project, screen, ...source }));
+  });
+
+  app.delete<{ Params: { projectId: string } }>('/api/projects/:projectId', async (request) => {
+    const body = projectDeleteBodySchema.parse(request.body);
+    const deletion = await deleteProject(options.workspace, request.params.projectId, body.expectedRevision, { dryRun: body.dryRun });
+    // A dry run changes nothing, so it must not wake every canvas either.
+    if (deletion.deleted) {
+      options.events.publish({ type: 'project.updated', projectId: deletion.projectId, screenIds: [] });
+    }
+    return success(deletion);
   });
 
   app.patch<{ Params: { projectId: string } }>('/api/projects/:projectId/layout', async (request) => {

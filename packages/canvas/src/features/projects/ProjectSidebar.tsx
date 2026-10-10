@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent } from 'react';
 import type { Project } from '../../../../core/src/schema.js';
 import { gapAtPoint, moveEntries } from './layer-order.js';
-import { IconChevronLeft, IconChevronRight, IconLayers, IconMenu } from '../../icons.js';
+import { IconChevronLeft, IconChevronRight, IconLayers, IconMenu, IconTrash } from '../../icons.js';
 
 type Props = {
   projects: Project[];
@@ -11,6 +11,7 @@ type Props = {
   // Receives the full new layer order (back of the stack first).
   onReorderScreens: (projectId: string, order: string[]) => void;
   onRenameProject: (projectId: string, name: string) => void;
+  onDeleteProject: (project: Project) => void;
   collapsed: boolean;
   onCollapsedChange: (collapsed: boolean) => void;
 };
@@ -39,7 +40,7 @@ type DragState = {
 // immediate, large enough that a click to select never nudges the list.
 const DRAG_THRESHOLD = 4;
 
-export function ProjectSidebar({ projects, selectedProjectId, selectedScreenIds, onScreenSelect, onReorderScreens, onRenameProject, collapsed, onCollapsedChange }: Props) {
+export function ProjectSidebar({ projects, selectedProjectId, selectedScreenIds, onScreenSelect, onReorderScreens, onRenameProject, onDeleteProject, collapsed, onCollapsedChange }: Props) {
   const listRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<DragState | null>(null);
   const [drag, setDrag] = useState<{ ids: string[]; fromIndex: number; toIndex: number; offsetY: number } | null>(null);
@@ -210,14 +211,25 @@ export function ProjectSidebar({ projects, selectedProjectId, selectedScreenIds,
             if (event.key === 'Escape') { event.preventDefault(); setRenameId(null); }
           }}
         />
-        : <div
-          className="project-name"
-          // The directory screen and the header link own project switching, so
-          // this is a label for the open project rather than a switcher. It
-          // keeps the double-click, which is the only rename affordance.
-          onDoubleClick={() => startRename(item)}
-          title={`${item.name} — nhấp đôi để đổi tên`}
-        >{item.name}</div>}
+        : <div className="project-row">
+          <div
+            className="project-name"
+            // The directory screen and the header link own project switching, so
+            // this is a label for the open project rather than a switcher. It
+            // keeps the double-click, which is the only rename affordance.
+            onDoubleClick={() => startRename(item)}
+            title={`${item.name} — nhấp đôi để đổi tên`}
+          >{item.name}</div>
+          {/* Only the open project offers deletion, so the button cannot be
+              mistaken for an action on a project the user is not looking at. */}
+          {item.id === selectedProjectId && <button
+            className="project-delete"
+            type="button"
+            onClick={() => onDeleteProject(item)}
+            aria-label={`Xoá dự án ${item.name}`}
+            title="Xoá dự án"
+          ><IconTrash size={13} /></button>}
+        </div>}
       {item.id === selectedProjectId && !collapsed && <div className="screen-list" ref={listRef}>
         {order.map((screenId, index) => {
           const screen = item.screens.find((candidate) => candidate.id === screenId);

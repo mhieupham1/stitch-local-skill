@@ -170,4 +170,29 @@ describe('project management API', () => {
     expect(cleared.status).toBe(200);
     await expect((await api('/api/projects/shop/editing')).json()).resolves.toMatchObject({ ok: true, data: { session: null } });
   });
+
+  it('xoá project, có dry run và chống ghi đè revision', async () => {
+    await api('/api/projects', { method: 'POST', body: JSON.stringify({ id: 'shop', name: 'Shop' }) });
+    await api('/api/projects/shop/screens', { method: 'POST', body: JSON.stringify({ id: 'overview', name: 'Tổng quan', width: 800, height: 600, expectedRevision: 0 }) });
+
+    const preview = await api('/api/projects/shop', { method: 'DELETE', body: JSON.stringify({ expectedRevision: 1, dryRun: true }) });
+    expect(preview.status).toBe(200);
+    await expect(preview.json()).resolves.toMatchObject({
+      ok: true,
+      data: { projectId: 'shop', name: 'Shop', screens: ['overview'], deleted: false },
+    });
+    // A dry run must leave the project exactly where it was.
+    await expect((await api('/api/projects')).json()).resolves.toMatchObject({ data: [{ id: 'shop' }] });
+
+    const stale = await api('/api/projects/shop', { method: 'DELETE', body: JSON.stringify({ expectedRevision: 0 }) });
+    expect(stale.status).toBe(409);
+    await expect((await api('/api/projects')).json()).resolves.toMatchObject({ data: [{ id: 'shop' }] });
+
+    const deleted = await api('/api/projects/shop', { method: 'DELETE', body: JSON.stringify({ expectedRevision: 1 }) });
+    expect(deleted.status).toBe(200);
+    await expect(deleted.json()).resolves.toMatchObject({ ok: true, data: { deleted: true, screens: ['overview'] } });
+    await expect((await api('/api/projects')).json()).resolves.toMatchObject({ data: [] });
+    const missing = await api('/api/projects/shop', { method: 'DELETE', body: JSON.stringify({ expectedRevision: 1 }) });
+    expect(missing.status).toBe(404);
+  });
 });

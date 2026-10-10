@@ -17,6 +17,7 @@ Every command accepts `--workspace "$workspace"` and can emit exactly one JSON r
 | List projects | `$canvas project list --workspace "$workspace" --json` |
 | Create a project | `$canvas project create shop-dashboard --name 'Quản lý bán hàng' --workspace "$workspace" --json` |
 | Rename a project | `$canvas project rename shop-dashboard --name 'Cửa hàng' --workspace "$workspace" --json` |
+| Delete a project | `$canvas project delete shop-dashboard --dry-run --workspace "$workspace" --json` |
 | List a project's screens | `$canvas screen list --project shop-dashboard --workspace "$workspace" --json` |
 | Add a screen | `$canvas screen add overview --project shop-dashboard --name 'Tổng quan' --width 1440 --height 1000 --workspace "$workspace" --json` |
 | Move or resize a frame | `$canvas screen update overview --project shop-dashboard --x 1600 --y 0 --width 1280 --height 900 --workspace "$workspace" --json` |
@@ -49,6 +50,8 @@ Every command accepts `--workspace "$workspace"` and can emit exactly one JSON r
 `screen add` returns `data.entryPath`, the absolute `index.html` to edit. Its `styles.css` is in the same directory. A project also has `design-system.css` for tokens shared by all screens.
 
 `screen delete` and `screen order` take screen IDs as positional arguments. Deletion is permanent and the project must keep at least one screen, so `LAST_SCREEN` means the operation was refused, not that the screen is gone. Take a `snapshot create` first when the screens you are removing might be wanted again. `screen order` must list every screen in the project in the layer order you want, front-most first; a partial list is rejected rather than applied. Both read the current revision before writing, so a canvas edit that lands in between fails with `REVISION_CONFLICT` instead of being overwritten.
+
+`project delete` removes the project, every screen, its whole snapshot history and its prototypes. There is no trash and no undo, so run it with `--dry-run` first: that returns the exact counts and screen IDs without touching anything. Deleting a project is the one case where a snapshot does not help — snapshots live inside the project and go with it.
 
 `figma export` renders one screen in a headless browser and returns its element tree, layout, styles and text as structured JSON for pasting into Figma. It is the same export the canvas UI offers.
 

@@ -138,6 +138,23 @@ describe('mcp adapter', () => {
     } finally { await client.close(); }
   }, 20_000);
 
+  it('xoá project qua MCP, dry run không đụng dữ liệu', async () => {
+    await api('/api/projects', { method: 'POST', body: JSON.stringify({ id: 'shop', name: 'Shop' }) });
+    await api('/api/projects/shop/screens', { method: 'POST', body: JSON.stringify({ id: 'home', name: 'Home', width: 800, height: 600, expectedRevision: 0 }) });
+    const client = await connectClient();
+    try {
+      const preview = await callJson(client, 'project_delete', { project: 'shop', dryRun: true });
+      expect(preview).toMatchObject({ ok: true, data: { screens: ['home'], deleted: false } });
+      const listed = await callJson(client, 'project_list', {});
+      expect(listed.data).toMatchObject([{ id: 'shop' }]);
+
+      const deleted = await callJson(client, 'project_delete', { project: 'shop' });
+      expect(deleted).toMatchObject({ ok: true, data: { deleted: true } });
+      const after = await callJson(client, 'project_list', {});
+      expect(after.data).toEqual([]);
+    } finally { await client.close(); }
+  }, 20_000);
+
   it('figma_export đi đúng route của server', async () => {
     await api('/api/projects', { method: 'POST', body: JSON.stringify({ id: 'shop', name: 'Shop' }) });
     await api('/api/projects/shop/screens', { method: 'POST', body: JSON.stringify({ id: 'home', name: 'Home', width: 800, height: 600, expectedRevision: 0 }) });

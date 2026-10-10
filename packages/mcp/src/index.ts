@@ -74,6 +74,18 @@ export function createMcpServer(workspace: string): McpServer {
     return requestJson(projectPath(project), 'PATCH', { name, expectedRevision: await currentRevision(project) });
   }));
 
+  server.registerTool('project_delete', {
+    title: 'Delete project',
+    description: 'Delete a project and everything under it: every screen, its snapshot history and its prototypes. There is no undo and no trash, so pass dryRun to see exactly what would be removed first. Deleting the project the user is currently viewing also closes it in the canvas.',
+    inputSchema: { project: z.string(), dryRun: z.boolean().optional(), expectedRevision: z.number().int().nonnegative().optional() },
+  }, async ({ project, dryRun, expectedRevision }) => runTool(async () => {
+    await ensureServer(workspace);
+    return requestJson(projectPath(project), 'DELETE', {
+      expectedRevision: expectedRevision ?? await currentRevision(project),
+      dryRun,
+    });
+  }));
+
   server.registerTool('screen_list', {
     title: 'List screens',
     description: 'List the screens of a project.',

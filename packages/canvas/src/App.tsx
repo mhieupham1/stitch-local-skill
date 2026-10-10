@@ -7,6 +7,7 @@ import type { SaveState } from './features/canvas/layout-state.js';
 import type { Viewport } from './features/canvas/viewport-math.js';
 import { PreviewSizeMenu } from './features/canvas/PreviewSizeMenu.js';
 import { ProjectSidebar } from './features/projects/ProjectSidebar.js';
+import { DeleteProjectDialog } from './features/projects/DeleteProjectDialog.js';
 import { ProjectDirectory } from './features/projects/ProjectDirectory.js';
 import { createPrototypePrompt, regeneratePrototypePrompt } from './features/prototypes/prompts.js';
 import { PrototypePlayer } from './features/prototypes/PrototypePlayer.js';
@@ -103,6 +104,7 @@ function CanvasApp() {
   const hasConnectedRef = useRef(false);
   const hadConnectionFailureRef = useRef(false);
   const [error, setError] = useState<string | null>(null);
+  const [deletingProject, setDeletingProject] = useState(false);
   const [screenRevisions, setScreenRevisions] = useState<Record<string, number>>({});
   const projectRef = useRef<Project | null>(null);
   // Uncommitted local layout edits, keyed by screen id. A background refresh
@@ -389,6 +391,21 @@ function CanvasApp() {
       setError(cause instanceof Error ? cause.message : 'Không xóa được màn hình.');
     }
   }, [api, project, selectedScreenIds]);
+
+  // Deleting a project is permanent, so the dialog confirms first: it reads a
+  // dry run to name exactly what will go, and the user types the project name.
+  const deleteProject = useCallback(async (projectId: string) => {
+    if (!api || !project) return;
+    await api.deleteProject(projectId, project.revision);
+    // The canvas has nothing left to show, and a full navigation is what the
+    // "Về danh sách dự án" link already does.
+    window.location.href = '/';
+  }, [api, project]);
+
+  const previewProjectDeletion = useCallback(async (projectId: string) => {
+    if (!api || !project) throw new Error('Chưa mở dự án nào.');
+    return api.deleteProject(projectId, project.revision, true);
+  }, [api, project]);
 
   // The highlighted screen is server state so an agent can read it. Element
   // selection stays separate and still requires Select mode. Clearing the
@@ -840,7 +857,7 @@ function CanvasApp() {
   }} />;
   if (error && !project) return <div className="app-message"><h1>Không mở được dự án</h1><p role="alert">{error}</p><a className="header-btn" href="/">Về danh sách dự án</a></div>;
   return <div className={sidebarCollapsed ? 'app-shell sidebar-collapsed' : 'app-shell'}>
-    <ProjectSidebar projects={project ? [project] : []} selectedProjectId={project?.id ?? null} selectedScreenIds={selectedScreenIds} onScreenSelect={selectScreens} onReorderScreens={(projectId, order) => void reorderScreens(projectId, order)} onRenameProject={(projectId, name) => void renameProject(projectId, name)} collapsed={sidebarCollapsed} onCollapsedChange={updateSidebarCollapsed} />
+    <ProjectSidebar projects={project ? [project] : []} selectedProjectId={project?.id ?? null} selectedScreenIds={selectedScreenIds} onScreenSelect={selectScreens} onReorderScreens={(projectId, order) => void reorderScreens(projectId, order)} onRenameProject={(projectId, name) => void renameProject(projectId, name)} onDeleteProject={() => setDeletingProject(true)} collapsed={sidebarCollapsed} onCollapsedChange={updateSidebarCollapsed} />
     <section className="canvas-shell">
       <header className="app-header">
         <a className="header-btn project-directory-back" href="/" title="Về danh sách dự án"><IconChevronLeft size={14} />Danh sách dự án</a>
@@ -921,5 +938,11 @@ function CanvasApp() {
     </div>}
     {project ? <CanvasViewport projectId={project.id} screens={project.screens} prototypes={prototypes} previewUrl={previewUrl} revision={project.revision} screenRevisions={screenRevisions} viewport={viewport} selectedScreenIds={selectedScreenIds} bridgeNonce={bridgeNonce} selection={selection} selectionStale={selectionStale} editingScreenId={editingScreenId} userEditingScreenId={userEditingScreenId} editingMessage={editingMessage} canUndo={historyState.canUndo} canRedo={historyState.canRedo} onUndo={undoLayout} onRedo={redoLayout} onViewport={updateViewport} onSelect={selectScreens} onSelectMany={selectScreenList} onDraft={applyDraft} onPersist={(patches) => void persist(patches)} onPrototypeDraft={(id, x, y) => setPrototypes((items) => items.map((item) => item.id === id ? { ...item, x, y } : item))} onPrototypePersist={(id, x, y) => void persistPrototypePosition(id, x, y)} onRegeneratePrompt={(prototype) => void copyPrototypePrompt(regeneratePrototypePrompt(project.id, prototype.id, prototype.screenIds))} onCopyPrototypeId={(id) => void copyPrototypeId(id)} onDeletePrototype={(prototype) => void removePrototype(prototype)} /> : <div className="app-message">Đang tải project…</div>}
     </div></section>
+    {deletingProject && project && <DeleteProjectDialog
+      project={project}
+      onPreview={previewProjectDeletion}
+      onDelete={deleteProject}
+      onClose={() => setDeletingProject(false)}
+    />}
   </div>;
 }

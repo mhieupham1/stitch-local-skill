@@ -89,6 +89,18 @@ export const COMMANDS: CommandSpec[] = [
     },
   },
   {
+    words: ['project', 'delete'],
+    route: 'DELETE /api/projects/:projectId',
+    run: async ({ args, rest }) => {
+      const [id] = rest;
+      if (!id) throw new Error('Thiếu ID project.');
+      return jsonRequest(args.workspace, projectPath(id), 'DELETE', {
+        expectedRevision: await currentRevision(args.workspace, id),
+        dryRun: args.dryRun,
+      });
+    },
+  },
+  {
     words: ['screen', 'list'],
     route: 'GET /api/projects/:projectId',
     run: async ({ args }) => {

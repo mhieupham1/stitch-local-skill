@@ -282,6 +282,41 @@ button {
 }
 .project-rename:focus { outline: 2px solid var(--accent-ring); outline-offset: -1px; }
 
+/* The name and its delete button share a row; the name keeps the full width
+   minus the button so long names still ellipsize rather than push it out. */
+.project-row { display: flex; align-items: center; gap: 4px; }
+.project-row .project-name { flex: 1; min-width: 0; }
+.project-delete {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  color: var(--text-faint);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.project-delete:hover { color: var(--danger); background: var(--elevated); }
+.project-delete:focus-visible { outline: 2px solid var(--accent-ring); outline-offset: -1px; }
+
+/* The one irreversible action in the app, so it reads as such. */
+.project-danger-btn {
+  padding: 8px 16px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 550;
+  background: var(--danger);
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.project-danger-btn:hover:not(:disabled) { filter: brightness(1.1); }
+.project-danger-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
 /* ---------- Screen list ---------- */
 
 .screen-list {
