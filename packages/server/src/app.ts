@@ -34,6 +34,8 @@ export type ManagementAppOptions = {
   selection: SelectionStore;
   getPreviewUrl: () => string | null;
   onShutdown: () => Promise<void>;
+  /** Observes every route as it is registered. Used by the control-surface parity test. */
+  onRoute?: (route: { method: string; url: string }) => void;
 };
 
 function success<T>(data: T): Result<T> {
@@ -124,6 +126,16 @@ async function createScreenSource(
 
 export async function createManagementApp(options: ManagementAppOptions): Promise<FastifyInstance> {
   const app = Fastify({ logger: false, trustProxy: false });
+
+  // Registered before any route so it observes the whole table.
+  if (options.onRoute) {
+    const observe = options.onRoute;
+    app.addHook('onRoute', (route) => {
+      for (const method of Array.isArray(route.method) ? route.method : [route.method]) {
+        observe({ method, url: route.url });
+      }
+    });
+  }
 
   app.addHook('onRequest', async (request) => {
     if (!request.url.startsWith('/api/')) return;
