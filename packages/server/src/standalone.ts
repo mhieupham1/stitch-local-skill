@@ -1,6 +1,7 @@
 import { open, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createManagementApp, createPreviewApp } from './app.js';
+import { computeBuildId } from './build-id.js';
 import { CanvasEvents } from './events.js';
 import { SelectionStore } from './selection.js';
 import { watchWorkspace } from './watcher.js';
@@ -10,6 +11,7 @@ type RuntimeState = {
   pid: number;
   url: string;
   previewUrl: string;
+  buildId: string;
 };
 
 function argument(name: string): string | undefined {
@@ -52,6 +54,10 @@ async function removeOwnRuntime(path: string, instanceId: string): Promise<void>
 
 const workspace = requiredArgument('--workspace');
 const instanceId = requiredArgument('--instance-id');
+// Read once, at startup: the launcher compares this against the code on disk to
+// notice that a rebuild has left this process behind. Recomputing it later would
+// make the process claim to be a build it is not running.
+const buildId = await computeBuildId();
 
 const runtimeDirectory = join(workspace, '.local-canvas');
 const runtimePath = join(runtimeDirectory, 'runtime.json');
@@ -76,7 +82,7 @@ async function shutdown(): Promise<void> {
 }
 
 try {
-  management = await createManagementApp({ instanceId, workspace, events, selection, getPreviewUrl: () => previewAddress, onShutdown: shutdown });
+  management = await createManagementApp({ instanceId, buildId, workspace, events, selection, getPreviewUrl: () => previewAddress, onShutdown: shutdown });
   preview = await createPreviewApp(workspace);
   previewAddress = await preview.listen({ host: '127.0.0.1', port: portArgument('--preview-port') });
   const managementAddress = await management.listen({ host: '127.0.0.1', port: portArgument('--management-port') });
@@ -86,6 +92,7 @@ try {
     pid: process.pid,
     url: managementAddress,
     previewUrl: previewAddress,
+    buildId,
   });
   process.once('SIGTERM', () => void shutdown().finally(() => process.exit(0)));
   process.once('SIGINT', () => void shutdown().finally(() => process.exit(0)));

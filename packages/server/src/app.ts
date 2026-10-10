@@ -31,6 +31,8 @@ import { bridgeScriptSource, contentSizeScriptSource, figmaCaptureScriptSource, 
 
 export type ManagementAppOptions = {
   instanceId: string;
+  /** Identity of the build this process is running, as computed at startup. */
+  buildId: string;
   workspace: string;
   events: CanvasEvents;
   selection: SelectionStore;
@@ -150,6 +152,7 @@ export async function createManagementApp(options: ManagementAppOptions): Promis
       appId: 'local-design-canvas',
       protocolVersion: 1,
       instanceId: options.instanceId,
+      buildId: options.buildId,
       capabilities: ['capture', 'snapshots', 'selection', 'reference', 'editing'],
     }),
   );

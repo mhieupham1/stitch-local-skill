@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { spawn } from 'node:child_process';
 import { canonicalWorkspace } from '../../core/src/paths.js';
 import { CanvasError } from '../../core/src/schema.js';
+import { computeBuildId } from './build-id.js';
 
 export type RuntimeInfo = {
   instanceId: string;
@@ -12,7 +13,12 @@ export type RuntimeInfo = {
   previewUrl: string;
 };
 
-type RuntimeState = RuntimeInfo;
+// `buildId` is absent from files written before servers reported the build they
+// run, and from servers started by such a build.
+type RuntimeState = RuntimeInfo & { buildId?: string };
+
+/** What a live server says about itself, which outranks what the file claims. */
+type Health = { buildId?: string };
 
 export type EnsureServerOptions = {
   managementPort?: number;
@@ -66,33 +72,49 @@ async function readRuntime(workspace: string): Promise<RuntimeState | null> {
   }
 }
 
-async function isHealthy(state: RuntimeState): Promise<boolean> {
+async function isHealthy(state: RuntimeState): Promise<Health | null> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 700);
   try {
     const response = await fetch(`${state.url}/health`, { signal: controller.signal });
-    if (!response.ok) return false;
-    const body = (await response.json()) as { ok?: boolean; data?: { instanceId?: unknown } };
-    return body.ok === true && body.data?.instanceId === state.instanceId;
+    if (!response.ok) return null;
+    const body = (await response.json()) as { ok?: boolean; data?: { instanceId?: unknown; buildId?: unknown } };
+    if (body.ok !== true || body.data?.instanceId !== state.instanceId) return null;
+    return { buildId: typeof body.data.buildId === 'string' ? body.data.buildId : undefined };
   } catch {
-    return false;
+    return null;
   } finally {
     clearTimeout(timer);
   }
 }
 
+async function liveServer(workspace: string): Promise<{ state: RuntimeState; health: Health } | null> {
+  const state = await readRuntime(workspace);
+  if (!state) return null;
+  const health = await isHealthy(state);
+  return health ? { state, health } : null;
+}
+
+/**
+ * The live server for this workspace, but only when it runs the code now on
+ * disk. A server from an earlier build answers from the routes it was built
+ * with, so a request this build adds would fail in a way that looks like a bug
+ * in this build. Reporting it as absent routes callers through `start`, which
+ * replaces it. `stopServer` deliberately does not use this: it has to be able
+ * to reach a server this function rejects.
+ */
+async function usableServer(workspace: string): Promise<RuntimeInfo | null> {
+  const live = await liveServer(workspace);
+  if (!live) return null;
+  return live.health.buildId === (await computeBuildId()) ? publicRuntime(live.state) : null;
+}
+
 export async function getServerStatus(workspace: string): Promise<RuntimeInfo | null> {
-  const canonicalWorkspacePath = await canonicalWorkspace(workspace);
-  const state = await readRuntime(canonicalWorkspacePath);
-  if (!state || !(await isHealthy(state))) return null;
-  return publicRuntime(state);
+  return usableServer(await canonicalWorkspace(workspace));
 }
 
 export async function getServerCredentials(workspace: string): Promise<RuntimeInfo | null> {
-  const canonicalWorkspacePath = await canonicalWorkspace(workspace);
-  const state = await readRuntime(canonicalWorkspacePath);
-  if (!state || !(await isHealthy(state))) return null;
-  return publicRuntime(state);
+  return usableServer(await canonicalWorkspace(workspace));
 }
 
 async function acquireStartupLock(workspace: string): Promise<() => Promise<void>> {
@@ -189,13 +211,18 @@ export async function ensureServer(workspace: string, options: EnsureServerOptio
   validatePort(options.previewPort);
   const canonicalWorkspacePath = await canonicalWorkspace(workspace);
   await mkdir(runtimeDirectory(canonicalWorkspacePath), { recursive: true, mode: 0o700 });
-  const existing = await getServerStatus(canonicalWorkspacePath);
-  if (existing) return existing;
+  const buildId = await computeBuildId();
+  const existing = await liveServer(canonicalWorkspacePath);
+  if (existing && existing.health.buildId === buildId) return publicRuntime(existing.state);
+  // A server from another build is stopped before the new one starts, so the
+  // ports it holds are free by the time the replacement binds them.
+  if (existing) await stopServer(canonicalWorkspacePath);
 
   const release = await acquireStartupLock(canonicalWorkspacePath);
   try {
-    const afterLock = await getServerStatus(canonicalWorkspacePath);
-    if (afterLock) return afterLock;
+    const afterLock = await liveServer(canonicalWorkspacePath);
+    if (afterLock && afterLock.health.buildId === buildId) return publicRuntime(afterLock.state);
+    if (afterLock) await stopServer(canonicalWorkspacePath);
     await rm(runtimePath(canonicalWorkspacePath), { force: true });
     await startProcess(canonicalWorkspacePath, options);
     const deadline = Date.now() + START_TIMEOUT_MS;
@@ -212,13 +239,31 @@ export async function ensureServer(workspace: string, options: EnsureServerOptio
 
 export async function stopServer(workspace: string): Promise<void> {
   const canonicalWorkspacePath = await canonicalWorkspace(workspace);
-  const state = await readRuntime(canonicalWorkspacePath);
-  if (!state || !(await isHealthy(state))) return;
-  const response = await fetch(`${state.url}/api/shutdown`, { method: 'POST' });
-  if (!response.ok) throw new CanvasError('SERVER_STOP_FAILED', 'Server từ chối yêu cầu dừng.', response.status);
+  const live = await liveServer(canonicalWorkspacePath);
+  if (!live) return;
+  // The shutdown route arrived with editing, so a server older than that cannot
+  // be asked to stop — and those are exactly the builds most likely to need
+  // replacing. It proved it is ours by answering /health with our instance id,
+  // so a signal is the remaining way to retire it.
+  let asked = false;
+  try {
+    asked = (await fetch(`${live.state.url}/api/shutdown`, { method: 'POST' })).ok;
+  } catch {
+    asked = false;
+  }
+  if (!asked) {
+    try {
+      process.kill(live.state.pid, 'SIGTERM');
+    } catch {
+      // The process is already gone; the poll below settles the rest.
+    }
+  }
   const deadline = Date.now() + 4_000;
+  // Poll on liveness rather than `getServerStatus`: a stale server reads as
+  // absent there, which would report the stop as finished while its ports are
+  // still held.
   while (Date.now() < deadline) {
-    if (!(await getServerStatus(canonicalWorkspacePath))) return;
+    if (!(await liveServer(canonicalWorkspacePath))) return;
     await sleep(POLL_INTERVAL_MS);
   }
   throw new CanvasError('SERVER_STOP_TIMEOUT', 'Server chưa dừng sau 4 giây.', 503);

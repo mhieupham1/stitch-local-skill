@@ -43,9 +43,11 @@ node dist/release/local-design-canvas/scripts/run.mjs start \
 
 `--workspace` is where designs are stored. Omit it and the CLI uses the current directory. `--json` prints one JSON result on stdout. `--port` picks a management port; omit it and the OS assigns one. Each workspace has one server: calling `start` again reuses it. Different workspaces run side by side on different ports.
 
+A server is tied to the build that started it. `start` compares the build the running server reports with the code on disk, and replaces the server when they differ, so a rebuild never leaves an old process answering from routes it was built with. Nothing needs clearing by hand after `npm run build`.
+
 The canvas has no session token. After `start`, open `http://127.0.0.1:<port>/`. The first visit asks you to confirm **Dùng preview này**; **Đổi preview** switches later. `--open` already passes the preview URL. Management APIs check `Host` and `Origin`, so another website cannot call into your workspace.
 
-`status` reports whether that workspace’s server is running. `stop` shuts it down. Command details for project, screen, prototype, capture, snapshot, selection, and MCP are in the [skill command reference](skills/local-design-canvas/references/commands.md).
+`status` reports whether that workspace’s server is running, and `stop` shuts it down. A server left running by an earlier build reads as not running, and `stop` still stops it: it is reached by the instance id it reports, so an old process can always be retired. Command details for project, screen, prototype, capture, snapshot, selection, and MCP are in the [skill command reference](skills/local-design-canvas/references/commands.md).
 
 ## Workspace
 
