@@ -106,7 +106,7 @@ Restart the agent session after installation and invoke `local-design-canvas` wh
 
 ## MCP
 
-`mcp serve` speaks the Model Context Protocol on stdio. stdout is the protocol channel; diagnostics go to stderr. It starts or attaches to the workspace server and exposes `canvas_status`, project and screen tools, `screen_capture`, `reference_fetch`, `screen_focus`, `screen_edit_start`, `screen_edit_done`, `selection_get`, and prototype source/list/get/create/update/regenerate/delete. A host config example is in [docs/usage.md](docs/usage.md).
+`mcp serve` speaks the Model Context Protocol on stdio. stdout is the protocol channel; diagnostics go to stderr. It starts or attaches to the workspace server and exposes `canvas_status`, `project_create`/`project_list`/`project_rename`, `screen_list`/`screen_add`/`screen_update`/`screen_duplicate`/`screen_delete`/`screen_capture`, `snapshot_create`/`snapshot_restore`, `figma_export`, `reference_fetch`, `screen_focus`, `screen_edit_start`, `screen_edit_done`, `selection_get`, and prototype source/list/get/create/update/regenerate/delete. A host config example is in [docs/usage.md](docs/usage.md).
 
 ```bash
 node dist/release/local-design-canvas/scripts/run.mjs mcp serve \

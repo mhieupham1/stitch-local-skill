@@ -98,4 +98,64 @@ describe('mcp adapter', () => {
       expect(viaApi.data.startScreenId).toBe('detail');
     } finally { await client.close(); }
   });
+
+  it('dọn dẹp và bố cục lại màn hình qua MCP', async () => {
+    await api('/api/projects', { method: 'POST', body: JSON.stringify({ id: 'shop', name: 'Shop' }) });
+    await api('/api/projects/shop/screens', { method: 'POST', body: JSON.stringify({ id: 'home', name: 'Home', width: 800, height: 600, expectedRevision: 0 }) });
+    await api('/api/projects/shop/screens', { method: 'POST', body: JSON.stringify({ id: 'detail', name: 'Detail', width: 800, height: 600, expectedRevision: 1 }) });
+    const client = await connectClient();
+    try {
+      const renamed = await callJson(client, 'project_rename', { project: 'shop', name: 'Cửa hàng' });
+      expect(renamed).toMatchObject({ ok: true, data: { id: 'shop', name: 'Cửa hàng' } });
+
+      const moved = await callJson(client, 'screen_update', { project: 'shop', screens: [{ id: 'home', x: 1600, y: 120, width: 1024 }] });
+      expect(moved).toMatchObject({ ok: true, data: { screens: expect.arrayContaining([expect.objectContaining({ id: 'home', x: 1600, y: 120, width: 1024 })]) } });
+
+      const duplicated = await callJson(client, 'screen_duplicate', { project: 'shop', screen: 'home', newId: 'home-alt' });
+      expect(duplicated).toMatchObject({ ok: true, data: { id: 'home-alt' } });
+
+      const deleted = await callJson(client, 'screen_delete', { project: 'shop', screens: ['home-alt', 'detail'] });
+      expect(deleted.ok).toBe(true);
+      const screens = await callJson(client, 'screen_list', { project: 'shop' });
+      expect(screens.data).toMatchObject([{ id: 'home' }]);
+    } finally { await client.close(); }
+  }, 20_000);
+
+  it('chụp và phục hồi snapshot qua MCP', async () => {
+    await api('/api/projects', { method: 'POST', body: JSON.stringify({ id: 'shop', name: 'Shop' }) });
+    await api('/api/projects/shop/screens', { method: 'POST', body: JSON.stringify({ id: 'home', name: 'Home', width: 800, height: 600, expectedRevision: 0 }) });
+    const client = await connectClient();
+    try {
+      const created = await callJson(client, 'snapshot_create', { project: 'shop' });
+      expect(created).toMatchObject({ ok: true, data: { snapshotId: expect.any(String) } });
+      const snapshotId = (created.data as { snapshotId: string }).snapshotId;
+
+      const restored = await callJson(client, 'snapshot_restore', { project: 'shop', snapshot: snapshotId });
+      expect(restored).toMatchObject({ ok: true, data: { backupSnapshotId: expect.any(String) } });
+
+      const missing = await callJson(client, 'snapshot_restore', { project: 'shop', snapshot: 'khong-ton-tai' });
+      expect(missing).toMatchObject({ ok: false, error: { code: 'SNAPSHOT_NOT_FOUND' } });
+    } finally { await client.close(); }
+  }, 20_000);
+
+  it('figma_export đi đúng route của server', async () => {
+    await api('/api/projects', { method: 'POST', body: JSON.stringify({ id: 'shop', name: 'Shop' }) });
+    await api('/api/projects/shop/screens', { method: 'POST', body: JSON.stringify({ id: 'home', name: 'Home', width: 800, height: 600, expectedRevision: 0 }) });
+    const client = await connectClient();
+    try {
+      // Màn hình không tồn tại để không phải khởi động Chromium.
+      const exported = await callJson(client, 'figma_export', { project: 'shop', screen: 'khong-ton-tai' });
+      expect(exported).toMatchObject({ ok: false, error: { code: 'SCREEN_NOT_FOUND' } });
+    } finally { await client.close(); }
+  }, 20_000);
+
+  it('từ chối xóa màn hình cuối cùng của project', async () => {
+    await api('/api/projects', { method: 'POST', body: JSON.stringify({ id: 'shop', name: 'Shop' }) });
+    await api('/api/projects/shop/screens', { method: 'POST', body: JSON.stringify({ id: 'home', name: 'Home', width: 800, height: 600, expectedRevision: 0 }) });
+    const client = await connectClient();
+    try {
+      const deleted = await callJson(client, 'screen_delete', { project: 'shop', screens: ['home'] });
+      expect(deleted).toMatchObject({ ok: false, error: { code: 'LAST_SCREEN' } });
+    } finally { await client.close(); }
+  }, 20_000);
 });
