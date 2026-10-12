@@ -511,6 +511,28 @@ test('menu Phiên bản giữ thao tác lưu project ngoài header chính', asyn
   await expect(page.getByRole('button', { name: 'Lưu phiên bản', exact: true })).toBeHidden();
 });
 
+test('menu Phiên bản liệt kê bản lưu và xóa được một bản', async ({ page }) => {
+  await page.goto(`${runtime.url}/?project=shop#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
+  await expect(page.getByRole('heading', { name: 'Shop' })).toBeVisible();
+
+  // Save a version, then reopen the menu to see it listed with time and size.
+  await page.getByRole('button', { name: 'Phiên bản' }).click();
+  await page.getByRole('button', { name: 'Lưu phiên bản', exact: true }).click();
+  const message = await page.getByRole('alert').textContent();
+  const id = message?.match(/Đã lưu phiên bản: (snapshot-[\w-]+)/)?.[1];
+  expect(id).toBeTruthy();
+
+  await page.getByRole('button', { name: 'Phiên bản' }).click();
+  const row = page.locator('.version-row').filter({ hasText: id! });
+  await expect(row).toBeVisible();
+
+  page.once('dialog', (dialog) => void dialog.accept());
+  await row.getByRole('button', { name: `Xóa ${id}` }).click();
+  await expect(page.getByRole('alert')).toContainText(`Đã xóa phiên bản: ${id}`);
+  await expect(page.locator('.version-row').filter({ hasText: id! })).toHaveCount(0);
+  await expect(readFile(join(workspace, 'projects', 'shop', 'snapshots', id!, 'project.json'), 'utf8')).rejects.toThrow();
+});
+
 test('bỏ chọn màn hình bằng click nền canvas hoặc Escape', async ({ page }) => {
   await page.goto(`${runtime.url}/?project=shop#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
   await page.locator('[data-screen-id="overview"]').click();

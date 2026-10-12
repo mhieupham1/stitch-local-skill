@@ -6,6 +6,13 @@ export const projectIdSchema = z
   .string()
   .regex(ID_PATTERN, 'ID phải là slug ASCII chữ thường, số và dấu gạch ngang.');
 
+// Snapshot ids are generated server-side as `snapshot-<epoch-ms>-<hex>` but are
+// validated with the same slug pattern so any well-formed id stays addressable
+// and a path fragment like `../../screens` can never reach a filesystem call.
+export const snapshotIdSchema = z
+  .string()
+  .regex(ID_PATTERN, 'ID snapshot không hợp lệ.');
+
 export const screenSchema = z.object({
   id: projectIdSchema,
   name: z.string().trim().min(1),
@@ -121,6 +128,7 @@ export const canvasEventSchema = z.object({
   message: z.string().optional(),
 });
 
+export type SnapshotId = z.infer<typeof snapshotIdSchema>;
 export type Screen = z.infer<typeof screenSchema>;
 export type Project = z.infer<typeof projectSchema>;
 export type ScreenLayoutPatch = z.infer<typeof screenLayoutPatchSchema>;

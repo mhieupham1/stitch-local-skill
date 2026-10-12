@@ -17,12 +17,12 @@ import {
   deleteProject,
 } from '../../core/src/project-store.js';
 import { canonicalWorkspace, resolveProjectDirectory, resolveProjectFile } from '../../core/src/paths.js';
-import { asCanvasError, CanvasError, projectIdSchema, type Result, screenLayoutPatchSchema, screenOrderSchema, selectionContextSchema, prototypeCreateInputSchema, prototypePatchInputSchema, prototypeRegenerateInputSchema } from '../../core/src/schema.js';
+import { asCanvasError, CanvasError, projectIdSchema, snapshotIdSchema, type Result, screenLayoutPatchSchema, screenOrderSchema, selectionContextSchema, prototypeCreateInputSchema, prototypePatchInputSchema, prototypeRegenerateInputSchema } from '../../core/src/schema.js';
 import { CanvasEvents } from './events.js';
 import { captureScreen } from './capture.js';
 import { exportScreenForFigma } from './figma-export.js';
 import { fetchReference } from './reference.js';
-import { createSnapshot, duplicateScreen, restoreSnapshot } from './snapshots.js';
+import { createSnapshot, deleteSnapshot, duplicateScreen, listSnapshots, restoreSnapshot } from './snapshots.js';
 import { SelectionStore } from './selection.js';
 import { ensureDesignIds } from './design-ids.js';
 import { createPrototype, deletePrototype, listPrototypes, readPrototype, regeneratePrototype, updatePrototype } from './prototypes.js';
@@ -383,6 +383,12 @@ export async function createManagementApp(options: ManagementAppOptions): Promis
   });
 
   app.post<{ Params: { projectId: string } }>('/api/projects/:projectId/snapshots', async (request) => success(await createSnapshot(options.workspace, request.params.projectId)));
+  app.get<{ Params: { projectId: string } }>('/api/projects/:projectId/snapshots', async (request) => success(await listSnapshots(options.workspace, request.params.projectId)));
+  app.delete<{ Params: { projectId: string; snapshotId: string } }>('/api/projects/:projectId/snapshots/:snapshotId', async (request) => {
+    const snapshotId = snapshotIdSchema.parse(request.params.snapshotId);
+    await deleteSnapshot(options.workspace, request.params.projectId, snapshotId);
+    return success({ deleted: true });
+  });
   app.post<{ Params: { projectId: string; snapshotId: string } }>('/api/projects/:projectId/snapshots/:snapshotId/restore', async (request) => {
     const result = await restoreSnapshot(options.workspace, request.params.projectId, request.params.snapshotId);
     const project = await readProject(options.workspace, request.params.projectId);

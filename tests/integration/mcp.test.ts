@@ -138,6 +138,27 @@ describe('mcp adapter', () => {
     } finally { await client.close(); }
   }, 20_000);
 
+  it('liệt kê và xóa snapshot qua MCP', async () => {
+    await api('/api/projects', { method: 'POST', body: JSON.stringify({ id: 'shop', name: 'Shop' }) });
+    await api('/api/projects/shop/screens', { method: 'POST', body: JSON.stringify({ id: 'home', name: 'Home', width: 800, height: 600, expectedRevision: 0 }) });
+    const client = await connectClient();
+    try {
+      const created = await callJson(client, 'snapshot_create', { project: 'shop' });
+      const snapshotId = (created.data as { snapshotId: string }).snapshotId;
+
+      const listed = await callJson(client, 'snapshot_list', { project: 'shop' });
+      expect(listed).toMatchObject({ ok: true, data: [{ id: snapshotId, bytes: expect.any(Number) }] });
+
+      const removed = await callJson(client, 'snapshot_delete', { project: 'shop', snapshot: snapshotId });
+      expect(removed).toMatchObject({ ok: true, data: { deleted: true } });
+      const after = await callJson(client, 'snapshot_list', { project: 'shop' });
+      expect(after.data).toEqual([]);
+
+      const missing = await callJson(client, 'snapshot_delete', { project: 'shop', snapshot: 'snapshot-1-deadbeef' });
+      expect(missing).toMatchObject({ ok: false, error: { code: 'SNAPSHOT_NOT_FOUND' } });
+    } finally { await client.close(); }
+  }, 20_000);
+
   it('figma_export đi đúng route của server', async () => {
     await api('/api/projects', { method: 'POST', body: JSON.stringify({ id: 'shop', name: 'Shop' }) });
     await api('/api/projects/shop/screens', { method: 'POST', body: JSON.stringify({ id: 'home', name: 'Home', width: 800, height: 600, expectedRevision: 0 }) });

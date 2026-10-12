@@ -1,5 +1,7 @@
 import type { CanvasEvent, Project, PrototypeView, Result, ScreenLayoutPatch, SelectionContext } from '../../core/src/schema.js';
 
+export type SnapshotInfo = { id: string; createdAt: string; bytes: number };
+
 export class ApiError extends Error {
   constructor(readonly code: string, message: string, readonly status: number) { super(message); }
 }
@@ -56,6 +58,8 @@ export class CanvasApi {
   exportForFigma(projectId: string, screenId: string) { return this.request<{ html: string; text: string; screenId: string; screenName: string; nodeCount: number }>(`/api/projects/${encodeURIComponent(projectId)}/screens/${encodeURIComponent(screenId)}/figma`, { method: 'POST' }); }
   duplicateScreen(projectId: string, screenId: string, newId: string) { return this.request(`/api/projects/${encodeURIComponent(projectId)}/screens/${encodeURIComponent(screenId)}/duplicate`, { method: 'POST', body: JSON.stringify({ newId }) }); }
   createSnapshot(projectId: string) { return this.request<{ snapshotId: string }>(`/api/projects/${encodeURIComponent(projectId)}/snapshots`, { method: 'POST' }); }
+  listSnapshots(projectId: string) { return this.request<SnapshotInfo[]>(`/api/projects/${encodeURIComponent(projectId)}/snapshots`); }
+  deleteSnapshot(projectId: string, snapshotId: string) { return this.request<{ deleted: true }>(`/api/projects/${encodeURIComponent(projectId)}/snapshots/${encodeURIComponent(snapshotId)}`, { method: 'DELETE' }); }
   restoreSnapshot(projectId: string, snapshotId: string) { return this.request<{ backupSnapshotId: string }>(`/api/projects/${encodeURIComponent(projectId)}/snapshots/${encodeURIComponent(snapshotId)}/restore`, { method: 'POST' }); }
   focusScreen(projectId: string, screenId: string) { return this.request<{ screenId: string; name: string; entry: string }>(`/api/projects/${encodeURIComponent(projectId)}/focus`, { method: 'PUT', body: JSON.stringify({ screenId }) }); }
   clearFocus(projectId: string) { return this.request<{ cleared: true }>(`/api/projects/${encodeURIComponent(projectId)}/focus`, { method: 'DELETE' }); }

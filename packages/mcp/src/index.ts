@@ -187,6 +187,24 @@ export function createMcpServer(workspace: string): McpServer {
     return managementRequest(workspace, `${projectPath(project)}/snapshots/${encodeURIComponent(snapshot)}/restore`, { method: 'POST' });
   }));
 
+  server.registerTool('snapshot_list', {
+    title: 'List snapshots',
+    description: 'List a project’s saved snapshots, newest first, each with its creation time and size in bytes. Use it to find an id before snapshot_restore or snapshot_delete.',
+    inputSchema: { project: z.string() },
+  }, async ({ project }) => runTool(async () => {
+    await ensureServer(workspace);
+    return managementRequest(workspace, `${projectPath(project)}/snapshots`);
+  }));
+
+  server.registerTool('snapshot_delete', {
+    title: 'Delete snapshot',
+    description: 'Permanently remove one saved snapshot of a project. This cannot be undone; the current project state is not affected.',
+    inputSchema: { project: z.string(), snapshot: z.string() },
+  }, async ({ project, snapshot }) => runTool(async () => {
+    await ensureServer(workspace);
+    return managementRequest(workspace, `${projectPath(project)}/snapshots/${encodeURIComponent(snapshot)}`, { method: 'DELETE' });
+  }));
+
   server.registerTool('reference_fetch', {
     title: 'Fetch design reference',
     description: 'Open a real URL in a headless browser and extract its title, headings, section text, links, and a full-page screenshot as a design reference. Runs a browser on the local machine; confirm the URL with the user first.',

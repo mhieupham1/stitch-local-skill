@@ -516,7 +516,9 @@ button {
 .version-actions {
   position: fixed;
   inset: auto;
-  width: 220px;
+  /* Width is set from JS (VERSION_MENU_WIDTH); min-width keeps the list usable
+     if that ever fails to run. */
+  min-width: 320px;
   max-width: calc(100vw - 16px);
   margin: 0;
   padding: 6px;
@@ -540,6 +542,15 @@ button {
 }
 .version-actions button:hover,
 .version-actions button:focus-visible { color: var(--text); background: var(--elevated); }
+.version-empty { padding: 6px 9px; color: var(--text-dim); font-size: 12px; }
+.version-row { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 2px; }
+.version-row button { justify-content: center; width: 30px; padding: 0; }
+.version-meta { display: grid; gap: 2px; min-width: 0; padding: 4px 0 4px 9px; }
+.version-meta code { overflow: hidden; color: var(--text-dim); font: 11.5px var(--mono); text-overflow: ellipsis; white-space: nowrap; }
+.version-meta small { color: var(--text-dim); font-size: 11px; }
+.version-actions button.danger { color: var(--danger); }
+.version-actions button.danger:hover,
+.version-actions button.danger:focus-visible { color: #fff; background: var(--danger); }
 
 /* The primary action (save) is the only solid button in the header. */
 .header-primary {

@@ -145,6 +145,7 @@ Mọi lệnh nhận `--workspace <path>` và `--json`. Ở chế độ `--json`,
 | Nhân bản màn hình | `$canvas screen duplicate overview --new-id overview-alt --project shop-dashboard --workspace "$workspace" --json` |
 | Chụp ảnh preview | `$canvas screenshot overview --project shop-dashboard --workspace "$workspace" --json` |
 | Tạo / khôi phục snapshot | `$canvas snapshot create --project shop-dashboard --workspace "$workspace" --json` / `$canvas snapshot restore <snapshot-id> --project shop-dashboard --workspace "$workspace" --json` |
+| Liệt kê / xóa snapshot | `$canvas snapshot list --project shop-dashboard --workspace "$workspace" --json` / `$canvas snapshot delete <snapshot-id> --project shop-dashboard --workspace "$workspace" --json` |
 | Đọc màn hình đang được chọn trên canvas | `$canvas screen focus --project shop-dashboard --workspace "$workspace" --json` |
 | Khóa màn hình khi agent đang sửa | `$canvas screen edit start --project shop-dashboard --screen overview --message 'Đang chỉnh sửa…' --workspace "$workspace" --json` |
 | Mở khóa sau khi sửa xong | `$canvas screen edit done --project shop-dashboard --workspace "$workspace" --json` |
@@ -202,10 +203,14 @@ $canvas screen duplicate overview --new-id overview-alt --project shop-dashboard
 
 ```bash
 $canvas snapshot create --project shop-dashboard --workspace "$workspace" --json
+$canvas snapshot list --project shop-dashboard --workspace "$workspace" --json
 $canvas snapshot restore <snapshot-id> --project shop-dashboard --workspace "$workspace" --json
+$canvas snapshot delete <snapshot-id> --project shop-dashboard --workspace "$workspace" --json
 ```
 
 `snapshot create` lưu manifest, HTML/CSS và assets (loại runtime, snapshot lồng nhau và artifacts). Nếu file đang thay đổi, lệnh thử lại và có thể trả `PROJECT_BUSY`. `snapshot restore` tự tạo một snapshot backup của trạng thái hiện tại trước khi thay nguồn, và trả `backupSnapshotId`.
+
+`snapshot list` liệt kê các phiên bản đã lưu, mới nhất trước, mỗi mục gồm `id`, `createdAt` và `bytes` (dung lượng thư mục). Dùng nó để lấy ID trước khi `restore` hoặc `delete`. `snapshot delete` xóa vĩnh viễn một phiên bản (`SNAPSHOT_NOT_FOUND` nếu không có) và **không** đụng tới trạng thái hiện tại của project. Trên canvas, menu **Phiên bản** liệt kê sẵn các bản lưu kèm thời gian và dung lượng, có nút khôi phục và xóa cho từng bản.
 
 **Tham chiếu một trang web** khi bạn muốn dựng thiết kế tương tự một trang có sẵn (kể cả trang cần JavaScript để hiển thị):
 
@@ -240,6 +245,7 @@ stdout dành riêng cho giao thức, log ra stderr. Adapter khởi động hoặ
 - `screen_focus` — đọc màn hình đang được tô sáng trên canvas.
 - `screen_edit_start` / `screen_edit_done` — khóa/mở khóa khung đang chỉnh sửa.
 - `selection_get` — đọc phần tử đang chọn kèm cờ `stale`.
+- `snapshot_create`, `snapshot_list`, `snapshot_restore`, `snapshot_delete` — lưu, liệt kê, khôi phục và xóa phiên bản của project.
 
 Ví dụ cấu hình một MCP server trong host hỗ trợ file cấu hình MCP:
 

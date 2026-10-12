@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Project, PrototypeView, Screen, ScreenLayoutPatch, SelectionContext } from '../../core/src/schema.js';
-import { ApiError, CanvasApi, clearPreviewUrl, connectEvents, readSession, savePreviewUrl } from './api.js';
+import { ApiError, CanvasApi, clearPreviewUrl, connectEvents, readSession, savePreviewUrl, type SnapshotInfo } from './api.js';
 import { CanvasViewport } from './features/canvas/CanvasViewport.js';
 import { LayoutHistory } from './features/canvas/layout-history.js';
 import type { SaveState } from './features/canvas/layout-state.js';
@@ -18,6 +18,16 @@ import {
 const DEFAULT_VIEWPORT: Viewport = { x: 96, y: 96, zoom: 0.5 };
 const viewportKey = (projectId: string) => `local-canvas-viewport:${projectId}`;
 const readViewport = (projectId: string): Viewport => { try { return JSON.parse(localStorage.getItem(viewportKey(projectId)) ?? '') as Viewport; } catch { return DEFAULT_VIEWPORT; } };
+// The version popover lists snapshot ids alongside two row actions, so it needs
+// more room than the old two-item menu. One constant drives both the element
+// width and the viewport-clamp maths so the two cannot drift apart.
+const VERSION_MENU_WIDTH = 320;
+const formatBytes = (bytes: number): string => {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
+
 const sidebarCollapsedKey = 'local-canvas-sidebar-collapsed';
 const readSidebarCollapsed = (): boolean => {
   try { return localStorage.getItem(sidebarCollapsedKey) === '1'; } catch { return false; }
@@ -103,6 +113,8 @@ function CanvasApp() {
   const hasConnectedRef = useRef(false);
   const hadConnectionFailureRef = useRef(false);
   const [error, setError] = useState<string | null>(null);
+  const [snapshots, setSnapshots] = useState<SnapshotInfo[]>([]);
+  const [snapshotsLoading, setSnapshotsLoading] = useState(false);
   const [screenRevisions, setScreenRevisions] = useState<Record<string, number>>({});
   const projectRef = useRef<Project | null>(null);
   // Uncommitted local layout edits, keyed by screen id. A background refresh
@@ -723,17 +735,47 @@ function CanvasApp() {
     try { await api.duplicateScreen(project.id, selectedScreen.id, newId); await loadProject(project.id); setSelectedScreenIds([newId]); }
     catch (cause) { setError(cause instanceof Error ? cause.message : 'Không thể tạo bản sao màn hình.'); }
   };
+  // Reload the snapshot list for the project currently on screen. Guarded so a
+  // slow response for a project the user already left does not repopulate state.
+  const refreshSnapshots = useCallback(async (projectId: string) => {
+    if (!api) return;
+    setSnapshotsLoading(true);
+    try {
+      const items = await api.listSnapshots(projectId);
+      if (projectRef.current?.id === projectId) setSnapshots(items);
+    } finally {
+      if (projectRef.current?.id === projectId) setSnapshotsLoading(false);
+    }
+  }, [api]);
   const createProjectSnapshot = async () => {
     if (!api || !project) return;
-    try { const result = await api.createSnapshot(project.id); setError(`Đã lưu phiên bản: ${result.snapshotId}`); }
+    try {
+      const result = await api.createSnapshot(project.id);
+      // Refresh before announcing, and never let a refresh failure hide the id.
+      await refreshSnapshots(project.id).catch(() => undefined);
+      setError(`Đã lưu phiên bản: ${result.snapshotId}`);
+    }
     catch (cause) { setError(cause instanceof Error ? cause.message : 'Không thể tạo snapshot.'); }
   };
-  const restoreProjectSnapshot = async () => {
+  const restoreProjectSnapshot = async (snapshotId: string) => {
     if (!api || !project) return;
-    const snapshotId = window.prompt('ID phiên bản cần khôi phục');
-    if (!snapshotId) return;
-    try { const result = await api.restoreSnapshot(project.id, snapshotId); await loadProject(project.id); setError(`Đã khôi phục snapshot. Backup hiện tại: ${result.backupSnapshotId}`); }
+    try {
+      const result = await api.restoreSnapshot(project.id, snapshotId);
+      await loadProject(project.id);
+      await refreshSnapshots(project.id).catch(() => undefined);
+      setError(`Đã khôi phục snapshot. Backup hiện tại: ${result.backupSnapshotId}`);
+    }
     catch (cause) { setError(cause instanceof Error ? cause.message : 'Không thể khôi phục snapshot.'); }
+  };
+  const deleteProjectSnapshot = async (snapshotId: string) => {
+    if (!api || !project) return;
+    if (!window.confirm(`Xóa phiên bản “${snapshotId}”?\n\nBản lưu này sẽ bị xóa vĩnh viễn. Trạng thái hiện tại của project không đổi.`)) return;
+    try {
+      await api.deleteSnapshot(project.id, snapshotId);
+      await refreshSnapshots(project.id).catch(() => undefined);
+      setError(`Đã xóa phiên bản: ${snapshotId}`);
+    }
+    catch (cause) { setError(cause instanceof Error ? cause.message : 'Không thể xóa phiên bản.'); }
   };
   // Every unsaved screen for this project, not just the first. A failed save
   // queues one entry per screen, so retrying a single entry would clear it and
@@ -927,13 +969,24 @@ function CanvasApp() {
             <button type="button" className="header-btn" popoverTarget="version-actions" onClick={(event) => {
               const menu = versionMenuRef.current;
               if (!menu) return;
+              menu.style.width = `${VERSION_MENU_WIDTH}px`;
               const rect = event.currentTarget.getBoundingClientRect();
               menu.style.top = `${rect.bottom + 6}px`;
-              menu.style.left = `${Math.max(8, Math.min(rect.right - 220, window.innerWidth - 228))}px`;
+              menu.style.left = `${Math.max(8, Math.min(rect.right - VERSION_MENU_WIDTH, window.innerWidth - VERSION_MENU_WIDTH - 8))}px`;
+              void refreshSnapshots(project.id).catch(() => undefined);
             }}><IconCamera2 size={14} />Phiên bản <span aria-hidden="true">⌄</span></button>
             <div ref={versionMenuRef} id="version-actions" className="version-actions" popover="auto">
               <button type="button" onClick={() => { versionMenuRef.current?.hidePopover(); void createProjectSnapshot(); }}><IconCamera2 size={14} />Lưu phiên bản</button>
-              <button type="button" onClick={() => { versionMenuRef.current?.hidePopover(); void restoreProjectSnapshot(); }}><IconRotateCcw size={14} />Khôi phục phiên bản…</button>
+              {snapshotsLoading && <div className="version-empty">Đang tải…</div>}
+              {!snapshotsLoading && snapshots.length === 0 && <div className="version-empty">Chưa có phiên bản nào.</div>}
+              {snapshots.map((snapshot) => <div key={snapshot.id} className="version-row">
+                <span className="version-meta">
+                  <code>{snapshot.id}</code>
+                  <small>{new Date(snapshot.createdAt).toLocaleString('vi-VN')} · {formatBytes(snapshot.bytes)}</small>
+                </span>
+                <button type="button" aria-label={`Khôi phục ${snapshot.id}`} title="Khôi phục" onClick={() => { versionMenuRef.current?.hidePopover(); void restoreProjectSnapshot(snapshot.id); }}><IconRotateCcw size={14} /></button>
+                <button type="button" className="danger" aria-label={`Xóa ${snapshot.id}`} title="Xóa" onClick={() => { versionMenuRef.current?.hidePopover(); void deleteProjectSnapshot(snapshot.id); }}><IconTrash size={14} /></button>
+              </div>)}
             </div>
           </>}
 

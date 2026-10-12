@@ -237,6 +237,21 @@ export const COMMANDS: CommandSpec[] = [
     run: async ({ args }) => managementRequest(args.workspace, `${projectPath(option(args, '--project'))}/snapshots`, { method: 'POST' }),
   },
   {
+    words: ['snapshot', 'list'],
+    route: 'GET /api/projects/:projectId/snapshots',
+    run: async ({ args }) => managementRequest(args.workspace, `${projectPath(option(args, '--project'))}/snapshots`),
+  },
+  {
+    words: ['snapshot', 'delete'],
+    route: 'DELETE /api/projects/:projectId/snapshots/:snapshotId',
+    run: async ({ args, rest }) => {
+      const [snapshotId] = rest;
+      if (!snapshotId) throw new Error('Thiếu ID snapshot.');
+      const projectId = option(args, '--project');
+      return managementRequest(args.workspace, `${projectPath(projectId)}/snapshots/${encodeURIComponent(snapshotId)}`, { method: 'DELETE' });
+    },
+  },
+  {
     words: ['snapshot', 'restore'],
     route: 'POST /api/projects/:projectId/snapshots/:snapshotId/restore',
     run: async ({ args, rest }) => {

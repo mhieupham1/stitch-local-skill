@@ -1,9 +1,9 @@
 import { createHash } from 'node:crypto';
-import { access, cp, mkdir, readdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
+import { access, cp, lstat, mkdir, readdir, readFile, realpath, rename, rm, stat, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { addScreen, getProjectRoot, readProject } from '../../core/src/project-store.js';
-import { resolveProjectFile } from '../../core/src/paths.js';
-import { CanvasError, projectSchema, type Project, type Screen } from '../../core/src/schema.js';
+import { isInside, resolveProjectFile } from '../../core/src/paths.js';
+import { CanvasError, projectSchema, snapshotIdSchema, type Project, type Screen } from '../../core/src/schema.js';
 
 async function exists(path: string): Promise<boolean> { try { await access(path); return true; } catch { return false; } }
 
@@ -101,8 +101,11 @@ export async function createSnapshot(workspace: string, projectId: string): Prom
 }
 
 export async function restoreSnapshot(workspace: string, projectId: string, id: string): Promise<{ backupSnapshotId: string }> {
+  // Reject a path fragment before it reaches the filesystem, the same guard the
+  // delete path uses.
+  const snapshotId = snapshotIdSchema.parse(id);
   const root = await getProjectRoot(workspace, projectId);
-  const snapshot = join(root, 'snapshots', id);
+  const snapshot = join(root, 'snapshots', snapshotId);
   let saved: Project;
   try { saved = projectSchema.parse(JSON.parse(await readFile(join(snapshot, 'project.json'), 'utf8'))); }
   catch { throw new CanvasError('SNAPSHOT_NOT_FOUND', `Snapshot “${id}” không hợp lệ hoặc không tồn tại.`, 404); }
@@ -131,4 +134,69 @@ export async function restoreSnapshot(workspace: string, projectId: string, id: 
     await rm(previous, { force: true, recursive: true });
   }
   return { backupSnapshotId: backup.snapshotId };
+}
+
+export type SnapshotInfo = {
+  id: string;
+  /** ISO 8601, taken from the timestamp the id embeds at creation. */
+  createdAt: string;
+  /** Total size of the snapshot directory in bytes. */
+  bytes: number;
+};
+
+/** Sums file sizes under `dir`. Symlinks and other node types are skipped so the
+ * walk can neither loop nor escape the snapshot directory. */
+async function directoryBytes(dir: string): Promise<number> {
+  let total = 0;
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const child = join(dir, entry.name);
+    if (entry.isDirectory()) total += await directoryBytes(child);
+    else if (entry.isFile()) total += (await stat(child)).size;
+  }
+  return total;
+}
+
+/**
+ * Lists a project's snapshots, newest first. Hidden entries (an in-progress
+ * `.staging` directory) and anything that is not a valid snapshot id are
+ * skipped, so a crashed create never shows up as a version.
+ */
+export async function listSnapshots(workspace: string, projectId: string): Promise<SnapshotInfo[]> {
+  const root = await getProjectRoot(workspace, projectId);
+  let entries;
+  try {
+    entries = await readdir(join(root, 'snapshots'), { withFileTypes: true });
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return [];
+    throw error;
+  }
+  const infos: SnapshotInfo[] = [];
+  for (const entry of entries) {
+    if (!entry.isDirectory() || entry.name.startsWith('.') || !snapshotIdSchema.safeParse(entry.name).success) continue;
+    const directory = join(root, 'snapshots', entry.name);
+    // The id embeds Date.now() at creation, so parsing it is exact; fall back to
+    // the directory's birth time for any id that does not encode a timestamp.
+    const match = /^snapshot-(\d+)-/.exec(entry.name);
+    const createdAt = match ? new Date(Number(match[1])).toISOString() : (await stat(directory)).birthtime.toISOString();
+    infos.push({ id: entry.name, createdAt, bytes: await directoryBytes(directory) });
+  }
+  return infos.sort((left, right) => right.createdAt.localeCompare(left.createdAt) || right.id.localeCompare(left.id));
+}
+
+/**
+ * Deletes one snapshot directory. The id comes straight from a URL, so it is
+ * validated before any filesystem call, then resolved and confined to the
+ * project's `snapshots/` directory; `lstat` refuses to delete through a symlink.
+ */
+export async function deleteSnapshot(workspace: string, projectId: string, snapshotId: string): Promise<{ deleted: true }> {
+  const id = snapshotIdSchema.parse(snapshotId);
+  const root = await getProjectRoot(workspace, projectId);
+  const snapshotsDirectory = await realpath(join(root, 'snapshots')).catch(() => null);
+  if (!snapshotsDirectory) throw new CanvasError('SNAPSHOT_NOT_FOUND', `Không tìm thấy snapshot “${id}”.`, 404);
+  const candidate = join(snapshotsDirectory, id);
+  if (!isInside(snapshotsDirectory, candidate)) throw new CanvasError('SNAPSHOT_NOT_FOUND', `Không tìm thấy snapshot “${id}”.`, 404);
+  const metadata = await lstat(candidate).catch(() => null);
+  if (!metadata || !metadata.isDirectory()) throw new CanvasError('SNAPSHOT_NOT_FOUND', `Không tìm thấy snapshot “${id}”.`, 404);
+  await rm(candidate, { recursive: true, force: true });
+  return { deleted: true } as const;
 }

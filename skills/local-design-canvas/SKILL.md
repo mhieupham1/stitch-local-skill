@@ -44,5 +44,6 @@ For **Copy prompt tạo lại**, read `prototype get <prototype-id>` first, keep
 - Pass the workspace path on every command. Paths may contain spaces or Unicode; pass them as one shell argument.
 - Use lowercase ASCII slug IDs. Do not overwrite a project, screen, or prototype that already exists.
 - `project delete` removes the whole project directory and its snapshots with no way back, so confirm with the user before running it.
+- `snapshot delete` is permanent; `snapshot list` is the way to find a version id before restoring or deleting it.
 - Keep each screen as static HTML/CSS/optional JavaScript with local assets. Do not install packages, run a build inside a design project, or introduce CDN assets.
 - The canvas API is bound to `127.0.0.1` and checks `Host`/`Origin`; never point a design screen at the management port or try to proxy it from a design file.

@@ -1,18 +1,19 @@
-import { access, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { access, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { duplicateScreen, createSnapshot, restoreSnapshot } from '../../packages/server/src/snapshots.js';
-import { ensureServer, stopServer } from '../../packages/server/src/lifecycle.js';
+import { duplicateScreen, createSnapshot, deleteSnapshot, listSnapshots, restoreSnapshot } from '../../packages/server/src/snapshots.js';
+import { ensureServer, stopServer, type RuntimeInfo } from '../../packages/server/src/lifecycle.js';
 import { readProject } from '../../packages/core/src/project-store.js';
 
 let root: string;
 let workspace: string;
+let runtime: RuntimeInfo;
 
 beforeEach(async () => {
   root = await mkdtemp(join(tmpdir(), 'local-canvas-snapshot-'));
   workspace = join(root, 'workspace');
-  const runtime = await ensureServer(workspace);
+  runtime = await ensureServer(workspace);
   const request = (path: string, body: unknown) => fetch(`${runtime.url}${path}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
   await request('/api/projects', { id: 'shop', name: 'Shop' });
   await request('/api/projects/shop/screens', { id: 'overview', name: 'Overview', width: 800, height: 600, expectedRevision: 0 });
@@ -68,4 +69,62 @@ describe('variants and snapshots', () => {
     }
     await expect(readdir(join(workspace, 'projects', 'shop', 'snapshots'))).resolves.toEqual([]);
   }, 30_000);
+
+  it('liệt kê snapshot mới nhất trước kèm thời gian và dung lượng', async () => {
+    const first = await createSnapshot(workspace, 'shop');
+    // A second snapshot a moment later must sort ahead of the first.
+    await new Promise((resolve) => setTimeout(resolve, 5));
+    const second = await createSnapshot(workspace, 'shop');
+
+    const listed = await listSnapshots(workspace, 'shop');
+    expect(listed.map((entry) => entry.id)).toEqual([second.snapshotId, first.snapshotId]);
+    for (const entry of listed) {
+      expect(entry.bytes).toBeGreaterThan(0);
+      expect(Number.isNaN(Date.parse(entry.createdAt))).toBe(false);
+    }
+  });
+
+  it('bỏ qua thư mục staging dở dang và file rác khi liệt kê', async () => {
+    const snapshot = await createSnapshot(workspace, 'shop');
+    const snapshotsDir = join(workspace, 'projects', 'shop', 'snapshots');
+    await mkdir(join(snapshotsDir, '.snapshot-1-deadbeef.staging'), { recursive: true });
+    await writeFile(join(snapshotsDir, 'junk.txt'), 'not a snapshot');
+
+    const listed = await listSnapshots(workspace, 'shop');
+    expect(listed.map((entry) => entry.id)).toEqual([snapshot.snapshotId]);
+  });
+
+  it('xóa một snapshot và bỏ nó khỏi danh sách', async () => {
+    const snapshot = await createSnapshot(workspace, 'shop');
+    await expect(deleteSnapshot(workspace, 'shop', snapshot.snapshotId)).resolves.toEqual({ deleted: true });
+    await expect(access(join(workspace, 'projects', 'shop', 'snapshots', snapshot.snapshotId))).rejects.toMatchObject({ code: 'ENOENT' });
+    await expect(listSnapshots(workspace, 'shop')).resolves.toEqual([]);
+  });
+
+  it('từ chối ID snapshot không hợp lệ và không xóa gì', async () => {
+    const source = join(workspace, 'projects', 'shop', 'screens', 'overview', 'index.html');
+    // The id is validated before any filesystem call; the store throws the raw
+    // schema error (the API maps it to VALIDATION_ERROR), so assert it rejects.
+    await expect(deleteSnapshot(workspace, 'shop', '../../screens')).rejects.toThrow();
+    await expect(readFile(source, 'utf8')).resolves.toContain('original');
+  });
+
+  it('trả SNAPSHOT_NOT_FOUND cho ID hợp lệ nhưng không tồn tại', async () => {
+    await expect(deleteSnapshot(workspace, 'shop', 'snapshot-1-deadbeef')).rejects.toMatchObject({ code: 'SNAPSHOT_NOT_FOUND' });
+  });
+
+  it('phục vụ liệt kê và xóa snapshot qua HTTP', async () => {
+    const snapshot = await createSnapshot(workspace, 'shop');
+    const listed = await fetch(`${runtime.url}/api/projects/shop/snapshots`);
+    expect(listed.status).toBe(200);
+    await expect(listed.json()).resolves.toMatchObject({ ok: true, data: [{ id: snapshot.snapshotId, bytes: expect.any(Number), createdAt: expect.any(String) }] });
+
+    const removed = await fetch(`${runtime.url}/api/projects/shop/snapshots/${encodeURIComponent(snapshot.snapshotId)}`, { method: 'DELETE' });
+    expect(removed.status).toBe(200);
+    await expect(removed.json()).resolves.toEqual({ ok: true, data: { deleted: true } });
+    await expect(listSnapshots(workspace, 'shop')).resolves.toEqual([]);
+
+    const bad = await fetch(`${runtime.url}/api/projects/shop/snapshots/not%20valid`, { method: 'DELETE' });
+    expect(bad.status).toBe(400);
+  });
 });

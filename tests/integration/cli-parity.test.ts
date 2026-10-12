@@ -109,4 +109,29 @@ describe('CLI commands that mirror the management API', () => {
     const listed = await cli('project', 'list', '--workspace', space, '--json');
     expect(JSON.parse(listed.stdout)).toMatchObject({ ok: true, data: [] });
   });
+
+  it('liệt kê và xóa snapshot qua CLI', async () => {
+    const space = await setup();
+    const created = await cli('snapshot', 'create', '--project', 'shop', '--workspace', space, '--json');
+    expect(created.code).toBe(0);
+    const snapshotId = (JSON.parse(created.stdout) as { data: { snapshotId: string } }).data.snapshotId;
+
+    const listed = await cli('snapshot', 'list', '--project', 'shop', '--workspace', space, '--json');
+    expect(listed.code).toBe(0);
+    expect(JSON.parse(listed.stdout)).toMatchObject({ ok: true, data: [{ id: snapshotId, bytes: expect.any(Number) }] });
+
+    const removed = await cli('snapshot', 'delete', snapshotId, '--project', 'shop', '--workspace', space, '--json');
+    expect(removed.code).toBe(0);
+    expect(JSON.parse(removed.stdout)).toMatchObject({ ok: true, data: { deleted: true } });
+
+    const after = await cli('snapshot', 'list', '--project', 'shop', '--workspace', space, '--json');
+    expect(JSON.parse(after.stdout)).toMatchObject({ ok: true, data: [] });
+  });
+
+  it('từ chối xóa snapshot khi không truyền id', async () => {
+    const space = await setup();
+    const removed = await cli('snapshot', 'delete', '--project', 'shop', '--workspace', space, '--json');
+    expect(removed.code).not.toBe(0);
+    expect(JSON.parse(removed.stdout)).toMatchObject({ ok: false, error: { message: expect.stringContaining('Thiếu ID snapshot') } });
+  });
 });
