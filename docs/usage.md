@@ -112,21 +112,19 @@ Agent không tự sửa `project.json` hay thư mục `.local-canvas/` — đó 
 
 Trên giao diện canvas trong trình duyệt:
 
-- Bấm một khung màn hình để chọn. Trên header có nút **Preview** để ẩn/hiện bộ chọn kích thước: Mobile (390), Tablet (768), Máy tính (1280). Chọn một mức sẽ đổi chiều ngang khung đang chọn. Bấm nền canvas trống, bấm lại tên màn trên sidebar, hoặc nhấn `Escape` để bỏ chọn.
+- Bấm một khung màn hình để chọn. Khi đã chọn một màn hình, header hiện bộ chọn **Kích thước xem trước** với Mobile (390), Tablet (768), Máy tính (1280). Chọn một mức sẽ đổi chiều ngang khung đang chọn. Bấm nền canvas trống, bấm lại tên màn trên sidebar, hoặc nhấn `Escape` để bỏ chọn.
 - **Chọn nhiều màn hình** — dùng một trong ba cách:
   1. **Kéo một vùng chọn** trên nền canvas trống: khung nào vùng kéo chạm vào sẽ được chọn. Giữ `Cmd`/`Ctrl` khi kéo để **cộng thêm** vào lựa chọn hiện có, thay vì thay thế.
   2. **`Shift`/`Cmd`/`Ctrl` + click** vào khung hoặc tên màn trên sidebar để thêm/bỏ từng màn.
-  3. Bấm một khung rồi kéo **thanh tiêu đề** của nó: toàn bộ nhóm đang chọn di chuyển cùng nhau.
+  3. Bấm một khung rồi kéo: toàn bộ nhóm đang chọn di chuyển cùng nhau.
 
   Khi chọn từ 2 màn trở lên, header hiện kèm số màn đang chọn. Lựa chọn chỉ tồn tại trong phiên trình duyệt; chỉ vị trí/kích thước sau khi kéo được lưu.
 - **Tạo prototype**: chọn ít nhất hai màn hình rồi bấm **Tạo prototype** để copy prompt. Dán prompt vào Codex; skill sẽ phân tích các điểm bấm, lưu prototype có ID riêng và Canvas hiện nút **Play**. Prototype dùng trực tiếp UI gốc, không nhân bản màn hình. Nếu UI gốc đổi, Play vẫn hiện UI mới và các liên kết cũ; Canvas báo **Cần tạo lại**. Bấm **Copy prompt tạo lại** và dán vào Codex khi bạn muốn AI tính lại luồng cho đúng prototype ID. Nút trong Canvas không tự gọi AI.
-- **Pan**: giữ `Shift` và kéo, hoặc dùng bánh xe/trackpad. **Zoom**: `Ctrl`/`Cmd` + cuộn, hoặc nút `+` / `−`. **Fit all** đưa toàn bộ màn hình vào khung nhìn.
-- Hai chế độ ở góc trên bên phải:
-  - **Arrange**: kéo thanh tiêu đề để di chuyển khung, kéo góc để đổi kích thước viewport của màn hình. Vị trí/kích thước được lưu qua server.
-  - **Interact**: click và nhập liệu bên trong preview. Khung không cuộn như một cửa sổ trình duyệt; cả trang nằm trong artboard.
-- **Chỉnh sửa phần tử**: khi đang ở Arrange và đã chọn một màn hình, bấm nút **Chỉnh sửa** nổi trên canvas. Nút hiển thị **Đang bật chọn…** trong lúc chuẩn bị; sau đó click phần tử để lấy ngữ cảnh cho agent (xem mục 8). Bấm **Thoát chỉnh sửa** để quay lại Arrange. Không có nút Select riêng.
-- Ô **Width/Height** ở header đặt kích thước tối thiểu của màn hình. Chiều rộng là viewport CSS thật. Nếu trang dài hơn chiều cao đã đặt, khung giãn thêm để hiện toàn bộ nội dung, giống artboard trên Figma; zoom canvas chỉ đổi cách nhìn. **Fit all** đưa mọi khung vào vùng nhìn.
-- Trạng thái lưu (Saved / Saving / Unsaved) và trạng thái kết nối hiển thị ở header. Khi mất kết nối, canvas báo đang kết nối lại và không giả vờ đã lưu.
+- **Di chuyển khung**: kéo bất kỳ chỗ nào trên khung (cả thân lẫn thanh tiêu đề). **Đổi kích thước**: kéo tay nắm ở góc dưới bên phải khung. Vị trí/kích thước được lưu qua server, và có thể **hoàn tác / làm lại** bằng `Ctrl`/`Cmd+Z` và `Ctrl`/`Cmd+Shift+Z`.
+- **Pan**: giữ `Shift` và kéo, kéo bằng nút giữa chuột, hoặc cuộn bánh xe/trackpad. **Zoom**: `Ctrl`/`Cmd` + cuộn, hoặc nút `+` / `−` trên thanh công cụ nổi ở góc dưới bên trái canvas. Nút **Vừa khung hình** trên thanh đó đưa toàn bộ màn hình vào khung nhìn; hai nút mũi tên tròn cạnh đó là **hoàn tác** và **làm lại**.
+- **Chỉnh sửa phần tử**: chọn một màn hình rồi bấm nút **Chỉnh sửa** trên header (bên cạnh **Đổi preview**). Nút hiển thị **Đang bật chọn…** trong lúc chuẩn bị; sau đó click phần tử để lấy ngữ cảnh cho agent (xem mục 8). Bấm **Thoát chỉnh sửa** để tắt. Khi một khung đang được agent chỉnh sửa, khung đó hiện lớp **Đang chỉnh sửa** và tạm khóa tương tác (xem mục 5).
+- Ô **Width/Height** ở header đặt kích thước tối thiểu của màn hình. Chiều rộng là viewport CSS thật; chọn một mức trong **Kích thước xem trước** cũng chỉ đổi chiều rộng này. Nếu trang dài hơn chiều cao đã đặt, khung giãn thêm để hiện toàn bộ nội dung, giống artboard trên Figma; zoom canvas chỉ đổi cách nhìn, không cuộn khung như cửa sổ trình duyệt.
+- Trạng thái lưu (**Đã lưu** / **Đang lưu…** / **Chưa lưu**) và trạng thái kết nối hiển thị ở header. Khi có layout chưa lưu, header hiện nút **Thử lại** để gửi lại toàn bộ thay đổi đang chờ. Khi mất kết nối, canvas báo đang kết nối lại và không giả vờ đã lưu.
 
 ## 7. Tham chiếu lệnh CLI
 
@@ -139,8 +137,10 @@ Mọi lệnh nhận `--workspace <path>` và `--json`. Ở chế độ `--json`,
 | Dừng runtime | `$canvas stop --workspace "$workspace" --json` |
 | Liệt kê project | `$canvas project list --workspace "$workspace" --json` |
 | Tạo project | `$canvas project create shop-dashboard --name 'Quản lý bán hàng' --workspace "$workspace" --json` |
+| Xóa project | `$canvas project delete shop-dashboard --workspace "$workspace" --json` |
 | Liệt kê màn hình | `$canvas screen list --project shop-dashboard --workspace "$workspace" --json` |
 | Thêm màn hình | `$canvas screen add overview --project shop-dashboard --name 'Tổng quan' --width 1440 --height 1000 --workspace "$workspace" --json` |
+| Đổi tên màn hình | `$canvas screen rename overview --name 'Tổng quan mới' --project shop-dashboard --workspace "$workspace" --json` |
 | Di chuyển / đổi kích thước khung | `$canvas screen update overview --project shop-dashboard --x 1600 --y 0 --width 1280 --height 900 --workspace "$workspace" --json` |
 | Nhân bản màn hình | `$canvas screen duplicate overview --new-id overview-alt --project shop-dashboard --workspace "$workspace" --json` |
 | Chụp ảnh preview | `$canvas screenshot overview --project shop-dashboard --workspace "$workspace" --json` |
@@ -233,8 +233,8 @@ $canvas mcp serve --workspace "$workspace"
 stdout dành riêng cho giao thức, log ra stderr. Adapter khởi động hoặc kết nối đúng runtime theo workspace, dùng chung API với CLI. Các tool sẵn có:
 
 - `canvas_status` — báo runtime có đang chạy không.
-- `project_list`, `project_create`.
-- `screen_list`, `screen_add`.
+- `project_list`, `project_create`, `project_rename`, `project_delete`.
+- `screen_list`, `screen_add`, `screen_update`, `screen_rename`, `screen_delete`.
 - `screen_capture` — chụp ảnh preview kèm lỗi render.
 - `reference_fetch` — mở một URL và trích nội dung + ảnh full-page làm tham chiếu thiết kế.
 - `screen_focus` — đọc màn hình đang được tô sáng trên canvas.

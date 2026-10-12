@@ -34,6 +34,9 @@ export class CanvasApi {
   renameProject(projectId: string, name: string, expectedRevision: number) {
     return this.request<Project>(`/api/projects/${encodeURIComponent(projectId)}`, { method: 'PATCH', body: JSON.stringify({ name, expectedRevision }) });
   }
+  deleteProject(projectId: string, expectedRevision: number) {
+    return this.request<{ deleted: true }>(`/api/projects/${encodeURIComponent(projectId)}`, { method: 'DELETE', body: JSON.stringify({ expectedRevision }) });
+  }
   updateLayout(projectId: string, patches: ScreenLayoutPatch[], expectedRevision: number) {
     return this.request<Project>(`/api/projects/${encodeURIComponent(projectId)}/layout`, { method: 'PATCH', body: JSON.stringify({ patches, expectedRevision }) });
   }
@@ -42,6 +45,9 @@ export class CanvasApi {
   }
   deleteScreens(projectId: string, screenIds: string[], expectedRevision: number) {
     return this.request<Project>(`/api/projects/${encodeURIComponent(projectId)}/screens`, { method: 'DELETE', body: JSON.stringify({ screenIds, expectedRevision }) });
+  }
+  renameScreen(projectId: string, screenId: string, name: string, expectedRevision: number) {
+    return this.request<Project>(`/api/projects/${encodeURIComponent(projectId)}/screens/${encodeURIComponent(screenId)}`, { method: 'PATCH', body: JSON.stringify({ name, expectedRevision }) });
   }
   addScreen(projectId: string, input: { id: string; name: string; width: number; height: number; expectedRevision: number }) {
     return this.request(`/api/projects/${encodeURIComponent(projectId)}/screens`, { method: 'POST', body: JSON.stringify(input) });

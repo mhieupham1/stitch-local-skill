@@ -8,7 +8,8 @@ Hướng dẫn sử dụng chi tiết bằng tiếng Việt: [docs/usage.md](doc
 
 Each capability below is available on the local canvas, through the CLI, or both. The agent edits screen files; the server owns project metadata.
 
-- **Project directory.** After choosing a preview server, pick a project card to open its canvas, or use **Tạo dự án** to create an empty project from a name with an automatically generated, available ID. Ask the agent to add its screens. The sidebar shows only that project's screens; **Danh sách dự án** returns to the directory. Project URLs (`/?project=<id>`) keep reloads and returns from prototype Play on the correct project.
+- **Project directory.** After choosing a preview server, pick a project card to open its canvas, or use **Tạo dự án** to create an empty project from a name with an automatically generated, available ID. Ask the agent to add its screens. The sidebar shows only that project's screens; **Danh sách dự án** returns to the directory. Project URLs (`/?project=<id>`) keep reloads and returns from prototype Play on the correct project. Each card has a delete control that removes the project directory; deletion is permanent and has no project-level restore.
+- **Screen names.** Double-click a screen name in the sidebar to rename it in place; the id, its files, and every reference to it stay the same.
 - **Multi-screen canvas.** Places every screen of a project on one board. You pan, zoom, fit the view, drag frames, and set a viewport (Mobile 390, Tablet 768, Máy tính 1280, or a custom width and height). Saving a screen file refreshes that preview in place and keeps your pan and zoom. This is how you compare a screen set without opening each file in a separate browser tab.
 - **Agent skill and CLI.** The installed skill creates projects and screens, then writes `index.html`, `styles.css`, and shared tokens in `design-system.css`. You describe the UI in chat; the agent runs the runtime. `project.json` and `.local-canvas/` stay server-owned.
 - **Screen focus and edit lock.** Click a frame or its name in the sidebar, then say “this screen.” `screen focus` tells the agent which frame is highlighted. While it edits, `screen edit start` shows an editing state and blocks interaction on that frame; `screen edit done` clears the lock.
@@ -106,7 +107,7 @@ Restart the agent session after installation and invoke `local-design-canvas` wh
 
 ## MCP
 
-`mcp serve` speaks the Model Context Protocol on stdio. stdout is the protocol channel; diagnostics go to stderr. It starts or attaches to the workspace server and exposes `canvas_status`, `project_create`/`project_list`/`project_rename`, `screen_list`/`screen_add`/`screen_update`/`screen_duplicate`/`screen_delete`/`screen_capture`, `snapshot_create`/`snapshot_restore`, `figma_export`, `reference_fetch`, `screen_focus`, `screen_edit_start`, `screen_edit_done`, `selection_get`, and prototype source/list/get/create/update/regenerate/delete. A host config example is in [docs/usage.md](docs/usage.md).
+`mcp serve` speaks the Model Context Protocol on stdio. stdout is the protocol channel; diagnostics go to stderr. It starts or attaches to the workspace server and exposes `canvas_status`, `project_create`/`project_list`/`project_rename`/`project_delete`, `screen_list`/`screen_add`/`screen_update`/`screen_rename`/`screen_duplicate`/`screen_delete`/`screen_capture`, `snapshot_create`/`snapshot_restore`, `figma_export`, `reference_fetch`, `screen_focus`, `screen_edit_start`, `screen_edit_done`, `selection_get`, and prototype source/list/get/create/update/regenerate/delete. A host config example is in [docs/usage.md](docs/usage.md).
 
 ```bash
 node dist/release/local-design-canvas/scripts/run.mjs mcp serve \

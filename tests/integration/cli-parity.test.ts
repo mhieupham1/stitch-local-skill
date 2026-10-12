@@ -90,4 +90,23 @@ describe('CLI commands that mirror the management API', () => {
     expect(exported.code).not.toBe(0);
     expect(JSON.parse(exported.stdout)).toMatchObject({ ok: false, error: { code: 'SCREEN_NOT_FOUND' } });
   });
+
+  it('đổi tên màn hình mà giữ nguyên id', async () => {
+    const space = await setup();
+    const renamed = await cli('screen', 'rename', 'home', '--name', 'Trang chủ', '--project', 'shop', '--workspace', space, '--json');
+    expect(renamed.code).toBe(0);
+
+    const listed = await cli('screen', 'list', '--project', 'shop', '--workspace', space, '--json');
+    expect(JSON.parse(listed.stdout)).toMatchObject({ ok: true, data: [{ id: 'home', name: 'Trang chủ' }, { id: 'detail', name: 'Detail' }] });
+  });
+
+  it('xóa project và bỏ khỏi danh sách', async () => {
+    const space = await setup();
+    const deleted = await cli('project', 'delete', 'shop', '--workspace', space, '--json');
+    expect(deleted.code).toBe(0);
+    expect(JSON.parse(deleted.stdout)).toMatchObject({ ok: true, data: { deleted: true } });
+
+    const listed = await cli('project', 'list', '--workspace', space, '--json');
+    expect(JSON.parse(listed.stdout)).toMatchObject({ ok: true, data: [] });
+  });
 });

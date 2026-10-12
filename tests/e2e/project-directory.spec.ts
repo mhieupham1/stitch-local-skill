@@ -168,3 +168,22 @@ test('ID bị client khác lấy sau khi tải danh sách vẫn tạo được d
   expect(submittedIds).toEqual(['du-an-dong-thoi', 'du-an-dong-thoi-2']);
   await expect(page.getByRole('heading', { name: 'Chưa có màn hình' })).toBeVisible();
 });
+
+test('xóa dự án khỏi danh sách khi xác nhận, giữ lại khi hủy', async ({ page }) => {
+  // A dedicated project keeps the shared alpha/beta fixtures untouched.
+  expect((await fetch(`${runtime.url}/api/projects`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: 'gamma', name: 'Gamma' }) })).ok).toBe(true);
+  await page.goto(`${runtime.url}/#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
+  const card = page.getByRole('link', { name: 'Mở dự án Gamma' });
+  await expect(card).toBeVisible();
+  await card.hover();
+
+  page.once('dialog', (dialog) => void dialog.dismiss());
+  await page.getByRole('button', { name: 'Xóa dự án Gamma' }).click();
+  await expect(card).toBeVisible();
+  expect((await fetch(`${runtime.url}/api/projects/gamma`)).status).toBe(200);
+
+  page.once('dialog', (dialog) => void dialog.accept());
+  await page.getByRole('button', { name: 'Xóa dự án Gamma' }).click();
+  await expect(card).toHaveCount(0);
+  expect((await fetch(`${runtime.url}/api/projects/gamma`)).status).toBe(404);
+});

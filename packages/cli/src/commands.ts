@@ -89,6 +89,15 @@ export const COMMANDS: CommandSpec[] = [
     },
   },
   {
+    words: ['project', 'delete'],
+    route: 'DELETE /api/projects/:projectId',
+    run: async ({ args, rest }) => {
+      const [id] = rest;
+      if (!id) throw new Error('Thiếu ID project.');
+      return jsonRequest(args.workspace, projectPath(id), 'DELETE', { expectedRevision: await currentRevision(args.workspace, id) });
+    },
+  },
+  {
     words: ['screen', 'list'],
     route: 'GET /api/projects/:projectId',
     run: async ({ args }) => {
@@ -148,6 +157,19 @@ export const COMMANDS: CommandSpec[] = [
       const projectId = option(args, '--project');
       return jsonRequest(args.workspace, `${projectPath(projectId)}/screens`, 'DELETE', {
         screenIds: rest,
+        expectedRevision: await currentRevision(args.workspace, projectId),
+      });
+    },
+  },
+  {
+    words: ['screen', 'rename'],
+    route: 'PATCH /api/projects/:projectId/screens/:screenId',
+    run: async ({ args, rest }) => {
+      const [screenId] = rest;
+      if (!screenId) throw new Error('Thiếu ID màn hình.');
+      const projectId = option(args, '--project');
+      return jsonRequest(args.workspace, `${projectPath(projectId)}/screens/${encodeURIComponent(screenId)}`, 'PATCH', {
+        name: option(args, '--name'),
         expectedRevision: await currentRevision(args.workspace, projectId),
       });
     },

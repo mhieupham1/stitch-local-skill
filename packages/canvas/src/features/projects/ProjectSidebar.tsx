@@ -11,6 +11,7 @@ type Props = {
   // Receives the full new layer order (back of the stack first).
   onReorderScreens: (projectId: string, order: string[]) => void;
   onRenameProject: (projectId: string, name: string) => void;
+  onRenameScreen: (projectId: string, screenId: string, name: string) => void;
   collapsed: boolean;
   onCollapsedChange: (collapsed: boolean) => void;
 };
@@ -39,7 +40,7 @@ type DragState = {
 // immediate, large enough that a click to select never nudges the list.
 const DRAG_THRESHOLD = 4;
 
-export function ProjectSidebar({ projects, selectedProjectId, selectedScreenIds, onScreenSelect, onReorderScreens, onRenameProject, collapsed, onCollapsedChange }: Props) {
+export function ProjectSidebar({ projects, selectedProjectId, selectedScreenIds, onScreenSelect, onReorderScreens, onRenameProject, onRenameScreen, collapsed, onCollapsedChange }: Props) {
   const listRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<DragState | null>(null);
   const [drag, setDrag] = useState<{ ids: string[]; fromIndex: number; toIndex: number; offsetY: number } | null>(null);
@@ -51,6 +52,11 @@ export function ProjectSidebar({ projects, selectedProjectId, selectedScreenIds,
   const [renameId, setRenameId] = useState<string | null>(null);
   const [renameDraft, setRenameDraft] = useState('');
   const renameInputRef = useRef<HTMLInputElement>(null);
+  // Same inline-edit pattern as the project name, but for one screen row. The
+  // id is a screen id, not a project id.
+  const [renameScreenId, setRenameScreenId] = useState<string | null>(null);
+  const [renameScreenDraft, setRenameScreenDraft] = useState('');
+  const screenRenameInputRef = useRef<HTMLInputElement>(null);
   // Mirror of `previewOrder` for the pointer-up handler: state is not readable
   // synchronously inside the same event that set it.
   const previewRef = useRef<string[] | null>(null);
@@ -111,6 +117,31 @@ export function ProjectSidebar({ projects, selectedProjectId, selectedScreenIds,
     if (!name || !current || name === current.name) return;
     onRenameProject(id, name);
   }, [onRenameProject, projects, renameDraft, renameId]);
+
+  // Focus and select the screen rename field as soon as it appears.
+  useEffect(() => {
+    if (!renameScreenId) return;
+    const input = screenRenameInputRef.current;
+    if (!input) return;
+    input.focus();
+    input.select();
+  }, [renameScreenId]);
+
+  const startScreenRename = useCallback((screenId: string, name: string) => {
+    setRenameScreenId(screenId);
+    setRenameScreenDraft(name);
+  }, []);
+
+  const commitScreenRename = useCallback(() => {
+    const screenId = renameScreenId;
+    if (!screenId) return;
+    const current = projects.find((item) => item.id === selectedProjectId)?.screens.find((screen) => screen.id === screenId);
+    setRenameScreenId(null);
+    const name = renameScreenDraft.trim();
+    // An empty name, or one that did not actually change, is not worth a request.
+    if (!name || !current || name === current.name) return;
+    onRenameScreen(selectedProjectId!, screenId, name);
+  }, [onRenameScreen, projects, renameScreenDraft, renameScreenId, selectedProjectId]);
 
   // Resolve a pointer position to the gap it falls into, using the list's own
   // untransformed rows. Returns 0..rows.length: 0 means "above the first row",
@@ -260,14 +291,34 @@ export function ProjectSidebar({ projects, selectedProjectId, selectedScreenIds,
               };
             }}
           >
-            <button
-              className={selected ? 'screen-button selected' : 'screen-button'}
-              type="button"
-              // The row owns the pointer gestures, so the inner button must not
-              // swallow them; selection is driven by the row handlers above.
-              // Keyboard activation has no pointer gesture, so handle it here.
-              onClick={(event) => { if (event.detail === 0) onScreenSelect(screen.id, { additive: false }); }}
-            >{screen.name}</button>
+            {renameScreenId === screen.id
+              ? <input
+                ref={screenRenameInputRef}
+                className="screen-rename"
+                value={renameScreenDraft}
+                aria-label="Tên màn hình"
+                // Keep pointer events off the row: selecting text inside the field
+                // must not arm the row's drag-to-reorder gesture.
+                onPointerDown={(event) => event.stopPropagation()}
+                onChange={(event) => setRenameScreenDraft(event.target.value)}
+                onBlur={commitScreenRename}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') { event.preventDefault(); commitScreenRename(); }
+                  // Escape abandons the edit and leaves the stored name untouched.
+                  if (event.key === 'Escape') { event.preventDefault(); setRenameScreenId(null); }
+                }}
+              />
+              : <button
+                className={selected ? 'screen-button selected' : 'screen-button'}
+                type="button"
+                // The row owns the pointer gestures, so the inner button must not
+                // swallow them; selection is driven by the row handlers above.
+                // Keyboard activation has no pointer gesture, so handle it here.
+                onClick={(event) => { if (event.detail === 0) onScreenSelect(screen.id, { additive: false }); }}
+                // Double-click opens the inline rename; the row's drag threshold keeps
+                // a double-click from being read as a reorder.
+                onDoubleClick={() => startScreenRename(screen.id, screen.name)}
+              >{screen.name}</button>}
             <span className="screen-row-handle" aria-hidden="true"><IconLayers size={12} /></span>
           </div>;
         })}

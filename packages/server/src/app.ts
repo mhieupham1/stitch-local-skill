@@ -13,6 +13,8 @@ import {
   reorderScreens,
   deleteScreens,
   renameProject,
+  renameScreen,
+  deleteProject,
 } from '../../core/src/project-store.js';
 import { canonicalWorkspace, resolveProjectDirectory, resolveProjectFile } from '../../core/src/paths.js';
 import { asCanvasError, CanvasError, projectIdSchema, type Result, screenLayoutPatchSchema, screenOrderSchema, selectionContextSchema, prototypeCreateInputSchema, prototypePatchInputSchema, prototypeRegenerateInputSchema } from '../../core/src/schema.js';
@@ -63,6 +65,8 @@ const layoutBodySchema = z.object({ patches: z.array(screenLayoutPatchSchema), e
 const screenOrderBodySchema = z.object({ order: screenOrderSchema, expectedRevision: z.number().int().nonnegative() });
 const screenDeleteBodySchema = z.object({ screenIds: screenOrderSchema.min(1), expectedRevision: z.number().int().nonnegative() });
 const projectRenameBodySchema = z.object({ name: z.string().min(1).max(120), expectedRevision: z.number().int().nonnegative() });
+const projectDeleteBodySchema = z.object({ expectedRevision: z.number().int().nonnegative() });
+const screenRenameBodySchema = z.object({ name: z.string().trim().min(1).max(120), expectedRevision: z.number().int().nonnegative() });
 
 function escapeHtml(value: string): string {
   return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
@@ -218,6 +222,16 @@ export async function createManagementApp(options: ManagementAppOptions): Promis
     return success(project);
   });
 
+  app.delete<{ Params: { projectId: string } }>('/api/projects/:projectId', async (request) => {
+    const body = projectDeleteBodySchema.parse(request.body);
+    await deleteProject(options.workspace, request.params.projectId, body.expectedRevision);
+    // The project is gone, so any focus or edit lock pointing at it is dead state.
+    options.selection.clearFocus(request.params.projectId);
+    options.selection.clearEdit(request.params.projectId);
+    options.events.publish({ type: 'project.updated', projectId: request.params.projectId, screenIds: [] });
+    return success({ deleted: true });
+  });
+
   app.post<{ Params: { projectId: string } }>('/api/projects/:projectId/screens', async (request, reply) => {
     const projectId = projectIdSchema.parse(request.params.projectId);
     const body = screenCreateBodySchema.parse(request.body);
@@ -249,6 +263,13 @@ export async function createManagementApp(options: ManagementAppOptions): Promis
     const body = screenDeleteBodySchema.parse(request.body);
     const project = await deleteScreens(options.workspace, request.params.projectId, body.screenIds, body.expectedRevision);
     options.events.publish({ type: 'project.updated', projectId: project.id, screenIds: body.screenIds });
+    return success(project);
+  });
+
+  app.patch<{ Params: { projectId: string; screenId: string } }>('/api/projects/:projectId/screens/:screenId', async (request) => {
+    const body = screenRenameBodySchema.parse(request.body);
+    const project = await renameScreen(options.workspace, request.params.projectId, request.params.screenId, body.name, body.expectedRevision);
+    options.events.publish({ type: 'project.updated', projectId: project.id, screenIds: [request.params.screenId] });
     return success(project);
   });
 

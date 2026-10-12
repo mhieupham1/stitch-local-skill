@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { Project } from '../../../../core/src/schema.js';
-import { IconChevronRight, IconGrid, IconLayers, IconMonitor, IconPlus } from '../../icons.js';
+import { IconChevronRight, IconGrid, IconLayers, IconMonitor, IconPlus, IconTrash } from '../../icons.js';
 import { CreateProjectDialog } from './CreateProjectDialog.js';
 
 type Props = {
@@ -11,9 +11,10 @@ type Props = {
   onChangePreview: () => void;
   onRetry: () => void;
   onCreate: (input: { id: string; name: string }) => Promise<Project>;
+  onDelete: (project: Project) => void;
 };
 
-export function ProjectDirectory({ projects, loading, error, connection, onChangePreview, onRetry, onCreate }: Props) {
+export function ProjectDirectory({ projects, loading, error, connection, onChangePreview, onRetry, onCreate, onDelete }: Props) {
   const [creating, setCreating] = useState(false);
   return <main className="project-directory">
     <header className="project-directory-header">
@@ -38,12 +39,16 @@ export function ProjectDirectory({ projects, loading, error, connection, onChang
         <h2>Chưa có dự án</h2>
         <p>Bấm Tạo dự án để bắt đầu, sau đó nhắn AI thiết kế các màn hình cho bạn.</p>
       </div> : <div className="project-directory-grid">
-        {projects.map((project) => <a className="project-directory-card" key={project.id} href={`/?project=${encodeURIComponent(project.id)}`} aria-label={`Mở dự án ${project.name}`}>
-          <div className="project-directory-card-top"><span className="project-directory-icon"><IconLayers size={24} /></span><span>{project.screens.length} màn hình</span></div>
-          <h2>{project.name}</h2>
-          <code>{project.id}</code>
-          <span className="project-directory-card-open">Mở Canvas <IconChevronRight size={15} /></span>
-        </a>)}
+        {projects.map((project) => <div className="project-directory-card-wrap" key={project.id}>
+          <a className="project-directory-card" href={`/?project=${encodeURIComponent(project.id)}`} aria-label={`Mở dự án ${project.name}`}>
+            <div className="project-directory-card-top"><span className="project-directory-icon"><IconLayers size={24} /></span><span>{project.screens.length} màn hình</span></div>
+            <h2>{project.name}</h2>
+            <code>{project.id}</code>
+            <span className="project-directory-card-open">Mở Canvas <IconChevronRight size={15} /></span>
+          </a>
+          {/* A sibling of the card, not a child: a button inside an anchor is invalid. */}
+          <button type="button" className="project-directory-delete" aria-label={`Xóa dự án ${project.name}`} title="Xóa dự án" onClick={() => onDelete(project)}><IconTrash size={14} /></button>
+        </div>)}
       </div>}
     </section>
     {creating && <CreateProjectDialog projects={projects} onCreate={onCreate} onClose={() => setCreating(false)} />}

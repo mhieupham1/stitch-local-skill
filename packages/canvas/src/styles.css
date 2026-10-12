@@ -153,6 +153,14 @@ button {
 .project-directory-card h2 { margin: 0 0 8px; font-size: 19px; line-height: 1.4; overflow-wrap: anywhere; }
 .project-directory-card code { margin-bottom: 28px; color: var(--text-dim); font: 12px var(--mono); overflow-wrap: anywhere; }
 .project-directory-card-open { display: flex; align-items: center; justify-content: space-between; width: 100%; padding-top: 16px; margin-top: auto; border-top: 1px solid var(--line); color: var(--accent-ring); font-size: 12px; font-weight: 600; }
+/* The card is an anchor, so its delete control is a positioned sibling rather
+   than a nested button. It stays out of the way until the card is hovered. */
+.project-directory-card-wrap { position: relative; }
+.project-directory-delete { position: absolute; top: 14px; right: 14px; display: grid; place-items: center; width: 28px; height: 28px; color: var(--text-dim); background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-sm); opacity: 0; transition: opacity var(--speed), color var(--speed), background var(--speed); }
+.project-directory-card-wrap:hover .project-directory-delete,
+.project-directory-card-wrap:focus-within .project-directory-delete { opacity: 1; }
+.project-directory-delete:hover,
+.project-directory-delete:focus-visible { color: #fff; background: var(--danger); border-color: var(--danger); }
 .project-directory-empty { padding: 60px 24px; text-align: center; border: 1px dashed var(--line-strong); border-radius: var(--radius-lg); color: var(--text-dim); }
 .project-directory-empty h2 { color: var(--text); font-size: 20px; }
 .project-directory-empty p { margin-bottom: 0; font-size: 14px; }
@@ -340,6 +348,20 @@ button {
   background: transparent;
 }
 .screen-row.selected .screen-button { color: var(--text); font-weight: 600; }
+
+/* Inline screen rename, mirroring .project-rename in the sidebar. */
+.screen-rename {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 8px 8px 10px;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  font-weight: 500;
+}
+.screen-rename:focus { outline: 2px solid var(--accent-ring); outline-offset: -1px; }
 
 .screen-row-handle {
   flex: 0 0 auto;

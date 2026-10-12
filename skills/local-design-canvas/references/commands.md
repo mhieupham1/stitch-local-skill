@@ -17,8 +17,10 @@ Every command accepts `--workspace "$workspace"` and can emit exactly one JSON r
 | List projects | `$canvas project list --workspace "$workspace" --json` |
 | Create a project | `$canvas project create shop-dashboard --name 'Quản lý bán hàng' --workspace "$workspace" --json` |
 | Rename a project | `$canvas project rename shop-dashboard --name 'Cửa hàng' --workspace "$workspace" --json` |
+| Delete a project | `$canvas project delete shop-dashboard --workspace "$workspace" --json` |
 | List a project's screens | `$canvas screen list --project shop-dashboard --workspace "$workspace" --json` |
 | Add a screen | `$canvas screen add overview --project shop-dashboard --name 'Tổng quan' --width 1440 --height 1000 --workspace "$workspace" --json` |
+| Rename a screen | `$canvas screen rename overview --name 'Trang chủ' --project shop-dashboard --workspace "$workspace" --json` |
 | Move or resize a frame | `$canvas screen update overview --project shop-dashboard --x 1600 --y 0 --width 1280 --height 900 --workspace "$workspace" --json` |
 | Capture a preview | `$canvas screenshot overview --project shop-dashboard --workspace "$workspace" --json` |
 | Duplicate a screen | `$canvas screen duplicate overview --new-id overview-alt --project shop-dashboard --workspace "$workspace" --json` |
@@ -44,11 +46,15 @@ Every command accepts `--workspace "$workspace"` and can emit exactly one JSON r
 
 `screen edit start` locks that frame on the canvas (overlay + no interaction or element selection) so the user can see an edit is in progress. Omit `--screen` to use the focused screen. Always call `screen edit done` when finished or if the edit fails. Sessions also expire after five minutes.
 
-`selection get` returns `{ context, stale }`. `context` has `screenId`, `selector`, `elementId`, `text`, and `bounds`; edit only that screen. When `stale` is `true`, the screen source changed after the click, so re-read the source or ask the user to select again before editing. A copied ID in the user's prompt is a `data-design-id` stored in the screen HTML: locate that exact attribute within the project and confirm one matching element before editing. Prefer the explicit ID over the current selection. IDs assigned to static HTML persist; JavaScript-created elements need an explicit `data-design-id` in their creation code. `mcp serve` speaks the Model Context Protocol on stdio: stdout is the protocol channel, logs go to stderr. It exposes the same operations as the CLI, including `project_rename`, `screen_list`, `screen_update`, `screen_duplicate`, `screen_delete`, `screen_capture`, `screen_focus`, `screen_edit_start`, `screen_edit_done`, `snapshot_create`, `snapshot_restore`, `figma_export`, and the `prototype_*` tools.
+`selection get` returns `{ context, stale }`. `context` has `screenId`, `selector`, `elementId`, `text`, and `bounds`; edit only that screen. When `stale` is `true`, the screen source changed after the click, so re-read the source or ask the user to select again before editing. A copied ID in the user's prompt is a `data-design-id` stored in the screen HTML: locate that exact attribute within the project and confirm one matching element before editing. Prefer the explicit ID over the current selection. IDs assigned to static HTML persist; JavaScript-created elements need an explicit `data-design-id` in their creation code. `mcp serve` speaks the Model Context Protocol on stdio: stdout is the protocol channel, logs go to stderr. It exposes the same operations as the CLI, including `project_rename`, `project_delete`, `screen_list`, `screen_update`, `screen_rename`, `screen_duplicate`, `screen_delete`, `screen_capture`, `screen_focus`, `screen_edit_start`, `screen_edit_done`, `snapshot_create`, `snapshot_restore`, `figma_export`, and the `prototype_*` tools.
 
 `screen add` returns `data.entryPath`, the absolute `index.html` to edit. Its `styles.css` is in the same directory. A project also has `design-system.css` for tokens shared by all screens.
 
 `screen delete` and `screen order` take screen IDs as positional arguments. Deletion is permanent and the project must keep at least one screen, so `LAST_SCREEN` means the operation was refused, not that the screen is gone. Take a `snapshot create` first when the screens you are removing might be wanted again. `screen order` must list every screen in the project in the layer order you want, front-most first; a partial list is rejected rather than applied. Both read the current revision before writing, so a canvas edit that lands in between fails with `REVISION_CONFLICT` instead of being overwritten.
+
+`project delete` removes the whole project directory, including its screens, assets and snapshots, and it reads the current revision before writing. It is permanent: unlike `screen delete` there is no snapshot recovery, because the snapshots are deleted with the project. Confirm with the user before running it, and treat a `REVISION_CONFLICT` as "re-read the project and retry".
+
+`screen rename` changes only the display name. The screen id, its directory and its entry path stay the same, so snapshots and open clients keep working. Renaming to the same name is a no-op and does not bump the revision.
 
 `figma export` renders one screen in a headless browser and returns its element tree, layout, styles and text as structured JSON for pasting into Figma. It is the same export the canvas UI offers.
 

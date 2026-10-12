@@ -158,4 +158,32 @@ describe('mcp adapter', () => {
       expect(deleted).toMatchObject({ ok: false, error: { code: 'LAST_SCREEN' } });
     } finally { await client.close(); }
   }, 20_000);
+
+  it('đổi tên màn hình qua MCP', async () => {
+    await api('/api/projects', { method: 'POST', body: JSON.stringify({ id: 'shop', name: 'Shop' }) });
+    await api('/api/projects/shop/screens', { method: 'POST', body: JSON.stringify({ id: 'home', name: 'Home', width: 800, height: 600, expectedRevision: 0 }) });
+    const client = await connectClient();
+    try {
+      const renamed = await callJson(client, 'screen_rename', { project: 'shop', screen: 'home', name: 'Trang chủ' });
+      expect(renamed).toMatchObject({ ok: true, data: { screens: [{ id: 'home', name: 'Trang chủ' }] } });
+
+      const missing = await callJson(client, 'screen_rename', { project: 'shop', screen: 'khong-co', name: 'X' });
+      expect(missing).toMatchObject({ ok: false, error: { code: 'SCREEN_NOT_FOUND' } });
+    } finally { await client.close(); }
+  }, 20_000);
+
+  it('xóa project qua MCP', async () => {
+    await api('/api/projects', { method: 'POST', body: JSON.stringify({ id: 'shop', name: 'Shop' }) });
+    await api('/api/projects/shop/screens', { method: 'POST', body: JSON.stringify({ id: 'home', name: 'Home', width: 800, height: 600, expectedRevision: 0 }) });
+    const client = await connectClient();
+    try {
+      const deleted = await callJson(client, 'project_delete', { project: 'shop' });
+      expect(deleted).toMatchObject({ ok: true, data: { deleted: true } });
+      const projects = await callJson(client, 'project_list');
+      expect(projects.data).toEqual([]);
+
+      const missing = await callJson(client, 'project_delete', { project: 'khong-co' });
+      expect(missing).toMatchObject({ ok: false, error: { code: 'PROJECT_NOT_FOUND' } });
+    } finally { await client.close(); }
+  }, 20_000);
 });

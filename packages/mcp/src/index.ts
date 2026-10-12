@@ -74,6 +74,15 @@ export function createMcpServer(workspace: string): McpServer {
     return requestJson(projectPath(project), 'PATCH', { name, expectedRevision: await currentRevision(project) });
   }));
 
+  server.registerTool('project_delete', {
+    title: 'Delete project',
+    description: 'Permanently delete a project and its whole directory, including screens, assets, snapshots and artifacts. This cannot be undone; there is no project-level snapshot restore.',
+    inputSchema: { project: z.string(), expectedRevision: z.number().int().nonnegative().optional() },
+  }, async ({ project, expectedRevision }) => runTool(async () => {
+    await ensureServer(workspace);
+    return requestJson(projectPath(project), 'DELETE', { expectedRevision: expectedRevision ?? await currentRevision(project) });
+  }));
+
   server.registerTool('screen_list', {
     title: 'List screens',
     description: 'List the screens of a project.',
@@ -126,6 +135,18 @@ export function createMcpServer(workspace: string): McpServer {
     await ensureServer(workspace);
     return requestJson(`${projectPath(project)}/screens`, 'DELETE', {
       screenIds: screens,
+      expectedRevision: expectedRevision ?? await currentRevision(project),
+    });
+  }));
+
+  server.registerTool('screen_rename', {
+    title: 'Rename screen',
+    description: 'Change a screen display name. The id, directory and entry path stay the same.',
+    inputSchema: { project: z.string(), screen: z.string(), name: z.string(), expectedRevision: z.number().int().nonnegative().optional() },
+  }, async ({ project, screen, name, expectedRevision }) => runTool(async () => {
+    await ensureServer(workspace);
+    return requestJson(`${projectPath(project)}/screens/${encodeURIComponent(screen)}`, 'PATCH', {
+      name,
       expectedRevision: expectedRevision ?? await currentRevision(project),
     });
   }));

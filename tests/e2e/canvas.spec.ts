@@ -36,6 +36,41 @@ test.afterAll(async () => {
   delete process.env.LOCAL_CANVAS_STATIC_DIR;
 });
 
+test('đổi tên màn hình bằng nhấp đôi trong sidebar', async ({ page }) => {
+  await page.goto(`${runtime.url}/?project=shop#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
+  const row = page.locator('[data-screen-row="overview"]');
+  await expect(row.locator('.screen-button')).toHaveText('Overview');
+
+  // A plain click selects the row; it must not open the rename field.
+  await row.click();
+  await expect(page.getByLabel('Tên màn hình')).toHaveCount(0);
+
+  // Double-click opens an inline field, focused and pre-selected.
+  await row.locator('.screen-button').dblclick();
+  const field = page.getByLabel('Tên màn hình');
+  await expect(field).toBeFocused();
+  await expect(field).toHaveValue('Overview');
+
+  // Escape abandons the edit and keeps the stored name.
+  await field.fill('Bỏ dở');
+  await field.press('Escape');
+  await expect(row.locator('.screen-button')).toHaveText('Overview');
+
+  // Enter commits the new name; the id is unchanged.
+  await row.locator('.screen-button').dblclick();
+  await page.getByLabel('Tên màn hình').fill('Trang chủ');
+  await page.getByLabel('Tên màn hình').press('Enter');
+  await expect(row.locator('.screen-button')).toHaveText('Trang chủ');
+  const renamed = (await (await api('/api/projects/shop')).json()).data;
+  expect(renamed.screens.find((screen: { id: string }) => screen.id === 'overview').name).toBe('Trang chủ');
+
+  // Rename back so the rest of the suite keeps its fixture.
+  await row.locator('.screen-button').dblclick();
+  await page.getByLabel('Tên màn hình').fill('Overview');
+  await page.getByLabel('Tên màn hình').press('Enter');
+  await expect(row.locator('.screen-button')).toHaveText('Overview');
+});
+
 test('prototype: chọn nhiều màn chỉ sao chép prompt, rồi hiện ID và trạng thái cần tạo lại', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   await page.goto(`${runtime.url}/?project=shop#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);

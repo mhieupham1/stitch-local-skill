@@ -170,4 +170,41 @@ describe('project management API', () => {
     expect(cleared.status).toBe(200);
     await expect((await api('/api/projects/shop/editing')).json()).resolves.toMatchObject({ ok: true, data: { session: null } });
   });
+
+  it('đổi tên màn hình mà giữ nguyên id và entry', async () => {
+    await api('/api/projects', { method: 'POST', body: JSON.stringify({ id: 'shop', name: 'Shop' }) });
+    await api('/api/projects/shop/screens', { method: 'POST', body: JSON.stringify({ id: 'overview', name: 'Tổng quan', width: 800, height: 600, expectedRevision: 0 }) });
+
+    const renamed = await api('/api/projects/shop/screens/overview', { method: 'PATCH', body: JSON.stringify({ name: 'Trang chủ', expectedRevision: 1 }) });
+    expect(renamed.status).toBe(200);
+    await expect(renamed.json()).resolves.toMatchObject({ ok: true, data: { screens: [{ id: 'overview', name: 'Trang chủ', entry: 'screens/overview/index.html' }] } });
+
+    const empty = await api('/api/projects/shop/screens/overview', { method: 'PATCH', body: JSON.stringify({ name: '   ', expectedRevision: 2 }) });
+    expect(empty.status).toBe(400);
+    await expect(empty.json()).resolves.toMatchObject({ ok: false, error: { code: 'VALIDATION_ERROR' } });
+
+    const missing = await api('/api/projects/shop/screens/khong-co', { method: 'PATCH', body: JSON.stringify({ name: 'X', expectedRevision: 2 }) });
+    expect(missing.status).toBe(404);
+    await expect(missing.json()).resolves.toMatchObject({ ok: false, error: { code: 'SCREEN_NOT_FOUND' } });
+
+    const stale = await api('/api/projects/shop/screens/overview', { method: 'PATCH', body: JSON.stringify({ name: 'Khác', expectedRevision: 1 }) });
+    expect(stale.status).toBe(409);
+    await expect(stale.json()).resolves.toMatchObject({ ok: false, error: { code: 'REVISION_CONFLICT' } });
+  });
+
+  it('xóa project và trả 404 cho các lần đọc sau', async () => {
+    await api('/api/projects', { method: 'POST', body: JSON.stringify({ id: 'shop', name: 'Shop' }) });
+    await api('/api/projects/shop/screens', { method: 'POST', body: JSON.stringify({ id: 'overview', name: 'Tổng quan', width: 800, height: 600, expectedRevision: 0 }) });
+
+    const deleted = await api('/api/projects/shop', { method: 'DELETE', body: JSON.stringify({ expectedRevision: 1 }) });
+    expect(deleted.status).toBe(200);
+    await expect(deleted.json()).resolves.toEqual({ ok: true, data: { deleted: true } });
+
+    expect((await api('/api/projects/shop')).status).toBe(404);
+    await expect((await api('/api/projects')).json()).resolves.toEqual({ ok: true, data: [] });
+
+    const missing = await api('/api/projects/khong-co', { method: 'DELETE', body: JSON.stringify({ expectedRevision: 0 }) });
+    expect(missing.status).toBe(404);
+    await expect(missing.json()).resolves.toMatchObject({ ok: false, error: { code: 'PROJECT_NOT_FOUND' } });
+  });
 });

@@ -2,7 +2,7 @@ import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promis
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { createProject, deleteScreens, listProjects, readProject, renameProject, reorderScreens, updateLayout } from '../../packages/core/src/project-store.js';
+import { createProject, deleteProject, deleteScreens, listProjects, readProject, renameProject, renameScreen, reorderScreens, updateLayout } from '../../packages/core/src/project-store.js';
 
 type Fixture = {
   root: string;
@@ -338,6 +338,124 @@ describe('project store', () => {
       await expect(renameProject(fixture.workspace, 'khong-co', 'Tên mới', 0)).rejects.toMatchObject({
         code: 'PROJECT_NOT_FOUND',
       });
+    });
+  });
+
+  describe('đổi tên màn hình', () => {
+    const seed = async () => {
+      const project = await createProject(fixture.workspace, { id: 'shop', name: 'Cửa hàng' });
+      const screens = ['mot', 'hai'];
+      const manifest = join(fixture.workspace, 'projects', project.id, 'project.json');
+      await writeFile(manifest, `${JSON.stringify({
+        ...project,
+        screens: screens.map((id, index) => ({
+          id, name: id, entry: `screens/${id}/index.html`, x: index * 100, y: 0, width: 800, height: 600,
+        })),
+      }, null, 2)}\n`, 'utf8');
+      return project.id;
+    };
+
+    it('đổi tên và tăng revision', async () => {
+      const id = await seed();
+      const after = await renameScreen(fixture.workspace, id, 'mot', 'Trang chủ', 0);
+
+      expect(after.revision).toBe(1);
+      expect(after.screens.find((screen) => screen.id === 'mot')?.name).toBe('Trang chủ');
+      await expect(readProject(fixture.workspace, id)).resolves.toMatchObject({
+        screens: [{ id: 'mot', name: 'Trang chủ' }, { id: 'hai', name: 'hai' }],
+      });
+    });
+
+    it('chỉ đổi name, giữ nguyên id, entry và toạ độ', async () => {
+      const id = await seed();
+      const before = await readProject(fixture.workspace, id);
+      const after = await renameScreen(fixture.workspace, id, 'hai', 'Chi tiết', 0);
+
+      expect(after.screens.find((screen) => screen.id === 'hai')).toEqual({
+        ...before.screens.find((screen) => screen.id === 'hai'),
+        name: 'Chi tiết',
+      });
+    });
+
+    it('cắt khoảng trắng thừa ở hai đầu', async () => {
+      const id = await seed();
+      const after = await renameScreen(fixture.workspace, id, 'mot', '  Trang chủ  ', 0);
+      expect(after.screens.find((screen) => screen.id === 'mot')?.name).toBe('Trang chủ');
+    });
+
+    it('đổi tên thành chính tên cũ là thao tác rỗng, không tăng revision', async () => {
+      const id = await seed();
+      const after = await renameScreen(fixture.workspace, id, 'mot', 'mot', 0);
+      expect(after.revision).toBe(0);
+      await expect(readProject(fixture.workspace, id)).resolves.toMatchObject({ revision: 0 });
+    });
+
+    it.each([['rỗng', ''], ['chỉ có khoảng trắng', '   ']])('từ chối tên %s', async (_label, name) => {
+      const id = await seed();
+      await expect(renameScreen(fixture.workspace, id, 'mot', name, 0)).rejects.toMatchObject({ code: 'VALIDATION_ERROR' });
+      await expect(readProject(fixture.workspace, id)).resolves.toMatchObject({ revision: 0, screens: [{ id: 'mot', name: 'mot' }, { id: 'hai', name: 'hai' }] });
+    });
+
+    it('từ chối màn hình không tồn tại', async () => {
+      const id = await seed();
+      await expect(renameScreen(fixture.workspace, id, 'khong-co', 'Tên mới', 0)).rejects.toMatchObject({ code: 'SCREEN_NOT_FOUND' });
+    });
+
+    it('không cho client cũ đổi tên bằng revision lỗi thời', async () => {
+      const id = await seed();
+      await renameScreen(fixture.workspace, id, 'mot', 'Trang chủ', 0);
+      await expect(renameScreen(fixture.workspace, id, 'hai', 'Chi tiết', 0)).rejects.toMatchObject({ code: 'REVISION_CONFLICT' });
+      await expect(readProject(fixture.workspace, id)).resolves.toMatchObject({ screens: [{ id: 'mot', name: 'Trang chủ' }, { id: 'hai', name: 'hai' }] });
+    });
+
+    it('không được vượt id project không tồn tại', async () => {
+      await expect(renameScreen(fixture.workspace, 'khong-co', 'mot', 'Tên mới', 0)).rejects.toMatchObject({ code: 'PROJECT_NOT_FOUND' });
+    });
+  });
+
+  describe('xóa project', () => {
+    it('xóa cả thư mục project và bỏ khỏi danh sách', async () => {
+      const project = await createProject(fixture.workspace, { id: 'shop', name: 'Cửa hàng' });
+      const sourceDir = join(fixture.workspace, 'projects', project.id, 'screens', 'mot');
+      await mkdir(sourceDir, { recursive: true });
+      await writeFile(join(sourceDir, 'index.html'), '<html></html>', 'utf8');
+
+      await expect(deleteProject(fixture.workspace, project.id, 0)).resolves.toEqual({ deleted: true });
+
+      await expect(readProject(fixture.workspace, project.id)).rejects.toMatchObject({ code: 'PROJECT_NOT_FOUND' });
+      await expect(readFile(join(sourceDir, 'index.html'), 'utf8')).rejects.toMatchObject({ code: 'ENOENT' });
+      await expect(listProjects(fixture.workspace)).resolves.toEqual([]);
+    });
+
+    it('cho phép xóa project cuối cùng để lại workspace rỗng', async () => {
+      const project = await createProject(fixture.workspace, { id: 'shop', name: 'Cửa hàng' });
+      await deleteProject(fixture.workspace, project.id, 0);
+      await expect(listProjects(fixture.workspace)).resolves.toEqual([]);
+    });
+
+    it('cho phép tạo lại project với cùng id sau khi xóa', async () => {
+      const project = await createProject(fixture.workspace, { id: 'shop', name: 'Cửa hàng' });
+      await deleteProject(fixture.workspace, project.id, 0);
+      await expect(createProject(fixture.workspace, { id: 'shop', name: 'Làm lại' })).resolves.toMatchObject({ id: 'shop', name: 'Làm lại', revision: 0 });
+    });
+
+    it('từ chối id project không tồn tại', async () => {
+      await expect(deleteProject(fixture.workspace, 'khong-co', 0)).rejects.toMatchObject({ code: 'PROJECT_NOT_FOUND' });
+    });
+
+    it('không cho client cũ xóa bằng revision lỗi thời', async () => {
+      const project = await createProject(fixture.workspace, { id: 'shop', name: 'Cửa hàng' });
+      await renameProject(fixture.workspace, project.id, 'Tên mới', project.revision);
+
+      await expect(deleteProject(fixture.workspace, project.id, project.revision)).rejects.toMatchObject({ code: 'REVISION_CONFLICT' });
+      // The directory must survive a rejected delete.
+      await expect(readProject(fixture.workspace, project.id)).resolves.toMatchObject({ name: 'Tên mới' });
+    });
+
+    it.each([['âm', -1], ['không nguyên', 1.5]])('từ chối revision %s', async (_label, revision) => {
+      const project = await createProject(fixture.workspace, { id: 'shop', name: 'Cửa hàng' });
+      await expect(deleteProject(fixture.workspace, project.id, revision)).rejects.toMatchObject({ code: 'VALIDATION_ERROR' });
+      await expect(readProject(fixture.workspace, project.id)).resolves.toMatchObject({ revision: 0 });
     });
   });
 });

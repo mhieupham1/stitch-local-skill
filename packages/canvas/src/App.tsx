@@ -347,6 +347,44 @@ function CanvasApp() {
     }
   }, [api, projects]);
 
+  // Optimistic screen rename: the sidebar row updates instantly and reverts if the
+  // server rejects the change, matching the project rename and reorder behaviour.
+  const renameScreen = useCallback(async (projectId: string, screenId: string, name: string) => {
+    if (!api) return;
+    const target = projects.find((item) => item.id === projectId);
+    if (!target) return;
+    const before = target;
+    const renamed = { ...target, screens: target.screens.map((screen) => screen.id === screenId ? { ...screen, name } : screen) };
+    setProjects((items) => items.map((item) => item.id === projectId ? renamed : item));
+    setProject((current) => current?.id === projectId ? renamed : current);
+    try {
+      const saved = await api.renameScreen(projectId, screenId, name, before.revision);
+      setProjects((items) => items.map((item) => item.id === saved.id ? saved : item));
+      setProject((current) => current?.id === saved.id ? saved : current);
+    } catch (cause) {
+      setProjects((items) => items.map((item) => item.id === projectId ? before : item));
+      setProject((current) => current?.id === projectId ? before : current);
+      setError(cause instanceof Error ? cause.message : 'Không đổi được tên màn hình.');
+    }
+  }, [api, projects]);
+
+  // Deleting a project removes its whole directory. The affordance lives on the
+  // directory screen, so there is no open canvas to reconcile; we only drop the
+  // card. A failure keeps the card and surfaces the error.
+  const deleteProject = useCallback(async (target: Project) => {
+    if (!api) return;
+    const confirmed = window.confirm(
+      `Xóa dự án “${target.name}”?\n\nToàn bộ thư mục projects/${target.id}/ (màn hình, assets, snapshot) sẽ bị xóa vĩnh viễn.`,
+    );
+    if (!confirmed) return;
+    try {
+      await api.deleteProject(target.id, target.revision);
+      setProjects((items) => items.filter((item) => item.id !== target.id));
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Không xóa được dự án.');
+    }
+  }, [api]);
+
   // Deleting a screen removes it from the manifest and deletes its source
   // directory, so the id can be reused later.
   const deleteScreens = useCallback(async () => {
@@ -834,13 +872,13 @@ function CanvasApp() {
     </section>}
     {previewError && <><p role="alert">{previewError}</p><button type="button" onClick={retryPreview}>Thử lại</button></>}
   </main>;
-  if (!requestedProjectId) return <ProjectDirectory projects={projects} loading={projectsLoading} error={error} connection={connection} onChangePreview={changePreview} onCreate={async (input) => (await api.createProject(input)).project} onRetry={() => {
+  if (!requestedProjectId) return <ProjectDirectory projects={projects} loading={projectsLoading} error={error} connection={connection} onChangePreview={changePreview} onCreate={async (input) => (await api.createProject(input)).project} onDelete={(target) => void deleteProject(target)} onRetry={() => {
     setProjectsLoading(true);
     void refreshProjects().catch((cause: unknown) => setError(cause instanceof Error ? cause.message : 'Không tải được dự án.'));
   }} />;
   if (error && !project) return <div className="app-message"><h1>Không mở được dự án</h1><p role="alert">{error}</p><a className="header-btn" href="/">Về danh sách dự án</a></div>;
   return <div className={sidebarCollapsed ? 'app-shell sidebar-collapsed' : 'app-shell'}>
-    <ProjectSidebar projects={project ? [project] : []} selectedProjectId={project?.id ?? null} selectedScreenIds={selectedScreenIds} onScreenSelect={selectScreens} onReorderScreens={(projectId, order) => void reorderScreens(projectId, order)} onRenameProject={(projectId, name) => void renameProject(projectId, name)} collapsed={sidebarCollapsed} onCollapsedChange={updateSidebarCollapsed} />
+    <ProjectSidebar projects={project ? [project] : []} selectedProjectId={project?.id ?? null} selectedScreenIds={selectedScreenIds} onScreenSelect={selectScreens} onReorderScreens={(projectId, order) => void reorderScreens(projectId, order)} onRenameProject={(projectId, name) => void renameProject(projectId, name)} onRenameScreen={(projectId, screenId, name) => void renameScreen(projectId, screenId, name)} collapsed={sidebarCollapsed} onCollapsedChange={updateSidebarCollapsed} />
     <section className="canvas-shell">
       <header className="app-header">
         <a className="header-btn project-directory-back" href="/" title="Về danh sách dự án"><IconChevronLeft size={14} />Danh sách dự án</a>

@@ -345,3 +345,68 @@ export async function deleteScreens(
     return next;
   });
 }
+
+// Renames one screen. Only the display name changes; the id, its source
+// directory and every path that refers to it stay put, so snapshots and open
+// clients keep working. Mirrors `renameProject`, including the no-op guard.
+export async function renameScreen(
+  workspace: string,
+  projectId: string,
+  screenId: string,
+  name: string,
+  expectedRevision: number,
+): Promise<Project> {
+  const id = projectIdSchema.parse(projectId);
+  const sid = projectIdSchema.parse(screenId);
+  const nextName = name.trim();
+  if (!nextName) {
+    throw new CanvasError('VALIDATION_ERROR', 'Tên màn hình không được để trống.');
+  }
+  if (!Number.isInteger(expectedRevision) || expectedRevision < 0) {
+    throw new CanvasError('VALIDATION_ERROR', 'expectedRevision phải là số nguyên không âm.');
+  }
+  const canonicalWorkspacePath = await canonicalWorkspace(workspace);
+  return withProjectQueue(`${canonicalWorkspacePath}:${id}`, async () => {
+    const root = await getProjectRoot(canonicalWorkspacePath, id);
+    const project = await readManifest(root, id);
+    if (project.revision !== expectedRevision) {
+      throw new CanvasError('REVISION_CONFLICT', 'Project đã thay đổi; hãy tải lại rồi thử lại.', 409);
+    }
+    const screen = project.screens.find((item) => item.id === sid);
+    if (!screen) {
+      throw new CanvasError('SCREEN_NOT_FOUND', `Không tìm thấy màn hình “${sid}”.`, 404);
+    }
+    // Renaming to the same name would burn a revision and wake every connected
+    // client for nothing, so treat it as a no-op.
+    if (screen.name === nextName) return project;
+    const screens = project.screens.map((item) => (item.id === sid ? { ...item, name: nextName } : item));
+    const next: Project = { ...project, revision: project.revision + 1, screens };
+    await writeAtomic(join(root, 'project.json'), `${JSON.stringify(next, null, 2)}\n`);
+    return next;
+  });
+}
+
+// Deletes a whole project by removing its directory tree. Unlike `deleteScreens`
+// there is no minimum: a workspace may end up with zero projects, which the
+// directory screen renders as its empty state. `force: true` makes a
+// concurrently removed directory a success rather than an error.
+export async function deleteProject(
+  workspace: string,
+  projectId: string,
+  expectedRevision: number,
+): Promise<{ deleted: true }> {
+  const id = projectIdSchema.parse(projectId);
+  if (!Number.isInteger(expectedRevision) || expectedRevision < 0) {
+    throw new CanvasError('VALIDATION_ERROR', 'expectedRevision phải là số nguyên không âm.');
+  }
+  const canonicalWorkspacePath = await canonicalWorkspace(workspace);
+  return withProjectQueue(`${canonicalWorkspacePath}:${id}`, async () => {
+    const root = await getProjectRoot(canonicalWorkspacePath, id);
+    const project = await readManifest(root, id);
+    if (project.revision !== expectedRevision) {
+      throw new CanvasError('REVISION_CONFLICT', 'Project đã thay đổi; hãy tải lại rồi thử lại.', 409);
+    }
+    await rm(root, { force: true, recursive: true });
+    return { deleted: true } as const;
+  });
+}
