@@ -386,15 +386,38 @@ export async function renameScreen(
   });
 }
 
+/** What `deleteProject` removed, or what it would remove under `dryRun`. */
+export type ProjectDeletion = {
+  projectId: string;
+  name: string;
+  screens: string[];
+  snapshots: number;
+  prototypes: number;
+  deleted: boolean;
+};
+
+async function countChildDirectories(root: string, name: string): Promise<number> {
+  try {
+    const entries = await readdir(join(root, name), { withFileTypes: true });
+    return entries.filter((entry) => entry.isDirectory()).length;
+  } catch (error) {
+    // A project need not have taken a snapshot or built a prototype yet.
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return 0;
+    throw error;
+  }
+}
+
 // Deletes a whole project by removing its directory tree. Unlike `deleteScreens`
 // there is no minimum: a workspace may end up with zero projects, which the
-// directory screen renders as its empty state. `force: true` makes a
-// concurrently removed directory a success rather than an error.
+// directory screen renders as its empty state. `dryRun` reports exactly what
+// would go without touching anything, and `force: true` makes a concurrently
+// removed directory a success rather than an error.
 export async function deleteProject(
   workspace: string,
   projectId: string,
   expectedRevision: number,
-): Promise<{ deleted: true }> {
+  options: { dryRun?: boolean } = {},
+): Promise<ProjectDeletion> {
   const id = projectIdSchema.parse(projectId);
   if (!Number.isInteger(expectedRevision) || expectedRevision < 0) {
     throw new CanvasError('VALIDATION_ERROR', 'expectedRevision phải là số nguyên không âm.');
@@ -406,7 +429,20 @@ export async function deleteProject(
     if (project.revision !== expectedRevision) {
       throw new CanvasError('REVISION_CONFLICT', 'Project đã thay đổi; hãy tải lại rồi thử lại.', 409);
     }
+    const summary: ProjectDeletion = {
+      projectId: project.id,
+      name: project.name,
+      screens: project.screens.map((screen) => screen.id),
+      snapshots: await countChildDirectories(root, 'snapshots'),
+      prototypes: await countChildDirectories(root, 'prototypes'),
+      deleted: false,
+    };
+    if (options.dryRun) return summary;
+    // Drop the manifest first for the same reason `deleteScreens` shrinks it first: the
+    // project leaves every listing atomically, so a tree that survives a partial failure
+    // is invisible and inert rather than half-readable.
+    await rm(join(root, 'project.json'), { force: true });
     await rm(root, { force: true, recursive: true });
-    return { deleted: true } as const;
+    return { ...summary, deleted: true };
   });
 }

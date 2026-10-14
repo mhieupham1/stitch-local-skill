@@ -177,13 +177,23 @@ test('xóa dự án khỏi danh sách khi xác nhận, giữ lại khi hủy', a
   await expect(card).toBeVisible();
   await card.hover();
 
-  page.once('dialog', (dialog) => void dialog.dismiss());
-  await page.getByRole('button', { name: 'Xóa dự án Gamma' }).click();
+  const deleteButton = page.getByRole('button', { name: 'Xóa dự án Gamma' });
+  await deleteButton.click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole('button', { name: 'Hủy' }).click();
+  await expect(dialog).toHaveCount(0);
   await expect(card).toBeVisible();
   expect((await fetch(`${runtime.url}/api/projects/gamma`)).status).toBe(200);
 
-  page.once('dialog', (dialog) => void dialog.accept());
-  await page.getByRole('button', { name: 'Xóa dự án Gamma' }).click();
+  await deleteButton.click();
+  await expect(dialog).toBeVisible();
+  const confirmButton = dialog.getByRole('button', { name: 'Xoá dự án' });
+  // The typed project name is the guard, the same one the canvas sidebar uses.
+  await expect(confirmButton).toBeDisabled();
+  await dialog.getByLabel('Nhập Gamma để xác nhận').fill('Gamma');
+  await expect(confirmButton).toBeEnabled();
+  await confirmButton.click();
   await expect(card).toHaveCount(0);
   expect((await fetch(`${runtime.url}/api/projects/gamma`)).status).toBe(404);
 });

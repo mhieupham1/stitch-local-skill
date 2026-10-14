@@ -12,9 +12,9 @@ import {
   updateLayout,
   reorderScreens,
   deleteScreens,
+  deleteProject,
   renameProject,
   renameScreen,
-  deleteProject,
 } from '../../core/src/project-store.js';
 import { canonicalWorkspace, resolveProjectDirectory, resolveProjectFile } from '../../core/src/paths.js';
 import { asCanvasError, CanvasError, projectIdSchema, snapshotIdSchema, type Result, screenLayoutPatchSchema, screenOrderSchema, selectionContextSchema, prototypeCreateInputSchema, prototypePatchInputSchema, prototypeRegenerateInputSchema } from '../../core/src/schema.js';
@@ -22,7 +22,9 @@ import { CanvasEvents } from './events.js';
 import { captureScreen } from './capture.js';
 import { exportScreenForFigma } from './figma-export.js';
 import { fetchReference } from './reference.js';
+import { auditDesignTokens } from './token-audit.js';
 import { createSnapshot, deleteSnapshot, duplicateScreen, listSnapshots, restoreSnapshot } from './snapshots.js';
+import { diffProjectImages } from './image-diff.js';
 import { SelectionStore } from './selection.js';
 import { ensureDesignIds } from './design-ids.js';
 import { createPrototype, deletePrototype, listPrototypes, readPrototype, regeneratePrototype, updatePrototype } from './prototypes.js';
@@ -31,6 +33,8 @@ import { bridgeScriptSource, contentSizeScriptSource, figmaCaptureScriptSource, 
 
 export type ManagementAppOptions = {
   instanceId: string;
+  /** Identity of the build this process is running, as computed at startup. */
+  buildId: string;
   workspace: string;
   events: CanvasEvents;
   selection: SelectionStore;
@@ -65,7 +69,7 @@ const layoutBodySchema = z.object({ patches: z.array(screenLayoutPatchSchema), e
 const screenOrderBodySchema = z.object({ order: screenOrderSchema, expectedRevision: z.number().int().nonnegative() });
 const screenDeleteBodySchema = z.object({ screenIds: screenOrderSchema.min(1), expectedRevision: z.number().int().nonnegative() });
 const projectRenameBodySchema = z.object({ name: z.string().min(1).max(120), expectedRevision: z.number().int().nonnegative() });
-const projectDeleteBodySchema = z.object({ expectedRevision: z.number().int().nonnegative() });
+const projectDeleteBodySchema = z.object({ expectedRevision: z.number().int().nonnegative(), dryRun: z.boolean().optional() });
 const screenRenameBodySchema = z.object({ name: z.string().trim().min(1).max(120), expectedRevision: z.number().int().nonnegative() });
 
 function escapeHtml(value: string): string {
@@ -151,6 +155,7 @@ export async function createManagementApp(options: ManagementAppOptions): Promis
       appId: 'local-design-canvas',
       protocolVersion: 1,
       instanceId: options.instanceId,
+      buildId: options.buildId,
       capabilities: ['capture', 'snapshots', 'selection', 'reference', 'editing'],
     }),
   );
@@ -224,12 +229,15 @@ export async function createManagementApp(options: ManagementAppOptions): Promis
 
   app.delete<{ Params: { projectId: string } }>('/api/projects/:projectId', async (request) => {
     const body = projectDeleteBodySchema.parse(request.body);
-    await deleteProject(options.workspace, request.params.projectId, body.expectedRevision);
-    // The project is gone, so any focus or edit lock pointing at it is dead state.
-    options.selection.clearFocus(request.params.projectId);
-    options.selection.clearEdit(request.params.projectId);
-    options.events.publish({ type: 'project.updated', projectId: request.params.projectId, screenIds: [] });
-    return success({ deleted: true });
+    const deletion = await deleteProject(options.workspace, request.params.projectId, body.expectedRevision, { dryRun: body.dryRun });
+    // A dry run changes nothing, so it must not wake every canvas either. When
+    // the project does go, any focus or edit lock pointing at it is dead state.
+    if (deletion.deleted) {
+      options.selection.clearFocus(deletion.projectId);
+      options.selection.clearEdit(deletion.projectId);
+      options.events.publish({ type: 'project.updated', projectId: deletion.projectId, screenIds: [] });
+    }
+    return success(deletion);
   });
 
   app.post<{ Params: { projectId: string } }>('/api/projects/:projectId/screens', async (request, reply) => {
@@ -244,6 +252,9 @@ export async function createManagementApp(options: ManagementAppOptions): Promis
     options.events.publish({ type: 'project.updated', projectId, screenIds: [body.id] });
     return reply.code(201).send(success({ project, screen, ...source }));
   });
+
+  app.get<{ Params: { projectId: string } }>('/api/projects/:projectId/token-audit', async (request) =>
+    success(await auditDesignTokens(options.workspace, request.params.projectId)));
 
   app.patch<{ Params: { projectId: string } }>('/api/projects/:projectId/layout', async (request) => {
     const body = layoutBodySchema.parse(request.body);
@@ -382,6 +393,16 @@ export async function createManagementApp(options: ManagementAppOptions): Promis
     return success(current);
   });
 
+  const imageDiffBodySchema = z.object({
+    base: z.string().min(1).max(1024),
+    target: z.string().min(1).max(1024),
+    threshold: z.number().min(0).max(1).optional(),
+  });
+  app.post<{ Params: { projectId: string } }>('/api/projects/:projectId/image-diff', async (request) => {
+    const projectId = projectIdSchema.parse(request.params.projectId);
+    const body = imageDiffBodySchema.parse(request.body);
+    return success(await diffProjectImages(options.workspace, projectId, body));
+  });
   app.post<{ Params: { projectId: string } }>('/api/projects/:projectId/snapshots', async (request) => success(await createSnapshot(options.workspace, request.params.projectId)));
   app.get<{ Params: { projectId: string } }>('/api/projects/:projectId/snapshots', async (request) => success(await listSnapshots(options.workspace, request.params.projectId)));
   app.delete<{ Params: { projectId: string; snapshotId: string } }>('/api/projects/:projectId/snapshots/:snapshotId', async (request) => {

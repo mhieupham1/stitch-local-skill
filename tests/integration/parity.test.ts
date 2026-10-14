@@ -45,6 +45,7 @@ async function serverRoutes(): Promise<string[]> {
   const routes: string[] = [];
   const app = await createManagementApp({
     instanceId: 'parity',
+    buildId: 'parity-build',
     workspace,
     events: { subscribe: () => () => undefined, publish: () => undefined } as never,
     selection: { read: () => null } as never,

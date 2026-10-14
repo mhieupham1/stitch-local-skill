@@ -105,6 +105,13 @@ body { min-width: 760px; margin: 0; }
 .prototype-player-stage { flex: 1; display: flex; flex-direction: column; min-height: 0; align-items: safe center; padding: 12px; overflow: auto; }
 .prototype-player-screen-name { font-size: 12px; color: var(--text-dim); margin-bottom: 8px; }
 .prototype-player-stage iframe { display: block; flex: none; max-width: none; min-height: 0; border: 1px solid var(--line-strong); background: white; }
+.prototype-player-body { position: relative; flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.prototype-player-overlay { position: absolute; inset: 0; z-index: 5; display: flex; align-items: center; justify-content: center; padding: 12px; overflow: auto; }
+.prototype-player-scrim { position: absolute; inset: 0; padding: 0; border: 0; background: rgba(15, 23, 42, .5); cursor: pointer; }
+.prototype-player-panel { position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.prototype-player-panel .prototype-player-screen-name { margin-bottom: 0; }
+.prototype-player-panel iframe { display: block; flex: none; max-width: none; min-height: 0; border: 1px solid var(--line-strong); background: white; }
+.prototype-player-overlay-close { color: var(--text); padding: 6px 12px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); background: var(--surface); font-size: 12px; }
 
 button, input, select { font: inherit; color: inherit; }
 
@@ -289,6 +296,41 @@ button {
   font-weight: 550;
 }
 .project-rename:focus { outline: 2px solid var(--accent-ring); outline-offset: -1px; }
+
+/* The name and its delete button share a row; the name keeps the full width
+   minus the button so long names still ellipsize rather than push it out. */
+.project-row { display: flex; align-items: center; gap: 4px; }
+.project-row .project-name { flex: 1; min-width: 0; }
+.project-delete {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  color: var(--text-faint);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.project-delete:hover { color: var(--danger); background: var(--elevated); }
+.project-delete:focus-visible { outline: 2px solid var(--accent-ring); outline-offset: -1px; }
+
+/* The one irreversible action in the app, so it reads as such. */
+.project-danger-btn {
+  padding: 8px 16px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 550;
+  background: var(--danger);
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.project-danger-btn:hover:not(:disabled) { filter: brightness(1.1); }
+.project-danger-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* ---------- Screen list ---------- */
 

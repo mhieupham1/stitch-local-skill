@@ -36,8 +36,11 @@ export class CanvasApi {
   renameProject(projectId: string, name: string, expectedRevision: number) {
     return this.request<Project>(`/api/projects/${encodeURIComponent(projectId)}`, { method: 'PATCH', body: JSON.stringify({ name, expectedRevision }) });
   }
-  deleteProject(projectId: string, expectedRevision: number) {
-    return this.request<{ deleted: true }>(`/api/projects/${encodeURIComponent(projectId)}`, { method: 'DELETE', body: JSON.stringify({ expectedRevision }) });
+  deleteProject(projectId: string, expectedRevision: number, dryRun = false) {
+    return this.request<{ projectId: string; name: string; screens: string[]; snapshots: number; prototypes: number; deleted: boolean }>(
+      `/api/projects/${encodeURIComponent(projectId)}`,
+      { method: 'DELETE', body: JSON.stringify({ expectedRevision, dryRun }) },
+    );
   }
   updateLayout(projectId: string, patches: ScreenLayoutPatch[], expectedRevision: number) {
     return this.request<Project>(`/api/projects/${encodeURIComponent(projectId)}/layout`, { method: 'PATCH', body: JSON.stringify({ patches, expectedRevision }) });

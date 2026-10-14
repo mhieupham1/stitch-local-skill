@@ -11,4 +11,12 @@ describe('prototype preview bridge', () => {
     expect(script).toContain('stopImmediatePropagation');
     expect(script).toContain('parentElement');
   });
+
+  it('handles the scroll and escape messages the player sends', () => {
+    const script = prototypeBridgeScriptSource({ projectId: 'shop', screenId: 'home', nonce: 'n', parentOrigin: 'http://127.0.0.1:1234' });
+    expect(script).toContain('prototype.scroll');
+    expect(script).toContain('prototype.scrolled');
+    expect(script).toContain('scrollIntoView');
+    expect(script).toContain('prototype.escape');
+  });
 });

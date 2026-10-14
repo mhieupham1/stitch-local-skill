@@ -668,3 +668,33 @@ test('kéo vùng trên nền canvas chọn nhiều màn hình rồi di chuyển 
   expect(reloadedOverview.x).toBeCloseTo(afterOverview.x, 0);
   expect(reloadedOrders.x).toBeCloseTo(afterOrders.x, 0);
 });
+
+test('xoá dự án: hộp thoại nêu rõ hậu quả và bắt gõ tên để xác nhận', async ({ page }) => {
+  // A throwaway project: the deletion is the point of the test, and the shared
+  // `shop` fixture must survive for the other specs in this file.
+  await api('/api/projects', { method: 'POST', body: JSON.stringify({ id: 'nhap', name: 'Dự án nháp' }) });
+  await api('/api/projects/nhap/screens', {
+    method: 'POST', body: JSON.stringify({ id: 'tam', name: 'Tạm', width: 800, height: 600, expectedRevision: 0 }),
+  });
+
+  await page.goto(`${runtime.url}/?project=nhap#previewUrl=${encodeURIComponent(runtime.previewUrl)}`);
+  await expect(page.getByRole('heading', { name: 'Dự án nháp' })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Xoá dự án Dự án nháp' }).click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toBeVisible();
+  // The dry run names what goes, rather than showing a generic warning.
+  await expect(dialog).toContainText('1 màn hình');
+
+  const confirmButton = dialog.getByRole('button', { name: 'Xoá dự án' });
+  await expect(confirmButton).toBeDisabled();
+  await dialog.getByLabel('Nhập Dự án nháp để xác nhận').fill('sai tên');
+  await expect(confirmButton).toBeDisabled();
+  await dialog.getByLabel('Nhập Dự án nháp để xác nhận').fill('Dự án nháp');
+  await expect(confirmButton).toBeEnabled();
+  await confirmButton.click();
+
+  // The project leaves every listing, and the canvas navigates away from it.
+  await expect(page.getByRole('heading', { name: 'Dự án nháp' })).toHaveCount(0);
+  await expect.poll(async () => (await (await api('/api/projects')).json()).data).toEqual([{ id: 'shop', name: 'Shop', revision: expect.anything(), schemaVersion: 1, screens: expect.anything() }]);
+});

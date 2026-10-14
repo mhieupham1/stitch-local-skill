@@ -76,11 +76,14 @@ export function createMcpServer(workspace: string): McpServer {
 
   server.registerTool('project_delete', {
     title: 'Delete project',
-    description: 'Permanently delete a project and its whole directory, including screens, assets, snapshots and artifacts. This cannot be undone; there is no project-level snapshot restore.',
-    inputSchema: { project: z.string(), expectedRevision: z.number().int().nonnegative().optional() },
-  }, async ({ project, expectedRevision }) => runTool(async () => {
+    description: 'Delete a project and everything under it: every screen, its snapshot history and its prototypes. There is no undo and no trash, so pass dryRun to see exactly what would be removed first. Deleting the project the user is currently viewing also closes it in the canvas.',
+    inputSchema: { project: z.string(), dryRun: z.boolean().optional(), expectedRevision: z.number().int().nonnegative().optional() },
+  }, async ({ project, dryRun, expectedRevision }) => runTool(async () => {
     await ensureServer(workspace);
-    return requestJson(projectPath(project), 'DELETE', { expectedRevision: expectedRevision ?? await currentRevision(project) });
+    return requestJson(projectPath(project), 'DELETE', {
+      expectedRevision: expectedRevision ?? await currentRevision(project),
+      dryRun,
+    });
   }));
 
   server.registerTool('screen_list', {
@@ -160,6 +163,20 @@ export function createMcpServer(workspace: string): McpServer {
     return managementRequest(workspace, `/api/projects/${encodeURIComponent(project)}/screens/${encodeURIComponent(screen)}/capture`, { method: 'POST' });
   }));
 
+  server.registerTool('image_diff', {
+    title: 'Diff two screen images',
+    description: 'Compare two PNGs from the project pixel by pixel and return the changed-pixel count, percent, and bounding boxes of changed regions, plus a red-on-grey overlay PNG. Each side is either a path inside the project (the imagePath a screenshot returned, relative to the project root) or "live:<screen-id>" to capture the current preview first. Use it after editing to confirm what actually changed: diff the pre-edit capture against live:<screen> instead of judging the edit by eye.',
+    inputSchema: {
+      project: z.string(),
+      base: z.string().min(1),
+      target: z.string().min(1),
+      threshold: z.number().min(0).max(1).optional(),
+    },
+  }, async ({ project, base, target, threshold }) => runTool(async () => {
+    await ensureServer(workspace);
+    return requestJson(`${projectPath(project)}/image-diff`, 'POST', { base, target, threshold });
+  }));
+
   server.registerTool('figma_export', {
     title: 'Export screen for Figma',
     description: 'Render a screen in a headless browser and extract its element tree, layout, styles and text as structured JSON that can be pasted into Figma. Runs a browser on the local machine.',
@@ -203,6 +220,15 @@ export function createMcpServer(workspace: string): McpServer {
   }, async ({ project, snapshot }) => runTool(async () => {
     await ensureServer(workspace);
     return managementRequest(workspace, `${projectPath(project)}/snapshots/${encodeURIComponent(snapshot)}`, { method: 'DELETE' });
+  }));
+
+  server.registerTool('audit_tokens', {
+    title: 'Audit design tokens',
+    description: 'Check every screen against design-system.css: colors written as literals instead of tokens, font-family set without a token, spacing off the scale, var() references with no matching token, and tokens nothing uses. Findings name the file and line to fix. Run it after adding or editing screens, before saying the work is done.',
+    inputSchema: { project: z.string() },
+  }, async ({ project }) => runTool(async () => {
+    await ensureServer(workspace);
+    return managementRequest(workspace, `${projectPath(project)}/token-audit`);
   }));
 
   server.registerTool('reference_fetch', {

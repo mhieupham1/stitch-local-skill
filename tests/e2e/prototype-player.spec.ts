@@ -20,9 +20,9 @@ async function cli(...args: string[]) {
   return JSON.parse(result.stdout) as { ok: boolean; data?: { id: string }; error?: { code: string } };
 }
 
-const home = (id = 'home-open') => `<!doctype html><html><body><h1>Home</h1><button data-design-id="${id}"><span>Open detail</span></button><a href="/elsewhere">Other link</a></body></html>`;
-const detail = '<!doctype html><html><body><h1>Detail</h1><button data-design-id="detail-seat"><span>Choose seat</span></button></body></html>';
-const seat = '<!doctype html><html><body><h1>Seat</h1></body></html>';
+const home = (id = 'home-open') => `<!doctype html><html><body><h1>Home</h1><button data-design-id="${id}"><span>Open detail</span></button><button data-design-id="home-scroll">Scroll down</button><a href="/elsewhere">Other link</a><div style="height:1400px">Spacer</div><p data-design-id="home-target">Target</p></body></html>`;
+const detail = '<!doctype html><html><body><h1>Detail</h1><button data-design-id="detail-seat"><span>Choose seat</span></button><button data-design-id="detail-back">Back to home</button></body></html>';
+const seat = '<!doctype html><html><body><h1>Seat</h1><button data-design-id="seat-back">Back to detail</button></body></html>';
 
 test.beforeAll(async () => {
   root = await mkdtemp(join(tmpdir(), 'local-prototype-e2e-'));
@@ -47,12 +47,67 @@ test.beforeAll(async () => {
   }));
   expect(await cli('prototype', 'create', 'booking', '--project', 'shop', '--input', inputPath)).toMatchObject({ ok: true, data: { id: 'booking' } });
   expect(await readFile(join(workspace, 'projects', 'shop', 'project.json'), 'utf8')).toBe(projectBefore);
+
+  const flowPath = join(root, 'prototype-flow.json');
+  await writeFile(flowPath, JSON.stringify({
+    id: 'flow', name: 'Flow', screenIds: ['home', 'detail', 'seat'], startScreenId: 'home',
+    transitions: [
+      { fromScreenId: 'home', elementId: 'home-open', kind: 'push', toScreenId: 'detail' },
+      { fromScreenId: 'home', elementId: 'home-scroll', kind: 'scroll', toElementId: 'home-target' },
+      { fromScreenId: 'detail', elementId: 'detail-seat', kind: 'overlay', toScreenId: 'seat' },
+      { fromScreenId: 'detail', elementId: 'detail-back', kind: 'back' },
+      { fromScreenId: 'seat', elementId: 'seat-back', kind: 'back' },
+    ], expectedSourceBaseline: sources,
+  }));
+  expect(await cli('prototype', 'create', 'flow', '--project', 'shop', '--input', flowPath)).toMatchObject({ ok: true, data: { id: 'flow' } });
 });
 
 test.afterAll(async () => {
   if (workspace) await stopServer(workspace).catch(() => undefined);
   if (root) await rm(root, { force: true, recursive: true });
   delete process.env.LOCAL_CANVAS_STATIC_DIR;
+});
+
+test('Play mở lớp phủ, quay lại theo kiểu chuyển cảnh và cuộn trong màn hình', async ({ page }) => {
+  await page.goto(`${runtime.url}/?prototypeProject=shop&prototypeId=flow`);
+  const base = page.locator('.prototype-player-stage iframe');
+  const overlay = page.locator('.prototype-player-overlay');
+  await expect(page.frameLocator('.prototype-player-stage iframe').getByRole('heading', { name: 'Home' })).toBeVisible();
+  await expect(base).toHaveAttribute('data-ready', 'true');
+
+  // scroll keeps the same screen: the iframe is not replaced, the target moves into view.
+  await page.frameLocator('.prototype-player-stage iframe').getByText('Scroll down').click();
+  await expect.poll(async () => Math.round(await page.frameLocator('.prototype-player-stage iframe').locator('[data-design-id="home-target"]').evaluate((node) => node.getBoundingClientRect().top))).toBeLessThan(600);
+  await expect(base).toHaveAttribute('data-ready', 'true');
+  await expect(page.locator('iframe')).toHaveCount(1);
+
+  // overlay stacks the target screen on top of the current one and leaves it mounted.
+  await page.frameLocator('.prototype-player-stage iframe').getByText('Open detail').click();
+  await expect(page.frameLocator('.prototype-player-stage iframe').getByRole('heading', { name: 'Detail' })).toBeVisible();
+  await page.frameLocator('.prototype-player-stage iframe').getByText('Choose seat').click();
+  await expect(overlay).toBeVisible();
+  await expect(page.locator('iframe')).toHaveCount(2);
+  await expect(page.frameLocator('.prototype-player-overlay iframe').getByRole('heading', { name: 'Seat' })).toBeVisible();
+  await expect(page.frameLocator('.prototype-player-stage iframe').getByRole('heading', { name: 'Detail' })).toBeVisible();
+
+  // Esc and the scrim both dismiss the top overlay.
+  await page.keyboard.press('Escape');
+  await expect(overlay).toHaveCount(0);
+  await expect(page.frameLocator('.prototype-player-stage iframe').getByRole('heading', { name: 'Detail' })).toBeVisible();
+  await page.frameLocator('.prototype-player-stage iframe').getByText('Choose seat').click();
+  await expect(overlay).toBeVisible();
+  await page.locator('.prototype-player-scrim').click({ position: { x: 4, y: 4 } });
+  await expect(overlay).toHaveCount(0);
+
+  // a `back` link on the overlay closes it, and one on the base pops the run.
+  await page.frameLocator('.prototype-player-stage iframe').getByText('Choose seat').click();
+  await expect(overlay).toBeVisible();
+  await page.frameLocator('.prototype-player-overlay iframe').getByText('Back to detail').click();
+  await expect(overlay).toHaveCount(0);
+  await page.frameLocator('.prototype-player-stage iframe').getByText('Back to home').click();
+  await expect(page.frameLocator('.prototype-player-stage iframe').getByRole('heading', { name: 'Home' })).toBeVisible();
+  await expect(page.locator('iframe')).toHaveCount(1);
+  await expect(page.getByRole('button', { name: 'Quay lại' })).toBeDisabled();
 });
 
 test('Play chuyển màn qua phần tử con, giữ lịch sử và tạo lại có chủ đích', async ({ page }) => {

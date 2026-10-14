@@ -41,7 +41,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
-// node_modules/zod/v4/core/util.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/util.js
 var util_exports = {};
 __export(util_exports, {
   BIGINT_FORMAT_RANGES: () => BIGINT_FORMAT_RANGES,
@@ -774,7 +774,7 @@ function constantCatch(value) {
 }
 var Cached, EVALUATING, captureStackTrace, allowsEval, getParsedType, propertyKeyTypes, primitiveTypes, NUMBER_FORMAT_RANGES, BIGINT_FORMAT_RANGES, highSurrogate, Class, installing, broke, breaker, CONSTANT_CATCH;
 var init_util = __esm({
-  "node_modules/zod/v4/core/util.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/util.js"() {
     init_core();
     Cached = class {
       constructor(getter) {
@@ -889,7 +889,7 @@ var init_util = __esm({
   }
 });
 
-// node_modules/zod/v4/core/core.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/core.js
 function newError(Definition) {
   const E = _E;
   if (E) {
@@ -992,7 +992,7 @@ function config(newConfig) {
 }
 var _a, NEVER, _zodDesc, _E, $brand, $ZodAsyncError, $ZodEncodeError, globalConfig;
 var init_core = __esm({
-  "node_modules/zod/v4/core/core.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/core.js"() {
     init_util();
     NEVER = /* @__PURE__ */ Object.freeze({
       status: "aborted"
@@ -1016,7 +1016,7 @@ var init_core = __esm({
   }
 });
 
-// node_modules/zod/v4/core/errors.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/errors.js
 function _getMessage() {
   const internals = this._zod;
   internals.message ?? (internals.message = JSON.stringify(internals.def, jsonStringifyReplacer, 2));
@@ -1174,7 +1174,7 @@ function prettifyError(error62) {
 }
 var _messageDesc, _issuesDesc, _installedToString, initializer, $ZodError, $ZodRealError;
 var init_errors = __esm({
-  "node_modules/zod/v4/core/errors.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/errors.js"() {
     init_core();
     init_util();
     _messageDesc = {
@@ -1215,7 +1215,7 @@ var init_errors = __esm({
   }
 });
 
-// node_modules/zod/v4/core/parse.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/parse.js
 function finalizeParams(callee, params) {
   return { callee: params?.callee ?? callee, Err: params?.Err };
 }
@@ -1255,7 +1255,7 @@ function validateFallback(schema, value, _ctx) {
 }
 var _parse, parse, _parseAsync, parseAsync, _safeParse, safeParse, _safeParseAsync, safeParseAsync, COMPILE_INVALID, COMPILE_FALLBACK, validate, validateAsync, _encode, encode, _decode, decode, _encodeAsync, encodeAsync, _decodeAsync, decodeAsync, _safeEncode, safeEncode, _safeDecode, safeDecode, _safeEncodeAsync, safeEncodeAsync, _safeDecodeAsync, safeDecodeAsync;
 var init_parse = __esm({
-  "node_modules/zod/v4/core/parse.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/parse.js"() {
     init_core();
     init_errors();
     init_util();
@@ -1383,7 +1383,7 @@ var init_parse = __esm({
   }
 });
 
-// node_modules/zod/v4/core/regexes.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/regexes.js
 var regexes_exports = {};
 __export(regexes_exports, {
   anyString: () => anyString,
@@ -1484,7 +1484,7 @@ function fixedBase64url(length) {
 }
 var cuid, cuid2, ulid, xid, ksuid, nanoid, duration, extendedDuration, guid, uuid, uuid4, uuid6, uuid7, email, html5Email, rfc5322Email, unicodeEmail, idnEmail, browserEmail, _emoji, ipv4, ipv6, mac, cidrv4, cidrv6, base64, base64url, hostname, domain, httpProtocol, e164, creditCard, currencyCode, iban, dateSource, date, anyString, string, bigint, integer, number, boolean, _null, _undefined, lowercase, uppercase, hex, md5_hex, md5_base64, md5_base64url, sha1_hex, sha1_base64, sha1_base64url, sha256_hex, sha256_base64, sha256_base64url, sha384_hex, sha384_base64, sha384_base64url, sha512_hex, sha512_base64, sha512_base64url;
 var init_regexes = __esm({
-  "node_modules/zod/v4/core/regexes.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/regexes.js"() {
     init_util();
     cuid = /^[cC][0-9a-z]{6,}$/;
     cuid2 = /^[0-9a-z]+$/;
@@ -1561,7 +1561,7 @@ var init_regexes = __esm({
   }
 });
 
-// node_modules/zod/v4/core/checks.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/checks.js
 function handleCheckPropertyResult(result, payload, property) {
   if (result.issues.length) {
     payload.issues.push(...prefixIssues(property, result.issues));
@@ -1569,7 +1569,7 @@ function handleCheckPropertyResult(result, payload, property) {
 }
 var $ZodCheck, _whenHasSize, _whenHasLength, numericOriginMap, $ZodCheckLessThan, $ZodCheckGreaterThan, $ZodCheckMultipleOf, $ZodCheckNumberFormat, $ZodCheckBigIntFormat, $ZodCheckMaxSize, $ZodCheckMinSize, $ZodCheckSizeEquals, $ZodCheckMaxLength, $ZodCheckMinLength, $ZodCheckLengthEquals, $ZodCheckStringFormat, $ZodCheckRegex, $ZodCheckLowerCase, $ZodCheckUpperCase, $ZodCheckIncludes, $ZodCheckStartsWith, $ZodCheckEndsWith, $ZodCheckProperty, $ZodCheckProperties, $ZodCheckMimeType, $ZodCheckOverwrite;
 var init_checks = __esm({
-  "node_modules/zod/v4/core/checks.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/checks.js"() {
     init_core();
     init_regexes();
     init_util();
@@ -2045,10 +2045,10 @@ var init_checks = __esm({
   }
 });
 
-// node_modules/zod/v4/core/doc.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/doc.js
 var Doc;
 var init_doc = __esm({
-  "node_modules/zod/v4/core/doc.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/doc.js"() {
     Doc = class {
       constructor(args = [], closed = {}) {
         this.content = [];
@@ -2091,10 +2091,10 @@ ${content.join("\n")}
   }
 });
 
-// node_modules/zod/v4/core/versions.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/versions.js
 var version;
 var init_versions = __esm({
-  "node_modules/zod/v4/core/versions.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/versions.js"() {
     version = {
       major: 4,
       minor: 6,
@@ -2103,7 +2103,7 @@ var init_versions = __esm({
   }
 });
 
-// node_modules/zod/v4/core/schemas.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/schemas.js
 async function validateAsync2(inst, value) {
   const ctx = { async: true };
   return toStandardResult(await inst._zod.run({ value, issues: [] }, ctx), ctx);
@@ -2497,7 +2497,7 @@ function handleIntersectionResults(result, left, right) {
   const unrecKeys = /* @__PURE__ */ new Map();
   let unrecIssue;
   const keyIssues = /* @__PURE__ */ new Map();
-  const collect = (iss, side) => {
+  const collect2 = (iss, side) => {
     let keys;
     if (iss.code === "unrecognized_keys" && !iss.path?.length) {
       unrecIssue ?? (unrecIssue = iss);
@@ -2518,11 +2518,11 @@ function handleIntersectionResults(result, left, right) {
     return true;
   };
   for (const iss of left.issues) {
-    if (!collect(iss, "l"))
+    if (!collect2(iss, "l"))
       result.issues.push(iss);
   }
   for (const iss of right.issues) {
-    if (!collect(iss, "r"))
+    if (!collect2(iss, "r"))
       result.issues.push(iss);
   }
   const bothKeys = [...unrecKeys].filter(([, f]) => f.l && f.r).map(([k]) => k);
@@ -2762,7 +2762,7 @@ function handleRefineResult(result, payload, input2, inst) {
 }
 var $ZodType, toStandardResult, $ZodString, $ZodStringFormat, $ZodGUID, $ZodUUID, $ZodEmail, URL_BAD_FORMAT, URL_UNPARSEABLE, asciiTabOrNewline, $ZodURL, $ZodEmoji, $ZodNanoID, $ZodCUID, $ZodCUID2, $ZodULID, $ZodXID, $ZodKSUID, $ZodISODateTime, $ZodISODate, $ZodISOTime, $ZodISODuration, $ZodIPv4, ipv6Alphabet, $ZodIPv6, $ZodMAC, $ZodCIDRv4, $ZodCIDRv6, base64Charset, $ZodBase64, base64urlCharset, $ZodBase64URL, $ZodE164, CC_SANITIZE, $ZodCreditCard, $ZodIBAN, $ZodJWT, $ZodCustomStringFormat, $ZodNumber, $ZodNumberFormat, $ZodBoolean, $ZodBigInt, $ZodBigIntFormat, $ZodSymbol, $ZodUndefined, $ZodNull, $ZodAny, $ZodUnknown, $ZodNever, $ZodVoid, $ZodDate, $ZodArray, NO_SYMBOL_KEYS, $ZodObject, $ZodObjectJIT, $ZodUnion, $ZodXor, $ZodDiscriminatedUnion, $ZodIntersection, $ZodTuple, $ZodRecord, $ZodMap, $ZodSet, $ZodEnum, $ZodLiteral, $ZodFile, $ZodTransform, $ZodOptional, $ZodExactOptional, $ZodNullable, $ZodDefault, $ZodPrefault, $ZodNonOptional, $ZodSuccess, $ZodCatch, $ZodNaN, $ZodPipe, $ZodCodec, $ZodPreprocess, $ZodReadonly, $ZodTemplateLiteral, $ZodFunction, $ZodPromise, $ZodLazy, $ZodCustom;
 var init_schemas = __esm({
-  "node_modules/zod/v4/core/schemas.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/schemas.js"() {
     init_checks();
     init_core();
     init_doc();
@@ -4530,7 +4530,7 @@ var init_schemas = __esm({
   }
 });
 
-// node_modules/zod/v4/core/memoizer.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/memoizer.js
 function isRef(value) {
   return value !== null && typeof value === "object";
 }
@@ -4694,7 +4694,7 @@ function isBackEdge(ctx, value) {
 }
 var $ZodCyclicError, STATE, NO_ISSUES, recursive, NONE, ASSUMED, PROVEN, handoff, open, memo;
 var init_memoizer = __esm({
-  "node_modules/zod/v4/core/memoizer.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/memoizer.js"() {
     init_util();
     $ZodCyclicError = class extends Error {
       constructor() {
@@ -4812,7 +4812,7 @@ var init_memoizer = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/ar.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/ar.js
 function ar_default() {
   return {
     localeError: error()
@@ -4820,7 +4820,7 @@ function ar_default() {
 }
 var error;
 var init_ar = __esm({
-  "node_modules/zod/v4/locales/ar.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/ar.js"() {
     init_util();
     error = () => {
       const Sizable = {
@@ -4930,7 +4930,7 @@ var init_ar = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/az.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/az.js
 function az_default() {
   return {
     localeError: error2()
@@ -4938,7 +4938,7 @@ function az_default() {
 }
 var error2;
 var init_az = __esm({
-  "node_modules/zod/v4/locales/az.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/az.js"() {
     init_util();
     error2 = () => {
       const Sizable = {
@@ -5047,7 +5047,7 @@ var init_az = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/be.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/be.js
 function getBelarusianPlural(count, one, few, many) {
   const absCount = Math.abs(count);
   const lastDigit = absCount % 10;
@@ -5070,7 +5070,7 @@ function be_default() {
 }
 var error3;
 var init_be = __esm({
-  "node_modules/zod/v4/locales/be.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/be.js"() {
     init_util();
     error3 = () => {
       const Sizable = {
@@ -5222,7 +5222,7 @@ var init_be = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/bg.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/bg.js
 function bg_default() {
   return {
     localeError: error4()
@@ -5230,7 +5230,7 @@ function bg_default() {
 }
 var error4;
 var init_bg = __esm({
-  "node_modules/zod/v4/locales/bg.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/bg.js"() {
     init_util();
     error4 = () => {
       const Sizable = {
@@ -5354,7 +5354,7 @@ var init_bg = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/bn.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/bn.js
 function bn_default() {
   return {
     localeError: error5()
@@ -5362,7 +5362,7 @@ function bn_default() {
 }
 var error5;
 var init_bn = __esm({
-  "node_modules/zod/v4/locales/bn.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/bn.js"() {
     init_util();
     error5 = () => {
       const Sizable = {
@@ -5474,7 +5474,7 @@ var init_bn = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/ca.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/ca.js
 function ca_default() {
   return {
     localeError: error6()
@@ -5482,7 +5482,7 @@ function ca_default() {
 }
 var error6;
 var init_ca = __esm({
-  "node_modules/zod/v4/locales/ca.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/ca.js"() {
     init_util();
     error6 = () => {
       const Sizable = {
@@ -5594,7 +5594,7 @@ var init_ca = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/ckb.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/ckb.js
 function ckb_default() {
   return {
     localeError: error7()
@@ -5602,7 +5602,7 @@ function ckb_default() {
 }
 var error7;
 var init_ckb = __esm({
-  "node_modules/zod/v4/locales/ckb.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/ckb.js"() {
     init_util();
     error7 = () => {
       const Sizable = {
@@ -5733,7 +5733,7 @@ var init_ckb = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/cs.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/cs.js
 function cs_default() {
   return {
     localeError: error8()
@@ -5741,7 +5741,7 @@ function cs_default() {
 }
 var error8;
 var init_cs = __esm({
-  "node_modules/zod/v4/locales/cs.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/cs.js"() {
     init_util();
     error8 = () => {
       const Sizable = {
@@ -5856,7 +5856,7 @@ var init_cs = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/da.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/da.js
 function da_default() {
   return {
     localeError: error9()
@@ -5864,7 +5864,7 @@ function da_default() {
 }
 var error9;
 var init_da = __esm({
-  "node_modules/zod/v4/locales/da.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/da.js"() {
     init_util();
     error9 = () => {
       const Sizable = {
@@ -5983,7 +5983,7 @@ var init_da = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/de.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/de.js
 function de_default() {
   return {
     localeError: error10()
@@ -5991,7 +5991,7 @@ function de_default() {
 }
 var error10;
 var init_de = __esm({
-  "node_modules/zod/v4/locales/de.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/de.js"() {
     init_util();
     error10 = () => {
       const Sizable = {
@@ -6103,7 +6103,7 @@ var init_de = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/el.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/el.js
 function el_default() {
   return {
     localeError: error11()
@@ -6111,7 +6111,7 @@ function el_default() {
 }
 var error11;
 var init_el = __esm({
-  "node_modules/zod/v4/locales/el.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/el.js"() {
     init_util();
     error11 = () => {
       const Sizable = {
@@ -6222,7 +6222,7 @@ var init_el = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/en.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/en.js
 function en_default() {
   return {
     localeError: error12()
@@ -6230,7 +6230,7 @@ function en_default() {
 }
 var error12;
 var init_en = __esm({
-  "node_modules/zod/v4/locales/en.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/en.js"() {
     init_util();
     error12 = () => {
       const Sizable = {
@@ -6353,7 +6353,7 @@ var init_en = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/eo.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/eo.js
 function eo_default() {
   return {
     localeError: error13()
@@ -6361,7 +6361,7 @@ function eo_default() {
 }
 var error13;
 var init_eo = __esm({
-  "node_modules/zod/v4/locales/eo.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/eo.js"() {
     init_util();
     error13 = () => {
       const Sizable = {
@@ -6474,7 +6474,7 @@ var init_eo = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/es.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/es.js
 function es_default() {
   return {
     localeError: error14()
@@ -6482,7 +6482,7 @@ function es_default() {
 }
 var error14;
 var init_es = __esm({
-  "node_modules/zod/v4/locales/es.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/es.js"() {
     init_util();
     error14 = () => {
       const Sizable = {
@@ -6617,7 +6617,7 @@ var init_es = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/fa.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/fa.js
 function fa_default() {
   return {
     localeError: error15()
@@ -6625,7 +6625,7 @@ function fa_default() {
 }
 var error15;
 var init_fa = __esm({
-  "node_modules/zod/v4/locales/fa.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/fa.js"() {
     init_util();
     error15 = () => {
       const Sizable = {
@@ -6743,7 +6743,7 @@ var init_fa = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/fi.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/fi.js
 function fi_default() {
   return {
     localeError: error16()
@@ -6751,7 +6751,7 @@ function fi_default() {
 }
 var error16;
 var init_fi = __esm({
-  "node_modules/zod/v4/locales/fi.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/fi.js"() {
     init_util();
     error16 = () => {
       const Sizable = {
@@ -6867,7 +6867,7 @@ var init_fi = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/fr.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/fr.js
 function fr_default() {
   return {
     localeError: error17()
@@ -6875,7 +6875,7 @@ function fr_default() {
 }
 var error17;
 var init_fr = __esm({
-  "node_modules/zod/v4/locales/fr.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/fr.js"() {
     init_util();
     error17 = () => {
       const Sizable = {
@@ -7003,7 +7003,7 @@ var init_fr = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/fr-CA.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/fr-CA.js
 function fr_CA_default() {
   return {
     localeError: error18()
@@ -7011,7 +7011,7 @@ function fr_CA_default() {
 }
 var error18;
 var init_fr_CA = __esm({
-  "node_modules/zod/v4/locales/fr-CA.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/fr-CA.js"() {
     init_util();
     error18 = () => {
       const Sizable = {
@@ -7122,7 +7122,7 @@ var init_fr_CA = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/gu.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/gu.js
 function gu_default() {
   return {
     localeError: error19()
@@ -7130,7 +7130,7 @@ function gu_default() {
 }
 var error19;
 var init_gu = __esm({
-  "node_modules/zod/v4/locales/gu.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/gu.js"() {
     init_util();
     error19 = () => {
       const Sizable = {
@@ -7242,7 +7242,7 @@ var init_gu = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/he.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/he.js
 function he_default() {
   return {
     localeError: error20()
@@ -7250,7 +7250,7 @@ function he_default() {
 }
 var error20;
 var init_he = __esm({
-  "node_modules/zod/v4/locales/he.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/he.js"() {
     init_util();
     error20 = () => {
       const TypeNames = {
@@ -7450,7 +7450,7 @@ var init_he = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/hi.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/hi.js
 function hi_default() {
   return {
     localeError: error21()
@@ -7458,7 +7458,7 @@ function hi_default() {
 }
 var error21;
 var init_hi = __esm({
-  "node_modules/zod/v4/locales/hi.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/hi.js"() {
     init_util();
     error21 = () => {
       const Sizable = {
@@ -7568,7 +7568,7 @@ var init_hi = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/hr.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/hr.js
 function hr_default() {
   return {
     localeError: error22()
@@ -7576,7 +7576,7 @@ function hr_default() {
 }
 var error22;
 var init_hr = __esm({
-  "node_modules/zod/v4/locales/hr.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/hr.js"() {
     init_util();
     error22 = () => {
       const Sizable = {
@@ -7701,7 +7701,7 @@ var init_hr = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/hu.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/hu.js
 function hu_default() {
   return {
     localeError: error23()
@@ -7709,7 +7709,7 @@ function hu_default() {
 }
 var error23;
 var init_hu = __esm({
-  "node_modules/zod/v4/locales/hu.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/hu.js"() {
     init_util();
     error23 = () => {
       const Sizable = {
@@ -7821,7 +7821,7 @@ var init_hu = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/hy.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/hy.js
 function getArmenianPlural(count, one, many) {
   return Math.abs(count) === 1 ? one : many;
 }
@@ -7839,7 +7839,7 @@ function hy_default() {
 }
 var error24;
 var init_hy = __esm({
-  "node_modules/zod/v4/locales/hy.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/hy.js"() {
     init_util();
     error24 = () => {
       const Sizable = {
@@ -7986,7 +7986,7 @@ var init_hy = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/id.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/id.js
 function id_default() {
   return {
     localeError: error25()
@@ -7994,7 +7994,7 @@ function id_default() {
 }
 var error25;
 var init_id = __esm({
-  "node_modules/zod/v4/locales/id.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/id.js"() {
     init_util();
     error25 = () => {
       const Sizable = {
@@ -8104,7 +8104,7 @@ var init_id = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/is.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/is.js
 function is_default() {
   return {
     localeError: error26()
@@ -8112,7 +8112,7 @@ function is_default() {
 }
 var error26;
 var init_is = __esm({
-  "node_modules/zod/v4/locales/is.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/is.js"() {
     init_util();
     error26 = () => {
       const Sizable = {
@@ -8225,7 +8225,7 @@ var init_is = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/it.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/it.js
 function it_default() {
   return {
     localeError: error27()
@@ -8233,7 +8233,7 @@ function it_default() {
 }
 var error27;
 var init_it = __esm({
-  "node_modules/zod/v4/locales/it.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/it.js"() {
     init_util();
     error27 = () => {
       const Sizable = {
@@ -8345,7 +8345,7 @@ var init_it = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/ja.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/ja.js
 function ja_default() {
   return {
     localeError: error28()
@@ -8353,7 +8353,7 @@ function ja_default() {
 }
 var error28;
 var init_ja = __esm({
-  "node_modules/zod/v4/locales/ja.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/ja.js"() {
     init_util();
     error28 = () => {
       const Sizable = {
@@ -8464,7 +8464,7 @@ var init_ja = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/ka.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/ka.js
 function ka_default() {
   return {
     localeError: error29()
@@ -8472,7 +8472,7 @@ function ka_default() {
 }
 var error29;
 var init_ka = __esm({
-  "node_modules/zod/v4/locales/ka.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/ka.js"() {
     init_util();
     error29 = () => {
       const Sizable = {
@@ -8588,7 +8588,7 @@ var init_ka = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/km.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/km.js
 function km_default() {
   return {
     localeError: error30()
@@ -8596,7 +8596,7 @@ function km_default() {
 }
 var error30;
 var init_km = __esm({
-  "node_modules/zod/v4/locales/km.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/km.js"() {
     init_util();
     error30 = () => {
       const Sizable = {
@@ -8710,17 +8710,17 @@ var init_km = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/kh.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/kh.js
 function kh_default() {
   return km_default();
 }
 var init_kh = __esm({
-  "node_modules/zod/v4/locales/kh.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/kh.js"() {
     init_km();
   }
 });
 
-// node_modules/zod/v4/locales/kn.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/kn.js
 function kn_default() {
   return {
     localeError: error31()
@@ -8728,7 +8728,7 @@ function kn_default() {
 }
 var error31;
 var init_kn = __esm({
-  "node_modules/zod/v4/locales/kn.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/kn.js"() {
     init_util();
     error31 = () => {
       const Sizable = {
@@ -8842,7 +8842,7 @@ var init_kn = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/ko.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/ko.js
 function ko_default() {
   return {
     localeError: error32()
@@ -8850,7 +8850,7 @@ function ko_default() {
 }
 var error32;
 var init_ko = __esm({
-  "node_modules/zod/v4/locales/ko.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/ko.js"() {
     init_util();
     error32 = () => {
       const Sizable = {
@@ -8965,7 +8965,7 @@ var init_ko = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/lt.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/lt.js
 function getUnitTypeFromNumber(number4) {
   const abs = Math.abs(number4);
   const last = abs % 10;
@@ -8983,7 +8983,7 @@ function lt_default() {
 }
 var capitalizeFirstCharacter, error33;
 var init_lt = __esm({
-  "node_modules/zod/v4/locales/lt.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/lt.js"() {
     init_util();
     capitalizeFirstCharacter = (text) => {
       return text.charAt(0).toUpperCase() + text.slice(1);
@@ -9179,7 +9179,7 @@ var init_lt = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/mk.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/mk.js
 function mk_default() {
   return {
     localeError: error34()
@@ -9187,7 +9187,7 @@ function mk_default() {
 }
 var error34;
 var init_mk = __esm({
-  "node_modules/zod/v4/locales/mk.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/mk.js"() {
     init_util();
     error34 = () => {
       const Sizable = {
@@ -9300,7 +9300,7 @@ var init_mk = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/ms.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/ms.js
 function ms_default() {
   return {
     localeError: error35()
@@ -9308,7 +9308,7 @@ function ms_default() {
 }
 var error35;
 var init_ms = __esm({
-  "node_modules/zod/v4/locales/ms.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/ms.js"() {
     init_util();
     error35 = () => {
       const Sizable = {
@@ -9419,7 +9419,7 @@ var init_ms = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/ne.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/ne.js
 function ne_default() {
   return {
     localeError: error36()
@@ -9427,7 +9427,7 @@ function ne_default() {
 }
 var error36;
 var init_ne = __esm({
-  "node_modules/zod/v4/locales/ne.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/ne.js"() {
     init_util();
     error36 = () => {
       const Sizable = {
@@ -9537,7 +9537,7 @@ var init_ne = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/nl.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/nl.js
 function nl_default() {
   return {
     localeError: error37()
@@ -9545,7 +9545,7 @@ function nl_default() {
 }
 var error37;
 var init_nl = __esm({
-  "node_modules/zod/v4/locales/nl.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/nl.js"() {
     init_util();
     error37 = () => {
       const Sizable = {
@@ -9659,7 +9659,7 @@ var init_nl = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/nn.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/nn.js
 function nn_default() {
   return {
     localeError: error38()
@@ -9667,7 +9667,7 @@ function nn_default() {
 }
 var error38;
 var init_nn = __esm({
-  "node_modules/zod/v4/locales/nn.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/nn.js"() {
     init_util();
     error38 = () => {
       const Sizable = {
@@ -9779,7 +9779,7 @@ var init_nn = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/no.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/no.js
 function no_default() {
   return {
     localeError: error39()
@@ -9787,7 +9787,7 @@ function no_default() {
 }
 var error39;
 var init_no = __esm({
-  "node_modules/zod/v4/locales/no.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/no.js"() {
     init_util();
     error39 = () => {
       const Sizable = {
@@ -9899,7 +9899,7 @@ var init_no = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/ota.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/ota.js
 function ota_default() {
   return {
     localeError: error40()
@@ -9907,7 +9907,7 @@ function ota_default() {
 }
 var error40;
 var init_ota = __esm({
-  "node_modules/zod/v4/locales/ota.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/ota.js"() {
     init_util();
     error40 = () => {
       const Sizable = {
@@ -10020,7 +10020,7 @@ var init_ota = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/ps.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/ps.js
 function ps_default() {
   return {
     localeError: error41()
@@ -10028,7 +10028,7 @@ function ps_default() {
 }
 var error41;
 var init_ps = __esm({
-  "node_modules/zod/v4/locales/ps.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/ps.js"() {
     init_util();
     error41 = () => {
       const Sizable = {
@@ -10146,7 +10146,7 @@ var init_ps = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/pl.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/pl.js
 function pl_default() {
   return {
     localeError: error42()
@@ -10154,7 +10154,7 @@ function pl_default() {
 }
 var error42;
 var init_pl = __esm({
-  "node_modules/zod/v4/locales/pl.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/pl.js"() {
     init_util();
     error42 = () => {
       const Sizable = {
@@ -10267,7 +10267,7 @@ var init_pl = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/pt.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/pt.js
 function pt_default() {
   return {
     localeError: error43()
@@ -10275,7 +10275,7 @@ function pt_default() {
 }
 var error43;
 var init_pt = __esm({
-  "node_modules/zod/v4/locales/pt.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/pt.js"() {
     init_util();
     error43 = () => {
       const Sizable = {
@@ -10417,7 +10417,7 @@ var init_pt = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/pt-BR.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/pt-BR.js
 function pt_BR_default() {
   return {
     localeError: error44()
@@ -10425,7 +10425,7 @@ function pt_BR_default() {
 }
 var error44;
 var init_pt_BR = __esm({
-  "node_modules/zod/v4/locales/pt-BR.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/pt-BR.js"() {
     init_util();
     error44 = () => {
       const Sizable = {
@@ -10568,7 +10568,7 @@ var init_pt_BR = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/ro.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/ro.js
 function ro_default() {
   return {
     localeError: error45()
@@ -10576,7 +10576,7 @@ function ro_default() {
 }
 var error45;
 var init_ro = __esm({
-  "node_modules/zod/v4/locales/ro.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/ro.js"() {
     init_util();
     error45 = () => {
       const Sizable = {
@@ -10697,7 +10697,7 @@ var init_ro = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/ru.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/ru.js
 function getRussianPlural(count, one, few, many) {
   const absCount = Math.abs(count);
   const lastDigit = absCount % 10;
@@ -10720,7 +10720,7 @@ function ru_default() {
 }
 var error46;
 var init_ru = __esm({
-  "node_modules/zod/v4/locales/ru.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/ru.js"() {
     init_util();
     error46 = () => {
       const Sizable = {
@@ -10872,7 +10872,7 @@ var init_ru = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/sk.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/sk.js
 function sk_default() {
   return {
     localeError: error47()
@@ -10880,7 +10880,7 @@ function sk_default() {
 }
 var error47;
 var init_sk = __esm({
-  "node_modules/zod/v4/locales/sk.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/sk.js"() {
     init_util();
     error47 = () => {
       const Sizable = {
@@ -10995,7 +10995,7 @@ var init_sk = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/sl.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/sl.js
 function sl_default() {
   return {
     localeError: error48()
@@ -11003,7 +11003,7 @@ function sl_default() {
 }
 var error48;
 var init_sl = __esm({
-  "node_modules/zod/v4/locales/sl.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/sl.js"() {
     init_util();
     error48 = () => {
       const Sizable = {
@@ -11116,7 +11116,7 @@ var init_sl = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/sv.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/sv.js
 function sv_default() {
   return {
     localeError: error49()
@@ -11124,7 +11124,7 @@ function sv_default() {
 }
 var error49;
 var init_sv = __esm({
-  "node_modules/zod/v4/locales/sv.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/sv.js"() {
     init_util();
     error49 = () => {
       const Sizable = {
@@ -11238,7 +11238,7 @@ var init_sv = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/ta.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/ta.js
 function ta_default() {
   return {
     localeError: error50()
@@ -11246,7 +11246,7 @@ function ta_default() {
 }
 var error50;
 var init_ta = __esm({
-  "node_modules/zod/v4/locales/ta.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/ta.js"() {
     init_util();
     error50 = () => {
       const Sizable = {
@@ -11360,7 +11360,7 @@ var init_ta = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/tg.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/tg.js
 function tg_default() {
   return {
     localeError: error51()
@@ -11368,7 +11368,7 @@ function tg_default() {
 }
 var error51;
 var init_tg = __esm({
-  "node_modules/zod/v4/locales/tg.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/tg.js"() {
     init_util();
     error51 = () => {
       const Sizable = {
@@ -11483,7 +11483,7 @@ var init_tg = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/th.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/th.js
 function th_default() {
   return {
     localeError: error52()
@@ -11491,7 +11491,7 @@ function th_default() {
 }
 var error52;
 var init_th = __esm({
-  "node_modules/zod/v4/locales/th.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/th.js"() {
     init_util();
     error52 = () => {
       const Sizable = {
@@ -11605,7 +11605,7 @@ var init_th = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/tk.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/tk.js
 function tk_default() {
   return {
     localeError: error53()
@@ -11613,7 +11613,7 @@ function tk_default() {
 }
 var error53;
 var init_tk = __esm({
-  "node_modules/zod/v4/locales/tk.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/tk.js"() {
     init_util();
     error53 = () => {
       const Sizable = {
@@ -11719,7 +11719,7 @@ var init_tk = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/tr.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/tr.js
 function tr_default() {
   return {
     localeError: error54()
@@ -11727,7 +11727,7 @@ function tr_default() {
 }
 var error54;
 var init_tr = __esm({
-  "node_modules/zod/v4/locales/tr.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/tr.js"() {
     init_util();
     error54 = () => {
       const Sizable = {
@@ -11836,7 +11836,7 @@ var init_tr = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/uk.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/uk.js
 function uk_default() {
   return {
     localeError: error55()
@@ -11844,7 +11844,7 @@ function uk_default() {
 }
 var error55;
 var init_uk = __esm({
-  "node_modules/zod/v4/locales/uk.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/uk.js"() {
     init_util();
     error55 = () => {
       const Sizable = {
@@ -11956,17 +11956,17 @@ var init_uk = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/ua.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/ua.js
 function ua_default() {
   return uk_default();
 }
 var init_ua = __esm({
-  "node_modules/zod/v4/locales/ua.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/ua.js"() {
     init_uk();
   }
 });
 
-// node_modules/zod/v4/locales/ur.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/ur.js
 function ur_default() {
   return {
     localeError: error56()
@@ -11974,7 +11974,7 @@ function ur_default() {
 }
 var error56;
 var init_ur = __esm({
-  "node_modules/zod/v4/locales/ur.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/ur.js"() {
     init_util();
     error56 = () => {
       const Sizable = {
@@ -12088,7 +12088,7 @@ var init_ur = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/uz.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/uz.js
 function uz_default() {
   return {
     localeError: error57()
@@ -12096,7 +12096,7 @@ function uz_default() {
 }
 var error57;
 var init_uz = __esm({
-  "node_modules/zod/v4/locales/uz.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/uz.js"() {
     init_util();
     error57 = () => {
       const Sizable = {
@@ -12208,7 +12208,7 @@ var init_uz = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/vi.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/vi.js
 function vi_default() {
   return {
     localeError: error58()
@@ -12216,7 +12216,7 @@ function vi_default() {
 }
 var error58;
 var init_vi = __esm({
-  "node_modules/zod/v4/locales/vi.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/vi.js"() {
     init_util();
     error58 = () => {
       const Sizable = {
@@ -12328,7 +12328,7 @@ var init_vi = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/zh-CN.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/zh-CN.js
 function zh_CN_default() {
   return {
     localeError: error59()
@@ -12336,7 +12336,7 @@ function zh_CN_default() {
 }
 var error59;
 var init_zh_CN = __esm({
-  "node_modules/zod/v4/locales/zh-CN.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/zh-CN.js"() {
     init_util();
     error59 = () => {
       const Sizable = {
@@ -12449,7 +12449,7 @@ var init_zh_CN = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/zh-TW.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/zh-TW.js
 function zh_TW_default() {
   return {
     localeError: error60()
@@ -12457,7 +12457,7 @@ function zh_TW_default() {
 }
 var error60;
 var init_zh_TW = __esm({
-  "node_modules/zod/v4/locales/zh-TW.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/zh-TW.js"() {
     init_util();
     error60 = () => {
       const Sizable = {
@@ -12568,7 +12568,7 @@ var init_zh_TW = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/yo.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/yo.js
 function yo_default() {
   return {
     localeError: error61()
@@ -12576,7 +12576,7 @@ function yo_default() {
 }
 var error61;
 var init_yo = __esm({
-  "node_modules/zod/v4/locales/yo.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/yo.js"() {
     init_util();
     error61 = () => {
       const Sizable = {
@@ -12687,7 +12687,7 @@ var init_yo = __esm({
   }
 });
 
-// node_modules/zod/v4/locales/index.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/index.js
 var locales_exports = {};
 __export(locales_exports, {
   ar: () => ar_default,
@@ -12755,7 +12755,7 @@ __export(locales_exports, {
   zhTW: () => zh_TW_default
 });
 var init_locales = __esm({
-  "node_modules/zod/v4/locales/index.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/locales/index.js"() {
     init_ar();
     init_az();
     init_be();
@@ -12822,13 +12822,13 @@ var init_locales = __esm({
   }
 });
 
-// node_modules/zod/v4/core/registries.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/registries.js
 function registry() {
   return new $ZodRegistry();
 }
 var _a2, $output, $input, $ZodRegistry, globalRegistry;
 var init_registries = __esm({
-  "node_modules/zod/v4/core/registries.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/registries.js"() {
     $output = /* @__PURE__ */ Symbol("ZodOutput");
     $input = /* @__PURE__ */ Symbol("ZodInput");
     $ZodRegistry = class {
@@ -12876,7 +12876,7 @@ var init_registries = __esm({
   }
 });
 
-// node_modules/zod/v4/core/compile.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/compile.js
 function compileValidator(schema, parser) {
   try {
     return compileFn(schema, { assertOnly: true });
@@ -14430,7 +14430,7 @@ function generateTransformCheck(doc, ctx, schema, accessor) {
 }
 var INVALID, FALLBACK_FLAG, ZodCompileAsyncError, ZodCompileUnsupportedError, WHEN_DEFAULTED_CHECKS, PATTERN_IS_COMPLETE;
 var init_compile = __esm({
-  "node_modules/zod/v4/core/compile.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/compile.js"() {
     init_core();
     init_doc();
     init_memoizer();
@@ -14489,7 +14489,7 @@ var init_compile = __esm({
   }
 });
 
-// node_modules/zod/v4/core/api.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/api.js
 function snapshotChecks(def) {
   if (def.checks)
     def.checks = [...def.checks];
@@ -15542,7 +15542,7 @@ function _stringFormat(Class2, format, fnOrRegex, _params = {}) {
 }
 var TimePrecision;
 var init_api = __esm({
-  "node_modules/zod/v4/core/api.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/api.js"() {
     init_checks();
     init_registries();
     init_schemas();
@@ -15557,7 +15557,7 @@ var init_api = __esm({
   }
 });
 
-// node_modules/zod/v4/core/to-json-schema.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/to-json-schema.js
 function assignProps(target, ...sources) {
   for (const source of sources) {
     for (const key of Reflect.ownKeys(source)) {
@@ -16073,7 +16073,7 @@ function isTransforming(_schema, _ctx) {
 }
 var FOLDABLE_KEYS, UNION_KEYS, createToJSONSchemaMethod, createStandardJSONSchemaMethod;
 var init_to_json_schema = __esm({
-  "node_modules/zod/v4/core/to-json-schema.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/to-json-schema.js"() {
     init_registries();
     init_util();
     FOLDABLE_KEYS = /* @__PURE__ */ new Set(["type", "properties", "required", "additionalProperties"]);
@@ -16094,7 +16094,7 @@ var init_to_json_schema = __esm({
   }
 });
 
-// node_modules/zod/v4/core/json-schema-processors.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/json-schema-processors.js
 function aggregateChecks(schema) {
   const agg = {};
   const def = schema._zod.def;
@@ -16244,7 +16244,7 @@ function toJSONSchema(input2, params) {
 }
 var narrowMin, narrowMax, narrowBoth, addDivisor, addPattern, intersectMime, setFormat, minContributor, maxContributor, formatContributor, contributors, formatMap, exactPatterns, exactPattern, stringProcessor, numberProcessor, booleanProcessor, bigintProcessor, symbolProcessor, nullProcessor, undefinedProcessor, voidProcessor, neverProcessor, anyProcessor, unknownProcessor, dateProcessor, enumProcessor, literalProcessor, nanProcessor, templateLiteralProcessor, fileProcessor, successProcessor, customProcessor, functionProcessor, transformProcessor, mapProcessor, setProcessor, arrayProcessor, objectProcessor, unionProcessor, intersectionProcessor, tupleProcessor, pendingRecords, recordProcessor, nullableProcessor, nonoptionalProcessor, UNREPRESENTABLE_DEFAULT, defaultProcessor, prefaultProcessor, catchProcessor, pipeProcessor, readonlyProcessor, promiseProcessor, optionalProcessor, lazyProcessor, allProcessors;
 var init_json_schema_processors = __esm({
-  "node_modules/zod/v4/core/json-schema-processors.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/json-schema-processors.js"() {
     init_regexes();
     init_schemas();
     init_to_json_schema();
@@ -16851,10 +16851,10 @@ var init_json_schema_processors = __esm({
   }
 });
 
-// node_modules/zod/v4/core/json-schema-generator.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/json-schema-generator.js
 var JSONSchemaGenerator;
 var init_json_schema_generator = __esm({
-  "node_modules/zod/v4/core/json-schema-generator.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/json-schema-generator.js"() {
     init_json_schema_processors();
     init_to_json_schema();
     JSONSchemaGenerator = class {
@@ -16936,14 +16936,14 @@ var init_json_schema_generator = __esm({
   }
 });
 
-// node_modules/zod/v4/core/json-schema.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/json-schema.js
 var json_schema_exports = {};
 var init_json_schema = __esm({
-  "node_modules/zod/v4/core/json-schema.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/json-schema.js"() {
   }
 });
 
-// node_modules/zod/v4/core/index.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/index.js
 var core_exports2 = {};
 __export(core_exports2, {
   $ZodAny: () => $ZodAny,
@@ -17260,7 +17260,7 @@ __export(core_exports2, {
   withParser: () => withParser
 });
 var init_core2 = __esm({
-  "node_modules/zod/v4/core/index.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/index.js"() {
     init_core();
     init_parse();
     init_errors();
@@ -17283,7 +17283,7 @@ var init_core2 = __esm({
   }
 });
 
-// node_modules/zod/v4/classic/checks.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/classic/checks.js
 var checks_exports2 = {};
 __export(checks_exports2, {
   endsWith: () => _endsWith,
@@ -17318,12 +17318,12 @@ __export(checks_exports2, {
   uppercase: () => _uppercase
 });
 var init_checks2 = __esm({
-  "node_modules/zod/v4/classic/checks.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/classic/checks.js"() {
     init_core2();
   }
 });
 
-// node_modules/zod/v4/classic/errors.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/classic/errors.js
 function _lazyMethod(proto, key, make) {
   Object.defineProperty(proto, key, {
     configurable: true,
@@ -17340,7 +17340,7 @@ function _lazyMethod(proto, key, make) {
 }
 var _installedErrorProtos, initializer2, ZodError, ZodRealError;
 var init_errors2 = __esm({
-  "node_modules/zod/v4/classic/errors.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/classic/errors.js"() {
     init_core2();
     init_core2();
     init_util();
@@ -17377,10 +17377,10 @@ var init_errors2 = __esm({
   }
 });
 
-// node_modules/zod/v4/classic/parse.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/classic/parse.js
 var parse2, parseAsync2, safeParse2, safeParseAsync2, encode2, decode2, encodeAsync2, decodeAsync2, safeEncode2, safeDecode2, safeEncodeAsync2, safeDecodeAsync2;
 var init_parse2 = __esm({
-  "node_modules/zod/v4/classic/parse.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/classic/parse.js"() {
     init_core2();
     init_errors2();
     init_core2();
@@ -17399,7 +17399,7 @@ var init_parse2 = __esm({
   }
 });
 
-// node_modules/zod/v4/classic/schemas.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/classic/schemas.js
 var schemas_exports2 = {};
 __export(schemas_exports2, {
   ZodAny: () => ZodAny,
@@ -18073,7 +18073,7 @@ function preprocess(fn, schema) {
 }
 var ZodType, _ZodString, ZodString, ZodStringFormat, ZodISODateTime, ZodISODate, ZodISOTime, ZodISODuration, ZodEmail, ZodGUID, ZodUUID, ZodURL, ZodEmoji, ZodNanoID, ZodCUID, ZodCUID2, ZodULID, ZodXID, ZodKSUID, ZodIPv4, ZodMAC, ZodIPv6, ZodCIDRv4, ZodCIDRv6, ZodBase64, ZodBase64URL, ZodE164, ZodCreditCard, ZodIBAN, ZodJWT, ZodCustomStringFormat, ZodNumber, ZodNumberFormat, ZodBoolean, ZodBigInt, ZodBigIntFormat, ZodSymbol, ZodUndefined, ZodNull, ZodAny, ZodUnknown, ZodNever, ZodVoid, ZodDate, ZodArray, ZodObject, ZodUnion, ZodXor, ZodDiscriminatedUnion, ZodIntersection, ZodTuple, ZodRecord, ZodMap, ZodSet, ZodEnum, ZodLiteral, ZodFile, ZodTransform, ZodOptional, ZodExactOptional, ZodNullable, ZodDefault, ZodPrefault, ZodNonOptional, ZodSuccess, ZodCatch, ZodNaN, ZodPipe, ZodCodec, ZodPreprocess, ZodReadonly, ZodTemplateLiteral, ZodLazy, ZodPromise, ZodFunction, ZodCustom, describe2, meta2, ZodInstanceOf, stringbool;
 var init_schemas2 = __esm({
-  "node_modules/zod/v4/classic/schemas.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/classic/schemas.js"() {
     init_core2();
     init_core2();
     init_json_schema_processors();
@@ -19056,7 +19056,7 @@ var init_schemas2 = __esm({
   }
 });
 
-// node_modules/zod/v4/classic/compat.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/classic/compat.js
 function setErrorMap(map2) {
   config({
     customError: map2
@@ -19067,7 +19067,7 @@ function getErrorMap() {
 }
 var ZodIssueCode, ZodFirstPartyTypeKind;
 var init_compat = __esm({
-  "node_modules/zod/v4/classic/compat.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/classic/compat.js"() {
     init_core2();
     ZodIssueCode = {
       invalid_type: "invalid_type",
@@ -19087,7 +19087,7 @@ var init_compat = __esm({
   }
 });
 
-// node_modules/zod/v4/classic/iso.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/classic/iso.js
 var iso_exports = {};
 __export(iso_exports, {
   ZodISODate: () => ZodISODate,
@@ -19112,14 +19112,14 @@ function duration2(params) {
   return _isoDuration(ZodISODuration, params);
 }
 var init_iso = __esm({
-  "node_modules/zod/v4/classic/iso.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/classic/iso.js"() {
     init_core2();
     init_schemas2();
     init_schemas2();
   }
 });
 
-// node_modules/zod/v4/classic/from-json-schema.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/classic/from-json-schema.js
 function detectVersion(schema, defaultTarget) {
   const $schema = schema.$schema;
   if ($schema === "https://json-schema.org/draft/2020-12/schema") {
@@ -19750,7 +19750,7 @@ function fromJSONSchema(schema, params) {
 }
 var z, RECOGNIZED_KEYS, SCHEMA_KEYWORDS, SCHEMA_MAP_KEYWORDS, fullTime;
 var init_from_json_schema = __esm({
-  "node_modules/zod/v4/classic/from-json-schema.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/classic/from-json-schema.js"() {
     init_registries();
     init_util();
     init_checks2();
@@ -19862,7 +19862,7 @@ var init_from_json_schema = __esm({
   }
 });
 
-// node_modules/zod/v4/core/visit.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/visit.js
 function visit(schema, fnOrHandlers) {
   const fn = typeof fnOrHandlers === "function" ? fnOrHandlers : (node2, rewritten) => {
     const h = fnOrHandlers[node2._zod.def.type];
@@ -20017,14 +20017,14 @@ function visit(schema, fnOrHandlers) {
 }
 var RESOLVING;
 var init_visit = __esm({
-  "node_modules/zod/v4/core/visit.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/core/visit.js"() {
     init_schemas();
     init_util();
     RESOLVING = /* @__PURE__ */ Symbol("z.visit/resolving");
   }
 });
 
-// node_modules/zod/v4/classic/deep-partial.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/classic/deep-partial.js
 function deepPartial(schema) {
   return visit(schema, {
     object: (s) => s.partial(),
@@ -20036,13 +20036,13 @@ function deepPartial(schema) {
   });
 }
 var init_deep_partial = __esm({
-  "node_modules/zod/v4/classic/deep-partial.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/classic/deep-partial.js"() {
     init_visit();
     init_schemas2();
   }
 });
 
-// node_modules/zod/v4/classic/in-out.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/classic/in-out.js
 function withChecks(side, checks) {
   if (!checks?.length)
     return side;
@@ -20072,14 +20072,14 @@ function output(schema) {
   });
 }
 var init_in_out = __esm({
-  "node_modules/zod/v4/classic/in-out.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/classic/in-out.js"() {
     init_util();
     init_visit();
     init_schemas2();
   }
 });
 
-// node_modules/zod/v4/classic/coerce.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/classic/coerce.js
 var coerce_exports = {};
 __export(coerce_exports, {
   bigint: () => bigint3,
@@ -20104,13 +20104,13 @@ function date4(params) {
   return _coercedDate(ZodDate, params);
 }
 var init_coerce = __esm({
-  "node_modules/zod/v4/classic/coerce.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/classic/coerce.js"() {
     init_core2();
     init_schemas2();
   }
 });
 
-// node_modules/zod/v4/classic/external.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/classic/external.js
 var external_exports = {};
 __export(external_exports, {
   $brand: () => $brand,
@@ -20373,7 +20373,7 @@ __export(external_exports, {
   xor: () => xor
 });
 var init_external = __esm({
-  "node_modules/zod/v4/classic/external.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/classic/external.js"() {
     init_core2();
     init_schemas2();
     init_checks2();
@@ -20392,15 +20392,27 @@ var init_external = __esm({
   }
 });
 
-// node_modules/zod/index.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/index.js
 var init_zod = __esm({
-  "node_modules/zod/index.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/index.js"() {
     init_external();
     init_external();
   }
 });
 
 // packages/core/src/schema.ts
+function checkPrototypeLinks(value, context) {
+  const ids = new Set(value.screenIds);
+  if (ids.size !== value.screenIds.length) context.addIssue({ code: "custom", message: "M\xE0n h\xECnh prototype b\u1ECB tr\xF9ng." });
+  if (!ids.has(value.startScreenId)) context.addIssue({ code: "custom", message: "M\xE0n h\xECnh b\u1EAFt \u0111\u1EA7u kh\xF4ng thu\u1ED9c prototype." });
+  const links = /* @__PURE__ */ new Set();
+  for (const transition of value.transitions) {
+    if (!ids.has(transition.fromScreenId) || transition.toScreenId !== void 0 && !ids.has(transition.toScreenId)) context.addIssue({ code: "custom", message: "Li\xEAn k\u1EBFt tr\u1ECF t\u1EDBi m\xE0n h\xECnh ngo\xE0i prototype." });
+    const key = `${transition.fromScreenId}\0${transition.elementId}`;
+    if (links.has(key)) context.addIssue({ code: "custom", message: "M\u1ED9t ph\u1EA7n t\u1EED ch\u1EC9 \u0111\u01B0\u1EE3c n\u1ED1i t\u1EDBi m\u1ED9t m\xE0n h\xECnh." });
+    links.add(key);
+  }
+}
 function asCanvasError(error62, fallbackCode = "INTERNAL_ERROR") {
   if (error62 instanceof CanvasError) return error62;
   if (error62 instanceof external_exports.ZodError) {
@@ -20408,13 +20420,14 @@ function asCanvasError(error62, fallbackCode = "INTERNAL_ERROR") {
   }
   return new CanvasError(fallbackCode, error62 instanceof Error ? error62.message : "L\u1ED7i kh\xF4ng x\xE1c \u0111\u1ECBnh.", 500);
 }
-var ID_PATTERN, projectIdSchema, screenSchema, projectSchema, screenLayoutPatchSchema, selectionBoundsSchema, selectionContextSchema, canvasEventSchema, CanvasError;
+var ID_PATTERN, projectIdSchema, snapshotIdSchema, screenSchema, projectSchema, screenLayoutPatchSchema, screenOrderSchema, PROTOTYPE_TRANSITION_KINDS, prototypeTransitionKindSchema, prototypeTransitionSchema, prototypeFieldsSchema, sourceBaselineSchema, prototypeSchema, prototypeCreateInputSchema, prototypePatchInputSchema, prototypeRegenerateInputSchema, selectionBoundsSchema, selectionContextSchema, canvasEventSchema, CanvasError;
 var init_schema = __esm({
   "packages/core/src/schema.ts"() {
     "use strict";
     init_zod();
     ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
     projectIdSchema = external_exports.string().regex(ID_PATTERN, "ID ph\u1EA3i l\xE0 slug ASCII ch\u1EEF th\u01B0\u1EDDng, s\u1ED1 v\xE0 d\u1EA5u g\u1EA1ch ngang.");
+    snapshotIdSchema = external_exports.string().regex(ID_PATTERN, "ID snapshot kh\xF4ng h\u1EE3p l\u1EC7.");
     screenSchema = external_exports.object({
       id: projectIdSchema,
       name: external_exports.string().trim().min(1),
@@ -20438,6 +20451,55 @@ var init_schema = __esm({
       width: external_exports.number().int().min(240).max(4096).optional(),
       height: external_exports.number().int().min(240).max(4096).optional()
     });
+    screenOrderSchema = external_exports.array(projectIdSchema);
+    PROTOTYPE_TRANSITION_KINDS = ["push", "back", "overlay", "scroll"];
+    prototypeTransitionKindSchema = external_exports.enum(PROTOTYPE_TRANSITION_KINDS);
+    prototypeTransitionSchema = external_exports.object({
+      fromScreenId: projectIdSchema,
+      elementId: external_exports.string().trim().min(1).max(200),
+      kind: prototypeTransitionKindSchema.default("push"),
+      toScreenId: projectIdSchema.optional(),
+      toElementId: external_exports.string().trim().min(1).max(200).optional()
+    }).refine((value) => {
+      const needsScreen = value.kind === "push" || value.kind === "overlay";
+      return value.kind === "scroll" ? value.toElementId !== void 0 && value.toScreenId === void 0 : needsScreen ? value.toScreenId !== void 0 && value.toElementId === void 0 : value.toScreenId === void 0 && value.toElementId === void 0;
+    }, {
+      message: "Chuy\u1EC3n c\u1EA3nh sai \u0111\xEDch: `push`/`overlay` c\u1EA7n `toScreenId`, `scroll` c\u1EA7n `toElementId`, `back` kh\xF4ng nh\u1EADn \u0111\xEDch n\xE0o.",
+      path: ["toScreenId"]
+    });
+    prototypeFieldsSchema = external_exports.object({
+      id: projectIdSchema,
+      name: external_exports.string().trim().min(1).max(120),
+      screenIds: external_exports.array(projectIdSchema).min(2).max(50),
+      startScreenId: projectIdSchema,
+      transitions: external_exports.array(prototypeTransitionSchema).max(5e3)
+    });
+    sourceBaselineSchema = external_exports.record(projectIdSchema, external_exports.string().regex(/^[a-f0-9]{64}$/));
+    prototypeSchema = prototypeFieldsSchema.extend({
+      schemaVersion: external_exports.literal(1),
+      revision: external_exports.number().int().nonnegative(),
+      x: external_exports.number().finite().optional(),
+      y: external_exports.number().finite().optional(),
+      sourceBaseline: sourceBaselineSchema,
+      requiresRegeneration: external_exports.boolean().optional()
+    }).superRefine((value, context) => {
+      checkPrototypeLinks(value, context);
+      if (Object.keys(value.sourceBaseline).length !== value.screenIds.length || value.screenIds.some((id) => !(id in value.sourceBaseline))) {
+        context.addIssue({ code: "custom", message: "D\u1EA5u v\xE2n tay ngu\u1ED3n kh\xF4ng kh\u1EDBp danh s\xE1ch m\xE0n h\xECnh." });
+      }
+    });
+    prototypeCreateInputSchema = prototypeFieldsSchema.extend({ expectedSourceBaseline: sourceBaselineSchema }).superRefine((value, context) => {
+      checkPrototypeLinks(value, context);
+    });
+    prototypePatchInputSchema = prototypeFieldsSchema.omit({ id: true }).partial().extend({
+      expectedRevision: external_exports.number().int().nonnegative(),
+      x: external_exports.number().finite().optional(),
+      y: external_exports.number().finite().optional()
+    });
+    prototypeRegenerateInputSchema = prototypeFieldsSchema.omit({ id: true, name: true }).extend({
+      expectedRevision: external_exports.number().int().nonnegative(),
+      expectedSourceBaseline: sourceBaselineSchema
+    }).superRefine((value, context) => checkPrototypeLinks(value, context));
     selectionBoundsSchema = external_exports.object({
       x: external_exports.number().finite(),
       y: external_exports.number().finite(),
@@ -20460,7 +20522,7 @@ var init_schema = __esm({
       instanceId: external_exports.string().min(1),
       projectId: projectIdSchema,
       screenIds: external_exports.array(projectIdSchema),
-      type: external_exports.enum(["project.updated", "screen.changed", "project.error", "screen.editing"]),
+      type: external_exports.enum(["project.updated", "screen.changed", "project.error", "screen.editing", "prototype.updated"]),
       message: external_exports.string().optional()
     });
     CanvasError = class extends Error {
@@ -20490,25 +20552,82 @@ var init_paths = __esm({
   }
 });
 
-// packages/server/src/lifecycle.ts
-import { mkdir as mkdir2, open as open2, readFile, rm, stat as stat2, writeFile } from "node:fs/promises";
+// packages/server/src/build-id.ts
+import { createHash } from "node:crypto";
+import { readdir, stat as stat2 } from "node:fs/promises";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { join } from "node:path";
+async function codeRoots() {
+  const bundled = process.env.LOCAL_CANVAS_SERVER_ENTRY;
+  if (bundled) return [dirname(bundled)];
+  const moduleDirectory = dirname(fileURLToPath(import.meta.url));
+  if (await exists(join(moduleDirectory, "server.mjs"))) return [moduleDirectory];
+  const repository = fileURLToPath(new URL("../../../", import.meta.url));
+  return [join(repository, "packages"), join(repository, "templates")];
+}
+async function exists(path) {
+  try {
+    await stat2(path);
+    return true;
+  } catch {
+    return false;
+  }
+}
+async function collect(root, files) {
+  let entries;
+  try {
+    entries = await readdir(root, { withFileTypes: true });
+  } catch {
+    return;
+  }
+  for (const entry of entries) {
+    if (IGNORED.has(entry.name)) continue;
+    const path = join(root, entry.name);
+    if (entry.isDirectory()) await collect(path, files);
+    else if (entry.isFile()) files.push(path);
+  }
+}
+async function computeBuildId() {
+  return fingerprint(await codeRoots());
+}
+async function fingerprint(roots) {
+  const files = [];
+  for (const root of roots) await collect(root, files);
+  const hash2 = createHash("sha256");
+  for (const file2 of files.sort()) {
+    const info = await stat2(file2);
+    hash2.update(`${file2}\0${info.size}\0${info.mtimeMs}
+`);
+  }
+  return hash2.digest("hex").slice(0, 16);
+}
+var IGNORED;
+var init_build_id = __esm({
+  "packages/server/src/build-id.ts"() {
+    "use strict";
+    IGNORED = /* @__PURE__ */ new Set(["node_modules", ".git", ".local-canvas", "dist"]);
+  }
+});
+
+// packages/server/src/lifecycle.ts
+import { mkdir as mkdir2, open as open2, readFile, rm, stat as stat3, writeFile } from "node:fs/promises";
+import { fileURLToPath as fileURLToPath2 } from "node:url";
+import { join as join2 } from "node:path";
 import { spawn } from "node:child_process";
 function runtimeDirectory(workspace) {
-  return join(workspace, ".local-canvas");
+  return join2(workspace, ".local-canvas");
 }
 function runtimePath(workspace) {
-  return join(runtimeDirectory(workspace), "runtime.json");
+  return join2(runtimeDirectory(workspace), "runtime.json");
 }
 function runtimeLogPath(workspace) {
-  return join(runtimeDirectory(workspace), "server.log");
+  return join2(runtimeDirectory(workspace), "server.log");
 }
 function lockPath(workspace) {
-  return join(runtimeDirectory(workspace), "start.lock");
+  return join2(runtimeDirectory(workspace), "start.lock");
 }
 function lockOwnerPath(workspace) {
-  return join(lockPath(workspace), "owner.json");
+  return join2(lockPath(workspace), "owner.json");
 }
 function publicRuntime(state) {
   return { instanceId: state.instanceId, pid: state.pid, url: state.url, previewUrl: state.previewUrl };
@@ -20516,7 +20635,7 @@ function publicRuntime(state) {
 function isRuntimeState(value) {
   if (!value || typeof value !== "object") return false;
   const state = value;
-  return typeof state.instanceId === "string" && typeof state.pid === "number" && typeof state.url === "string" && typeof state.previewUrl === "string" && typeof state.token === "string";
+  return typeof state.instanceId === "string" && typeof state.pid === "number" && typeof state.url === "string" && typeof state.previewUrl === "string";
 }
 async function readRuntime(workspace) {
   try {
@@ -20531,26 +20650,29 @@ async function isHealthy(state) {
   const timer = setTimeout(() => controller.abort(), 700);
   try {
     const response = await fetch(`${state.url}/health`, { signal: controller.signal });
-    if (!response.ok) return false;
+    if (!response.ok) return null;
     const body = await response.json();
-    return body.ok === true && body.data?.instanceId === state.instanceId;
+    if (body.ok !== true || body.data?.instanceId !== state.instanceId) return null;
+    return { buildId: typeof body.data.buildId === "string" ? body.data.buildId : void 0 };
   } catch {
-    return false;
+    return null;
   } finally {
     clearTimeout(timer);
   }
 }
-async function getServerStatus(workspace) {
-  const canonicalWorkspacePath = await canonicalWorkspace(workspace);
-  const state = await readRuntime(canonicalWorkspacePath);
-  if (!state || !await isHealthy(state)) return null;
-  return publicRuntime(state);
+async function liveServer(workspace) {
+  const state = await readRuntime(workspace);
+  if (!state) return null;
+  const health = await isHealthy(state);
+  return health ? { state, health } : null;
 }
-async function getServerCredentials(workspace) {
-  const canonicalWorkspacePath = await canonicalWorkspace(workspace);
-  const state = await readRuntime(canonicalWorkspacePath);
-  if (!state || !await isHealthy(state)) return null;
-  return state;
+async function usableServer(workspace) {
+  const live = await liveServer(workspace);
+  if (!live) return null;
+  return live.health.buildId === await computeBuildId() ? publicRuntime(live.state) : null;
+}
+async function getServerStatus(workspace) {
+  return usableServer(await canonicalWorkspace(workspace));
 }
 async function acquireStartupLock(workspace) {
   const path = lockPath(workspace);
@@ -20594,7 +20716,7 @@ async function isStaleLock(workspace) {
   } catch {
   }
   try {
-    return Date.now() - (await stat2(lockPath(workspace))).mtimeMs >= START_TIMEOUT_MS;
+    return Date.now() - (await stat3(lockPath(workspace))).mtimeMs >= START_TIMEOUT_MS;
   } catch {
     return false;
   }
@@ -20606,10 +20728,10 @@ function validatePort(port) {
 }
 async function startProcess(workspace, options) {
   const releaseEntrypoint = process.env.LOCAL_CANVAS_SERVER_ENTRY;
-  const nodeModulesTsc = fileURLToPath(new URL("../../../node_modules/tsx/dist/cli.mjs", import.meta.url));
-  const sourceEntrypoint = fileURLToPath(new URL("./standalone.ts", import.meta.url));
+  const nodeModulesTsc = fileURLToPath2(new URL("../../../node_modules/tsx/dist/cli.mjs", import.meta.url));
+  const sourceEntrypoint = fileURLToPath2(new URL("./standalone.ts", import.meta.url));
   const log = await open2(runtimeLogPath(workspace), "a", 384);
-  const args = releaseEntrypoint ? [releaseEntrypoint, "--workspace", workspace, "--instance-id", crypto.randomUUID(), "--token", crypto.randomUUID()] : [nodeModulesTsc, sourceEntrypoint, "--workspace", workspace, "--instance-id", crypto.randomUUID(), "--token", crypto.randomUUID()];
+  const args = releaseEntrypoint ? [releaseEntrypoint, "--workspace", workspace, "--instance-id", crypto.randomUUID()] : [nodeModulesTsc, sourceEntrypoint, "--workspace", workspace, "--instance-id", crypto.randomUUID()];
   if (options.managementPort !== void 0) args.push("--management-port", String(options.managementPort));
   if (options.previewPort !== void 0) args.push("--preview-port", String(options.previewPort));
   const child = spawn(process.execPath, args, {
@@ -20636,12 +20758,15 @@ async function ensureServer(workspace, options = {}) {
   validatePort(options.previewPort);
   const canonicalWorkspacePath = await canonicalWorkspace(workspace);
   await mkdir2(runtimeDirectory(canonicalWorkspacePath), { recursive: true, mode: 448 });
-  const existing = await getServerStatus(canonicalWorkspacePath);
-  if (existing) return existing;
+  const buildId = await computeBuildId();
+  const existing = await liveServer(canonicalWorkspacePath);
+  if (existing && existing.health.buildId === buildId) return publicRuntime(existing.state);
+  if (existing) await stopServer(canonicalWorkspacePath);
   const release = await acquireStartupLock(canonicalWorkspacePath);
   try {
-    const afterLock = await getServerStatus(canonicalWorkspacePath);
-    if (afterLock) return afterLock;
+    const afterLock = await liveServer(canonicalWorkspacePath);
+    if (afterLock && afterLock.health.buildId === buildId) return publicRuntime(afterLock.state);
+    if (afterLock) await stopServer(canonicalWorkspacePath);
     await rm(runtimePath(canonicalWorkspacePath), { force: true });
     await startProcess(canonicalWorkspacePath, options);
     const deadline = Date.now() + START_TIMEOUT_MS;
@@ -20657,16 +20782,23 @@ async function ensureServer(workspace, options = {}) {
 }
 async function stopServer(workspace) {
   const canonicalWorkspacePath = await canonicalWorkspace(workspace);
-  const state = await readRuntime(canonicalWorkspacePath);
-  if (!state || !await isHealthy(state)) return;
-  const response = await fetch(`${state.url}/api/shutdown`, {
-    method: "POST",
-    headers: { authorization: `Bearer ${state.token}` }
-  });
-  if (!response.ok) throw new CanvasError("SERVER_STOP_FAILED", "Server t\u1EEB ch\u1ED1i y\xEAu c\u1EA7u d\u1EEBng.", response.status);
+  const live = await liveServer(canonicalWorkspacePath);
+  if (!live) return;
+  let asked = false;
+  try {
+    asked = (await fetch(`${live.state.url}/api/shutdown`, { method: "POST" })).ok;
+  } catch {
+    asked = false;
+  }
+  if (!asked) {
+    try {
+      process.kill(live.state.pid, "SIGTERM");
+    } catch {
+    }
+  }
   const deadline = Date.now() + 4e3;
   while (Date.now() < deadline) {
-    if (!await getServerStatus(canonicalWorkspacePath)) return;
+    if (!await liveServer(canonicalWorkspacePath)) return;
     await sleep(POLL_INTERVAL_MS);
   }
   throw new CanvasError("SERVER_STOP_TIMEOUT", "Server ch\u01B0a d\u1EEBng sau 4 gi\xE2y.", 503);
@@ -20677,6 +20809,7 @@ var init_lifecycle = __esm({
     "use strict";
     init_paths();
     init_schema();
+    init_build_id();
     START_TIMEOUT_MS = 1e4;
     POLL_INTERVAL_MS = 50;
     sleep = (milliseconds) => new Promise((resolve2) => setTimeout(resolve2, milliseconds));
@@ -20685,12 +20818,9 @@ var init_lifecycle = __esm({
 
 // packages/cli/src/client.ts
 async function managementRequest(workspace, path, init = {}) {
-  const status = await getServerCredentials(workspace);
-  if (!status) throw new CanvasError("SERVER_NOT_RUNNING", "Server ch\u01B0a ch\u1EA1y cho workspace n\xE0y.", 503);
-  const response = await fetch(`${status.url}${path}`, {
-    ...init,
-    headers: { authorization: `Bearer ${status.token}`, ...init.headers }
-  });
+  const status = await getServerStatus(workspace);
+  if (!status) throw new CanvasError("SERVER_NOT_RUNNING", "Server ch\u01B0a ch\u1EA1y b\u1EB1ng b\u1EA3n build hi\u1EC7n t\u1EA1i cho workspace n\xE0y.", 503);
+  const response = await fetch(`${status.url}${path}`, init);
   const body = await response.json();
   if (!body.ok) throw new CanvasError(body.error.code, body.error.message, response.status);
   return body.data;
@@ -20703,10 +20833,10 @@ var init_client = __esm({
   }
 });
 
-// node_modules/zod/v3/helpers/util.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v3/helpers/util.js
 var util, objectUtil, ZodParsedType, getParsedType2;
 var init_util2 = __esm({
-  "node_modules/zod/v3/helpers/util.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v3/helpers/util.js"() {
     (function(util2) {
       util2.assertEqual = (_) => {
       };
@@ -20840,10 +20970,10 @@ var init_util2 = __esm({
   }
 });
 
-// node_modules/zod/v3/ZodError.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v3/ZodError.js
 var ZodIssueCode2, ZodError2;
 var init_ZodError = __esm({
-  "node_modules/zod/v3/ZodError.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v3/ZodError.js"() {
     init_util2();
     ZodIssueCode2 = util.arrayToEnum([
       "invalid_type",
@@ -20975,10 +21105,10 @@ var init_ZodError = __esm({
   }
 });
 
-// node_modules/zod/v3/locales/en.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v3/locales/en.js
 var errorMap, en_default2;
 var init_en2 = __esm({
-  "node_modules/zod/v3/locales/en.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v3/locales/en.js"() {
     init_ZodError();
     init_util2();
     errorMap = (issue2, _ctx) => {
@@ -21085,19 +21215,19 @@ var init_en2 = __esm({
   }
 });
 
-// node_modules/zod/v3/errors.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v3/errors.js
 function getErrorMap2() {
   return overrideErrorMap;
 }
 var overrideErrorMap;
 var init_errors3 = __esm({
-  "node_modules/zod/v3/errors.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v3/errors.js"() {
     init_en2();
     overrideErrorMap = en_default2;
   }
 });
 
-// node_modules/zod/v3/helpers/parseUtil.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v3/helpers/parseUtil.js
 function addIssueToContext(ctx, issueData) {
   const overrideMap = getErrorMap2();
   const issue2 = makeIssue({
@@ -21119,7 +21249,7 @@ function addIssueToContext(ctx, issueData) {
 }
 var makeIssue, ParseStatus, INVALID2, DIRTY, OK, isAborted, isDirty, isValid, isAsync;
 var init_parseUtil = __esm({
-  "node_modules/zod/v3/helpers/parseUtil.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v3/helpers/parseUtil.js"() {
     init_errors3();
     init_en2();
     makeIssue = (params) => {
@@ -21213,16 +21343,16 @@ var init_parseUtil = __esm({
   }
 });
 
-// node_modules/zod/v3/helpers/typeAliases.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v3/helpers/typeAliases.js
 var init_typeAliases = __esm({
-  "node_modules/zod/v3/helpers/typeAliases.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v3/helpers/typeAliases.js"() {
   }
 });
 
-// node_modules/zod/v3/helpers/errorUtil.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v3/helpers/errorUtil.js
 var errorUtil;
 var init_errorUtil = __esm({
-  "node_modules/zod/v3/helpers/errorUtil.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v3/helpers/errorUtil.js"() {
     (function(errorUtil2) {
       errorUtil2.errToObj = (message) => typeof message === "string" ? { message } : message || {};
       errorUtil2.toString = (message) => typeof message === "string" ? message : message?.message;
@@ -21230,7 +21360,7 @@ var init_errorUtil = __esm({
   }
 });
 
-// node_modules/zod/v3/types.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v3/types.js
 function processCreateParams(params) {
   if (!params)
     return {};
@@ -21401,7 +21531,7 @@ function createZodEnum(values, params) {
 }
 var ParseInputLazyPath, handleResult, ZodType2, cuidRegex, cuid2Regex, ulidRegex, uuidRegex, nanoidRegex, jwtRegex, durationRegex, emailRegex, _emojiRegex, emojiRegex, ipv4Regex, ipv4CidrRegex, ipv6Regex, ipv6CidrRegex, base64Regex, base64urlRegex, dateRegexSource, dateRegex, ZodString2, ZodNumber2, ZodBigInt2, ZodBoolean2, ZodDate2, ZodSymbol2, ZodUndefined2, ZodNull2, ZodAny2, ZodUnknown2, ZodNever2, ZodVoid2, ZodArray2, ZodObject2, ZodUnion2, getDiscriminator, ZodDiscriminatedUnion2, ZodIntersection2, ZodTuple2, ZodRecord2, ZodMap2, ZodSet2, ZodFunction2, ZodLazy2, ZodLiteral2, ZodEnum2, ZodNativeEnum, ZodPromise2, ZodEffects, ZodOptional2, ZodNullable2, ZodDefault2, ZodCatch2, ZodNaN2, ZodBranded, ZodPipeline, ZodReadonly2, late, ZodFirstPartyTypeKind2, stringType, numberType, nanType, bigIntType, booleanType, dateType, symbolType, undefinedType, nullType, anyType, unknownType, neverType, voidType, arrayType, objectType, strictObjectType, unionType, discriminatedUnionType, intersectionType, tupleType, recordType, mapType, setType, functionType, lazyType, literalType, enumType, nativeEnumType, promiseType, effectsType, optionalType, nullableType, preprocessType, pipelineType;
 var init_types = __esm({
-  "node_modules/zod/v3/types.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v3/types.js"() {
     init_ZodError();
     init_errors3();
     init_errorUtil();
@@ -24645,9 +24775,9 @@ var init_types = __esm({
   }
 });
 
-// node_modules/zod/v3/external.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v3/external.js
 var init_external2 = __esm({
-  "node_modules/zod/v3/external.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v3/external.js"() {
     init_errors3();
     init_parseUtil();
     init_typeAliases();
@@ -24657,21 +24787,21 @@ var init_external2 = __esm({
   }
 });
 
-// node_modules/zod/v3/index.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v3/index.js
 var init_v3 = __esm({
-  "node_modules/zod/v3/index.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v3/index.js"() {
     init_external2();
   }
 });
 
-// node_modules/zod/v4/mini/parse.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/mini/parse.js
 var init_parse3 = __esm({
-  "node_modules/zod/v4/mini/parse.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/mini/parse.js"() {
     init_core2();
   }
 });
 
-// node_modules/zod/v4/mini/schemas.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/mini/schemas.js
 // @__NO_SIDE_EFFECTS__
 function object2(shape, params) {
   const def = {
@@ -24683,7 +24813,7 @@ function object2(shape, params) {
 }
 var ZodMiniType, ZodMiniObject;
 var init_schemas3 = __esm({
-  "node_modules/zod/v4/mini/schemas.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/mini/schemas.js"() {
     init_core2();
     init_util();
     init_parse3();
@@ -24745,27 +24875,27 @@ var init_schemas3 = __esm({
   }
 });
 
-// node_modules/zod/v4/mini/checks.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/mini/checks.js
 var init_checks3 = __esm({
-  "node_modules/zod/v4/mini/checks.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/mini/checks.js"() {
   }
 });
 
-// node_modules/zod/v4/mini/iso.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/mini/iso.js
 var init_iso2 = __esm({
-  "node_modules/zod/v4/mini/iso.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/mini/iso.js"() {
   }
 });
 
-// node_modules/zod/v4/mini/coerce.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/mini/coerce.js
 var init_coerce2 = __esm({
-  "node_modules/zod/v4/mini/coerce.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/mini/coerce.js"() {
   }
 });
 
-// node_modules/zod/v4/mini/external.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/mini/external.js
 var init_external3 = __esm({
-  "node_modules/zod/v4/mini/external.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/mini/external.js"() {
     init_core2();
     init_parse3();
     init_schemas3();
@@ -24777,14 +24907,14 @@ var init_external3 = __esm({
   }
 });
 
-// node_modules/zod/v4-mini/index.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4-mini/index.js
 var init_v4_mini = __esm({
-  "node_modules/zod/v4-mini/index.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4-mini/index.js"() {
     init_external3();
   }
 });
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
 function isZ4Schema(s) {
   const schema = s;
   return !!schema._zod;
@@ -24944,27 +25074,27 @@ function getLiteralValue(schema) {
   return void 0;
 }
 var init_zod_compat = __esm({
-  "node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js"() {
     init_v3();
     init_v4_mini();
   }
 });
 
-// node_modules/zod/v4/classic/index.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/classic/index.js
 var init_classic = __esm({
-  "node_modules/zod/v4/classic/index.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/classic/index.js"() {
     init_external();
   }
 });
 
-// node_modules/zod/v4/index.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/index.js
 var init_v4 = __esm({
-  "node_modules/zod/v4/index.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod/v4/index.js"() {
     init_classic();
   }
 });
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
 function assertCompleteRequestPrompt(request) {
   if (request.params.ref.type !== "ref/prompt") {
     throw new TypeError(`Expected CompleteRequestPrompt, but got ${request.params.ref.type}`);
@@ -24979,7 +25109,7 @@ function assertCompleteRequestResourceTemplate(request) {
 }
 var LATEST_PROTOCOL_VERSION, SUPPORTED_PROTOCOL_VERSIONS, RELATED_TASK_META_KEY, JSONRPC_VERSION, AssertObjectSchema, ProgressTokenSchema, CursorSchema, TaskCreationParamsSchema, TaskMetadataSchema, RelatedTaskMetadataSchema, RequestMetaSchema, BaseRequestParamsSchema, TaskAugmentedRequestParamsSchema, isTaskAugmentedRequestParams, RequestSchema, NotificationsParamsSchema, NotificationSchema, ResultSchema, RequestIdSchema, JSONRPCRequestSchema, isJSONRPCRequest, JSONRPCNotificationSchema, isJSONRPCNotification, JSONRPCResultResponseSchema, isJSONRPCResultResponse, ErrorCode, JSONRPCErrorResponseSchema, isJSONRPCErrorResponse, JSONRPCMessageSchema, JSONRPCResponseSchema, EmptyResultSchema, CancelledNotificationParamsSchema, CancelledNotificationSchema, IconSchema, IconsSchema, BaseMetadataSchema, ImplementationSchema, FormElicitationCapabilitySchema, ElicitationCapabilitySchema, ClientTasksCapabilitySchema, ServerTasksCapabilitySchema, ClientCapabilitiesSchema, InitializeRequestParamsSchema, InitializeRequestSchema, ServerCapabilitiesSchema, InitializeResultSchema, InitializedNotificationSchema, PingRequestSchema, ProgressSchema, ProgressNotificationParamsSchema, ProgressNotificationSchema, PaginatedRequestParamsSchema, PaginatedRequestSchema, PaginatedResultSchema, TaskStatusSchema, TaskSchema, CreateTaskResultSchema, TaskStatusNotificationParamsSchema, TaskStatusNotificationSchema, GetTaskRequestSchema, GetTaskResultSchema, GetTaskPayloadRequestSchema, GetTaskPayloadResultSchema, ListTasksRequestSchema, ListTasksResultSchema, CancelTaskRequestSchema, CancelTaskResultSchema, ResourceContentsSchema, TextResourceContentsSchema, Base64Schema, BlobResourceContentsSchema, RoleSchema, AnnotationsSchema, ResourceSchema, ResourceTemplateSchema, ListResourcesRequestSchema, ListResourcesResultSchema, ListResourceTemplatesRequestSchema, ListResourceTemplatesResultSchema, ResourceRequestParamsSchema, ReadResourceRequestParamsSchema, ReadResourceRequestSchema, ReadResourceResultSchema, ResourceListChangedNotificationSchema, SubscribeRequestParamsSchema, SubscribeRequestSchema, UnsubscribeRequestParamsSchema, UnsubscribeRequestSchema, ResourceUpdatedNotificationParamsSchema, ResourceUpdatedNotificationSchema, PromptArgumentSchema, PromptSchema, ListPromptsRequestSchema, ListPromptsResultSchema, GetPromptRequestParamsSchema, GetPromptRequestSchema, TextContentSchema, ImageContentSchema, AudioContentSchema, ToolUseContentSchema, EmbeddedResourceSchema, ResourceLinkSchema, ContentBlockSchema, PromptMessageSchema, GetPromptResultSchema, PromptListChangedNotificationSchema, ToolAnnotationsSchema, ToolExecutionSchema, ToolSchema, ListToolsRequestSchema, ListToolsResultSchema, CallToolResultSchema, CompatibilityCallToolResultSchema, CallToolRequestParamsSchema, CallToolRequestSchema, ToolListChangedNotificationSchema, ListChangedOptionsBaseSchema, LoggingLevelSchema, SetLevelRequestParamsSchema, SetLevelRequestSchema, LoggingMessageNotificationParamsSchema, LoggingMessageNotificationSchema, ModelHintSchema, ModelPreferencesSchema, ToolChoiceSchema, ToolResultContentSchema, SamplingContentSchema, SamplingMessageContentBlockSchema, SamplingMessageSchema, CreateMessageRequestParamsSchema, CreateMessageRequestSchema, CreateMessageResultSchema, CreateMessageResultWithToolsSchema, BooleanSchemaSchema, StringSchemaSchema, NumberSchemaSchema, UntitledSingleSelectEnumSchemaSchema, TitledSingleSelectEnumSchemaSchema, LegacyTitledEnumSchemaSchema, SingleSelectEnumSchemaSchema, UntitledMultiSelectEnumSchemaSchema, TitledMultiSelectEnumSchemaSchema, MultiSelectEnumSchemaSchema, EnumSchemaSchema, PrimitiveSchemaDefinitionSchema, ElicitRequestFormParamsSchema, ElicitRequestURLParamsSchema, ElicitRequestParamsSchema, ElicitRequestSchema, ElicitationCompleteNotificationParamsSchema, ElicitationCompleteNotificationSchema, ElicitResultSchema, ResourceTemplateReferenceSchema, PromptReferenceSchema, CompleteRequestParamsSchema, CompleteRequestSchema, CompleteResultSchema, RootSchema, ListRootsRequestSchema, ListRootsResultSchema, RootsListChangedNotificationSchema, ClientRequestSchema, ClientNotificationSchema, ClientResultSchema, ServerRequestSchema, ServerNotificationSchema, ServerResultSchema, McpError, UrlElicitationRequiredError;
 var init_types2 = __esm({
-  "node_modules/@modelcontextprotocol/sdk/dist/esm/types.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js"() {
     init_v4();
     LATEST_PROTOCOL_VERSION = "2025-11-25";
     SUPPORTED_PROTOCOL_VERSIONS = [LATEST_PROTOCOL_VERSION, "2025-06-18", "2025-03-26", "2024-11-05", "2024-10-07"];
@@ -26500,19 +26630,19 @@ var init_types2 = __esm({
   }
 });
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js
 function isTerminal(status) {
   return status === "completed" || status === "failed" || status === "cancelled";
 }
 var init_interfaces = __esm({
-  "node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js"() {
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/Options.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/Options.js
 var ignoreOverride, defaultOptions, getDefaultOptions;
 var init_Options = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/Options.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/Options.js"() {
     ignoreOverride = /* @__PURE__ */ Symbol("Let zodToJsonSchema decide on which parser to use");
     defaultOptions = {
       name: void 0,
@@ -26548,10 +26678,10 @@ var init_Options = __esm({
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/Refs.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/Refs.js
 var getRefs;
 var init_Refs = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/Refs.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/Refs.js"() {
     init_Options();
     getRefs = (options) => {
       const _options = getDefaultOptions(options);
@@ -26575,7 +26705,7 @@ var init_Refs = __esm({
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/errorMessages.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/errorMessages.js
 function addErrorMessage(res, key, errorMessage, refs) {
   if (!refs?.errorMessages)
     return;
@@ -26591,14 +26721,14 @@ function setResponseValueAndErrors(res, key, value, errorMessage, refs) {
   addErrorMessage(res, key, errorMessage, refs);
 }
 var init_errorMessages = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/errorMessages.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/errorMessages.js"() {
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/getRelativePath.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/getRelativePath.js
 var getRelativePath;
 var init_getRelativePath = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/getRelativePath.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/getRelativePath.js"() {
     getRelativePath = (pathA, pathB) => {
       let i = 0;
       for (; i < pathA.length && i < pathB.length; i++) {
@@ -26610,7 +26740,7 @@ var init_getRelativePath = __esm({
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/any.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/any.js
 function parseAnyDef(refs) {
   if (refs.target !== "openAi") {
     return {};
@@ -26626,12 +26756,12 @@ function parseAnyDef(refs) {
   };
 }
 var init_any = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/parsers/any.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/any.js"() {
     init_getRelativePath();
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/array.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/array.js
 function parseArrayDef(def, refs) {
   const res = {
     type: "array"
@@ -26655,14 +26785,14 @@ function parseArrayDef(def, refs) {
   return res;
 }
 var init_array = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/parsers/array.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/array.js"() {
     init_v3();
     init_errorMessages();
     init_parseDef();
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/bigint.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/bigint.js
 function parseBigintDef(def, refs) {
   const res = {
     type: "integer",
@@ -26708,36 +26838,36 @@ function parseBigintDef(def, refs) {
   return res;
 }
 var init_bigint = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/parsers/bigint.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/bigint.js"() {
     init_errorMessages();
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/boolean.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/boolean.js
 function parseBooleanDef() {
   return {
     type: "boolean"
   };
 }
 var init_boolean = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/parsers/boolean.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/boolean.js"() {
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/branded.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/branded.js
 function parseBrandedDef(_def, refs) {
   return parseDef(_def.type._def, refs);
 }
 var init_branded = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/parsers/branded.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/branded.js"() {
     init_parseDef();
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/catch.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/catch.js
 var parseCatchDef;
 var init_catch = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/parsers/catch.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/catch.js"() {
     init_parseDef();
     parseCatchDef = (def, refs) => {
       return parseDef(def.innerType._def, refs);
@@ -26745,7 +26875,7 @@ var init_catch = __esm({
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/date.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/date.js
 function parseDateDef(def, refs, overrideDateStrategy) {
   const strategy = overrideDateStrategy ?? refs.dateStrategy;
   if (Array.isArray(strategy)) {
@@ -26771,7 +26901,7 @@ function parseDateDef(def, refs, overrideDateStrategy) {
 }
 var integerDateParser;
 var init_date = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/parsers/date.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/date.js"() {
     init_errorMessages();
     integerDateParser = (def, refs) => {
       const res = {
@@ -26810,7 +26940,7 @@ var init_date = __esm({
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/default.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/default.js
 function parseDefaultDef(_def, refs) {
   return {
     ...parseDef(_def.innerType._def, refs),
@@ -26818,23 +26948,23 @@ function parseDefaultDef(_def, refs) {
   };
 }
 var init_default = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/parsers/default.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/default.js"() {
     init_parseDef();
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/effects.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/effects.js
 function parseEffectsDef(_def, refs) {
   return refs.effectStrategy === "input" ? parseDef(_def.schema._def, refs) : parseAnyDef(refs);
 }
 var init_effects = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/parsers/effects.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/effects.js"() {
     init_parseDef();
     init_any();
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/enum.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/enum.js
 function parseEnumDef(def) {
   return {
     type: "string",
@@ -26842,11 +26972,11 @@ function parseEnumDef(def) {
   };
 }
 var init_enum = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/parsers/enum.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/enum.js"() {
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/intersection.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/intersection.js
 function parseIntersectionDef(def, refs) {
   const allOf = [
     parseDef(def.left._def, {
@@ -26884,7 +27014,7 @@ function parseIntersectionDef(def, refs) {
 }
 var isJsonSchema7AllOfType;
 var init_intersection = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/parsers/intersection.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/intersection.js"() {
     init_parseDef();
     isJsonSchema7AllOfType = (type) => {
       if ("type" in type && type.type === "string")
@@ -26894,7 +27024,7 @@ var init_intersection = __esm({
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/literal.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/literal.js
 function parseLiteralDef(def, refs) {
   const parsedType2 = typeof def.value;
   if (parsedType2 !== "bigint" && parsedType2 !== "number" && parsedType2 !== "boolean" && parsedType2 !== "string") {
@@ -26914,11 +27044,11 @@ function parseLiteralDef(def, refs) {
   };
 }
 var init_literal = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/parsers/literal.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/literal.js"() {
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/string.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/string.js
 function parseStringDef(def, refs) {
   const res = {
     type: "string"
@@ -27195,7 +27325,7 @@ function stringifyRegExpWithFlags(regex, refs) {
 }
 var emojiRegex2, zodPatterns, ALPHA_NUMERIC;
 var init_string = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/parsers/string.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/string.js"() {
     init_errorMessages();
     emojiRegex2 = void 0;
     zodPatterns = {
@@ -27249,7 +27379,7 @@ var init_string = __esm({
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/record.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/record.js
 function parseRecordDef(def, refs) {
   if (refs.target === "openAi") {
     console.warn("Warning: OpenAI may not support records in schemas! Try an array of key-value pairs instead.");
@@ -27301,7 +27431,7 @@ function parseRecordDef(def, refs) {
   return schema;
 }
 var init_record = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/parsers/record.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/record.js"() {
     init_v3();
     init_parseDef();
     init_string();
@@ -27310,7 +27440,7 @@ var init_record = __esm({
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/map.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/map.js
 function parseMapDef(def, refs) {
   if (refs.mapStrategy === "record") {
     return parseRecordDef(def, refs);
@@ -27335,14 +27465,14 @@ function parseMapDef(def, refs) {
   };
 }
 var init_map = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/parsers/map.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/map.js"() {
     init_parseDef();
     init_record();
     init_any();
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/nativeEnum.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/nativeEnum.js
 function parseNativeEnumDef(def) {
   const object3 = def.values;
   const actualKeys = Object.keys(def.values).filter((key) => {
@@ -27356,11 +27486,11 @@ function parseNativeEnumDef(def) {
   };
 }
 var init_nativeEnum = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/parsers/nativeEnum.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/nativeEnum.js"() {
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/never.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/never.js
 function parseNeverDef(refs) {
   return refs.target === "openAi" ? void 0 : {
     not: parseAnyDef({
@@ -27370,12 +27500,12 @@ function parseNeverDef(refs) {
   };
 }
 var init_never = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/parsers/never.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/never.js"() {
     init_any();
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/null.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/null.js
 function parseNullDef(refs) {
   return refs.target === "openApi3" ? {
     enum: ["null"],
@@ -27385,11 +27515,11 @@ function parseNullDef(refs) {
   };
 }
 var init_null = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/parsers/null.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/null.js"() {
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/union.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/union.js
 function parseUnionDef(def, refs) {
   if (refs.target === "openApi3")
     return asAnyOf(def, refs);
@@ -27444,7 +27574,7 @@ function parseUnionDef(def, refs) {
 }
 var primitiveMappings, asAnyOf;
 var init_union = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/parsers/union.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/union.js"() {
     init_parseDef();
     primitiveMappings = {
       ZodString: "string",
@@ -27463,7 +27593,7 @@ var init_union = __esm({
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js
 function parseNullableDef(def, refs) {
   if (["ZodString", "ZodNumber", "ZodBigInt", "ZodBoolean", "ZodNull"].includes(def.innerType._def.typeName) && (!def.innerType._def.checks || !def.innerType._def.checks.length)) {
     if (refs.target === "openApi3") {
@@ -27495,13 +27625,13 @@ function parseNullableDef(def, refs) {
   return base && { anyOf: [base, { type: "null" }] };
 }
 var init_nullable = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js"() {
     init_parseDef();
     init_union();
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/number.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/number.js
 function parseNumberDef(def, refs) {
   const res = {
     type: "number"
@@ -27550,12 +27680,12 @@ function parseNumberDef(def, refs) {
   return res;
 }
 var init_number = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/parsers/number.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/number.js"() {
     init_errorMessages();
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/object.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/object.js
 function parseObjectDef(def, refs) {
   const forceOptionalIntoNullable = refs.target === "openAi";
   const result = {
@@ -27625,15 +27755,15 @@ function safeIsOptional(schema) {
   }
 }
 var init_object = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/parsers/object.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/object.js"() {
     init_parseDef();
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/optional.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/optional.js
 var parseOptionalDef;
 var init_optional = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/parsers/optional.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/optional.js"() {
     init_parseDef();
     init_any();
     parseOptionalDef = (def, refs) => {
@@ -27656,10 +27786,10 @@ var init_optional = __esm({
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/pipeline.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/pipeline.js
 var parsePipelineDef;
 var init_pipeline = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/parsers/pipeline.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/pipeline.js"() {
     init_parseDef();
     parsePipelineDef = (def, refs) => {
       if (refs.pipeStrategy === "input") {
@@ -27682,17 +27812,17 @@ var init_pipeline = __esm({
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/promise.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/promise.js
 function parsePromiseDef(def, refs) {
   return parseDef(def.type._def, refs);
 }
 var init_promise = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/parsers/promise.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/promise.js"() {
     init_parseDef();
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/set.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/set.js
 function parseSetDef(def, refs) {
   const items = parseDef(def.valueType._def, {
     ...refs,
@@ -27712,13 +27842,13 @@ function parseSetDef(def, refs) {
   return schema;
 }
 var init_set = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/parsers/set.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/set.js"() {
     init_errorMessages();
     init_parseDef();
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/tuple.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/tuple.js
 function parseTupleDef(def, refs) {
   if (def.rest) {
     return {
@@ -27746,37 +27876,37 @@ function parseTupleDef(def, refs) {
   }
 }
 var init_tuple = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/parsers/tuple.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/tuple.js"() {
     init_parseDef();
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/undefined.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/undefined.js
 function parseUndefinedDef(refs) {
   return {
     not: parseAnyDef(refs)
   };
 }
 var init_undefined = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/parsers/undefined.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/undefined.js"() {
     init_any();
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/unknown.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/unknown.js
 function parseUnknownDef(refs) {
   return parseAnyDef(refs);
 }
 var init_unknown = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/parsers/unknown.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/unknown.js"() {
     init_any();
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/readonly.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/readonly.js
 var parseReadonlyDef;
 var init_readonly = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/parsers/readonly.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parsers/readonly.js"() {
     init_parseDef();
     parseReadonlyDef = (def, refs) => {
       return parseDef(def.innerType._def, refs);
@@ -27784,10 +27914,10 @@ var init_readonly = __esm({
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/selectParser.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/selectParser.js
 var selectParser;
 var init_selectParser = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/selectParser.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/selectParser.js"() {
     init_v3();
     init_any();
     init_array();
@@ -27896,7 +28026,7 @@ var init_selectParser = __esm({
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/parseDef.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parseDef.js
 function parseDef(def, refs, forceResolution = false) {
   const seenItem = refs.seen.get(def);
   if (refs.override) {
@@ -27928,7 +28058,7 @@ function parseDef(def, refs, forceResolution = false) {
 }
 var get$ref, addMeta;
 var init_parseDef = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/parseDef.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parseDef.js"() {
     init_Options();
     init_selectParser();
     init_getRelativePath();
@@ -27961,16 +28091,16 @@ var init_parseDef = __esm({
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/parseTypes.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parseTypes.js
 var init_parseTypes = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/parseTypes.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/parseTypes.js"() {
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/zodToJsonSchema.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/zodToJsonSchema.js
 var zodToJsonSchema;
 var init_zodToJsonSchema = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/zodToJsonSchema.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/zodToJsonSchema.js"() {
     init_parseDef();
     init_Refs();
     init_any();
@@ -28037,9 +28167,9 @@ var init_zodToJsonSchema = __esm({
   }
 });
 
-// node_modules/zod-to-json-schema/dist/esm/index.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/index.js
 var init_esm = __esm({
-  "node_modules/zod-to-json-schema/dist/esm/index.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/zod-to-json-schema/dist/esm/index.js"() {
     init_Options();
     init_Refs();
     init_errorMessages();
@@ -28082,7 +28212,7 @@ var init_esm = __esm({
   }
 });
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
 function mapMiniTarget(t) {
   if (!t)
     return "draft-7";
@@ -28124,14 +28254,14 @@ function parseWithCompat(schema, data) {
   return result.data;
 }
 var init_zod_json_schema_compat = __esm({
-  "node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js"() {
     init_v4_mini();
     init_zod_compat();
     init_esm();
   }
 });
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
 function isPlainObject2(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
@@ -28153,7 +28283,7 @@ function mergeCapabilities(base, additional) {
 }
 var DEFAULT_REQUEST_TIMEOUT_MSEC, Protocol;
 var init_protocol = __esm({
-  "node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js"() {
     init_zod_compat();
     init_types2();
     init_interfaces();
@@ -29094,9 +29224,9 @@ var init_protocol = __esm({
   }
 });
 
-// node_modules/ajv/dist/compile/codegen/code.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/codegen/code.js
 var require_code = __commonJS({
-  "node_modules/ajv/dist/compile/codegen/code.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/codegen/code.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.regexpCode = exports.getEsmExportName = exports.getProperty = exports.safeStringify = exports.stringify = exports.strConcat = exports.addCodeArg = exports.str = exports._ = exports.nil = exports._Code = exports.Name = exports.IDENTIFIER = exports._CodeOrName = void 0;
@@ -29248,9 +29378,9 @@ var require_code = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/codegen/scope.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/codegen/scope.js
 var require_scope = __commonJS({
-  "node_modules/ajv/dist/compile/codegen/scope.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/codegen/scope.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.ValueScope = exports.ValueScopeName = exports.Scope = exports.varKinds = exports.UsedValueState = void 0;
@@ -29393,9 +29523,9 @@ var require_scope = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/codegen/index.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/codegen/index.js
 var require_codegen = __commonJS({
-  "node_modules/ajv/dist/compile/codegen/index.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/codegen/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.or = exports.and = exports.not = exports.CodeGen = exports.operators = exports.varKinds = exports.ValueScopeName = exports.ValueScope = exports.Scope = exports.Name = exports.regexpCode = exports.stringify = exports.getProperty = exports.nil = exports.strConcat = exports.str = exports._ = void 0;
@@ -30113,9 +30243,9 @@ var require_codegen = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/util.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/util.js
 var require_util = __commonJS({
-  "node_modules/ajv/dist/compile/util.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/util.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.checkStrictMode = exports.getErrorPath = exports.Type = exports.useFunc = exports.setEvaluated = exports.evaluatedPropsToName = exports.mergeEvaluated = exports.eachItem = exports.unescapeJsonPointer = exports.escapeJsonPointer = exports.escapeFragment = exports.unescapeFragment = exports.schemaRefOrVal = exports.schemaHasRulesButRef = exports.schemaHasRules = exports.checkUnknownRules = exports.alwaysValidSchema = exports.toHash = void 0;
@@ -30280,9 +30410,9 @@ var require_util = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/names.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/names.js
 var require_names = __commonJS({
-  "node_modules/ajv/dist/compile/names.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/names.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -30319,9 +30449,9 @@ var require_names = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/errors.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/errors.js
 var require_errors = __commonJS({
-  "node_modules/ajv/dist/compile/errors.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/errors.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.extendErrors = exports.resetErrorsCount = exports.reportExtraError = exports.reportError = exports.keyword$DataError = exports.keywordError = void 0;
@@ -30441,9 +30571,9 @@ var require_errors = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/boolSchema.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/validate/boolSchema.js
 var require_boolSchema = __commonJS({
-  "node_modules/ajv/dist/compile/validate/boolSchema.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/validate/boolSchema.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.boolOrEmptySchema = exports.topBoolOrEmptySchema = void 0;
@@ -30492,9 +30622,9 @@ var require_boolSchema = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/rules.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/rules.js
 var require_rules = __commonJS({
-  "node_modules/ajv/dist/compile/rules.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/rules.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getRules = exports.isJSONType = void 0;
@@ -30523,9 +30653,9 @@ var require_rules = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/applicability.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/validate/applicability.js
 var require_applicability = __commonJS({
-  "node_modules/ajv/dist/compile/validate/applicability.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/validate/applicability.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.shouldUseRule = exports.shouldUseGroup = exports.schemaHasRulesForType = void 0;
@@ -30546,9 +30676,9 @@ var require_applicability = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/dataType.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/validate/dataType.js
 var require_dataType = __commonJS({
-  "node_modules/ajv/dist/compile/validate/dataType.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/validate/dataType.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.reportTypeError = exports.checkDataTypes = exports.checkDataType = exports.coerceAndCheckDataType = exports.getJSONTypes = exports.getSchemaTypes = exports.DataType = void 0;
@@ -30730,9 +30860,9 @@ var require_dataType = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/defaults.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/validate/defaults.js
 var require_defaults = __commonJS({
-  "node_modules/ajv/dist/compile/validate/defaults.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/validate/defaults.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.assignDefaults = void 0;
@@ -30767,9 +30897,9 @@ var require_defaults = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/code.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/code.js
 var require_code2 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/code.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/code.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateUnion = exports.validateArray = exports.usePattern = exports.callValidateCode = exports.schemaProperties = exports.allSchemaProperties = exports.noPropertyInData = exports.propertyInData = exports.isOwnProperty = exports.hasPropFunc = exports.reportMissingProp = exports.checkMissingProp = exports.checkReportMissingProp = void 0;
@@ -30900,9 +31030,9 @@ var require_code2 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/keyword.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/validate/keyword.js
 var require_keyword = __commonJS({
-  "node_modules/ajv/dist/compile/validate/keyword.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/validate/keyword.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateKeywordUsage = exports.validSchemaType = exports.funcKeywordCode = exports.macroKeywordCode = void 0;
@@ -31018,9 +31148,9 @@ var require_keyword = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/subschema.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/validate/subschema.js
 var require_subschema = __commonJS({
-  "node_modules/ajv/dist/compile/validate/subschema.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/validate/subschema.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.extendSubschemaMode = exports.extendSubschemaData = exports.getSubschema = void 0;
@@ -31101,9 +31231,9 @@ var require_subschema = __commonJS({
   }
 });
 
-// node_modules/fast-deep-equal/index.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/fast-deep-equal/index.js
 var require_fast_deep_equal = __commonJS({
-  "node_modules/fast-deep-equal/index.js"(exports, module) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/fast-deep-equal/index.js"(exports, module) {
     "use strict";
     module.exports = function equal(a, b) {
       if (a === b) return true;
@@ -31136,9 +31266,9 @@ var require_fast_deep_equal = __commonJS({
   }
 });
 
-// node_modules/json-schema-traverse/index.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/json-schema-traverse/index.js
 var require_json_schema_traverse = __commonJS({
-  "node_modules/json-schema-traverse/index.js"(exports, module) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/json-schema-traverse/index.js"(exports, module) {
     "use strict";
     var traverse = module.exports = function(schema, opts, cb) {
       if (typeof opts == "function") {
@@ -31224,9 +31354,9 @@ var require_json_schema_traverse = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/resolve.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/resolve.js
 var require_resolve = __commonJS({
-  "node_modules/ajv/dist/compile/resolve.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/resolve.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getSchemaRefs = exports.resolveUrl = exports.normalizeId = exports._getFullPath = exports.getFullPath = exports.inlineRef = void 0;
@@ -31380,9 +31510,9 @@ var require_resolve = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/index.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/validate/index.js
 var require_validate = __commonJS({
-  "node_modules/ajv/dist/compile/validate/index.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/validate/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getData = exports.KeywordCxt = exports.validateFunctionCode = void 0;
@@ -31888,9 +32018,9 @@ var require_validate = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/runtime/validation_error.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/runtime/validation_error.js
 var require_validation_error = __commonJS({
-  "node_modules/ajv/dist/runtime/validation_error.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/runtime/validation_error.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var ValidationError = class extends Error {
@@ -31904,9 +32034,9 @@ var require_validation_error = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/ref_error.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/ref_error.js
 var require_ref_error = __commonJS({
-  "node_modules/ajv/dist/compile/ref_error.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/ref_error.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var resolve_1 = require_resolve();
@@ -31921,9 +32051,9 @@ var require_ref_error = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/index.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/index.js
 var require_compile = __commonJS({
-  "node_modules/ajv/dist/compile/index.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/compile/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.resolveSchema = exports.getCompilingSchema = exports.resolveRef = exports.compileSchema = exports.SchemaEnv = void 0;
@@ -32145,9 +32275,9 @@ var require_compile = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/refs/data.json
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/refs/data.json
 var require_data = __commonJS({
-  "node_modules/ajv/dist/refs/data.json"(exports, module) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/refs/data.json"(exports, module) {
     module.exports = {
       $id: "https://raw.githubusercontent.com/ajv-validator/ajv/master/lib/refs/data.json#",
       description: "Meta-schema for $data reference (JSON AnySchema extension proposal)",
@@ -32164,9 +32294,9 @@ var require_data = __commonJS({
   }
 });
 
-// node_modules/ajv/node_modules/fast-uri/lib/utils.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/node_modules/fast-uri/lib/utils.js
 var require_utils = __commonJS({
-  "node_modules/ajv/node_modules/fast-uri/lib/utils.js"(exports, module) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/node_modules/fast-uri/lib/utils.js"(exports, module) {
     "use strict";
     var isUUID = RegExp.prototype.test.bind(/^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/iu);
     var isIPv4 = RegExp.prototype.test.bind(/^(?:(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]\d|\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]\d|\d)$/u);
@@ -32666,9 +32796,9 @@ var require_utils = __commonJS({
   }
 });
 
-// node_modules/ajv/node_modules/fast-uri/lib/schemes.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/node_modules/fast-uri/lib/schemes.js
 var require_schemes = __commonJS({
-  "node_modules/ajv/node_modules/fast-uri/lib/schemes.js"(exports, module) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/node_modules/fast-uri/lib/schemes.js"(exports, module) {
     "use strict";
     var { isUUID } = require_utils();
     var URN_REG = /^([\da-z][\d\-a-z]{0,31}):((?:[\w!$'()*+,\-./:;=@]|%[\da-f]{2})+)$/iu;
@@ -32877,9 +33007,9 @@ var require_schemes = __commonJS({
   }
 });
 
-// node_modules/ajv/node_modules/fast-uri/index.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/node_modules/fast-uri/index.js
 var require_fast_uri = __commonJS({
-  "node_modules/ajv/node_modules/fast-uri/index.js"(exports, module) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/node_modules/fast-uri/index.js"(exports, module) {
     "use strict";
     var { normalizeIPv6, removeDotSegments, recomposeAuthority, normalizePercentEncoding, normalizePathEncoding, serializePathEncoding, normalizeQueryFragmentEncoding, encodeQuery, encodeFragment, reescapeHostDelimiters, isIPv4, nonSimpleDomain } = require_utils();
     var { SCHEMES, getSchemeHandler } = require_schemes();
@@ -33283,9 +33413,9 @@ var require_fast_uri = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/runtime/uri.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/runtime/uri.js
 var require_uri = __commonJS({
-  "node_modules/ajv/dist/runtime/uri.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/runtime/uri.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var uri = require_fast_uri();
@@ -33294,9 +33424,9 @@ var require_uri = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/core.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/core.js
 var require_core = __commonJS({
-  "node_modules/ajv/dist/core.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/core.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.CodeGen = exports.Name = exports.nil = exports.stringify = exports.str = exports._ = exports.KeywordCxt = void 0;
@@ -33905,9 +34035,9 @@ var require_core = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/core/id.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/core/id.js
 var require_id = __commonJS({
-  "node_modules/ajv/dist/vocabularies/core/id.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/core/id.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var def = {
@@ -33920,9 +34050,9 @@ var require_id = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/core/ref.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/core/ref.js
 var require_ref = __commonJS({
-  "node_modules/ajv/dist/vocabularies/core/ref.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/core/ref.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.callRef = exports.getValidate = void 0;
@@ -34042,9 +34172,9 @@ var require_ref = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/core/index.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/core/index.js
 var require_core2 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/core/index.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/core/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var id_1 = require_id();
@@ -34063,9 +34193,9 @@ var require_core2 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/limitNumber.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/validation/limitNumber.js
 var require_limitNumber = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/limitNumber.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/validation/limitNumber.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -34095,9 +34225,9 @@ var require_limitNumber = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/multipleOf.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/validation/multipleOf.js
 var require_multipleOf = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/multipleOf.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/validation/multipleOf.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -34123,9 +34253,9 @@ var require_multipleOf = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/runtime/ucs2length.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/runtime/ucs2length.js
 var require_ucs2length = __commonJS({
-  "node_modules/ajv/dist/runtime/ucs2length.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/runtime/ucs2length.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     function ucs2length(str) {
@@ -34149,9 +34279,9 @@ var require_ucs2length = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/limitLength.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/validation/limitLength.js
 var require_limitLength = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/limitLength.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/validation/limitLength.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -34181,9 +34311,9 @@ var require_limitLength = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/pattern.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/validation/pattern.js
 var require_pattern = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/pattern.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/validation/pattern.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
@@ -34218,9 +34348,9 @@ var require_pattern = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/limitProperties.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/validation/limitProperties.js
 var require_limitProperties = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/limitProperties.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/validation/limitProperties.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -34247,9 +34377,9 @@ var require_limitProperties = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/required.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/validation/required.js
 var require_required = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/required.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/validation/required.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
@@ -34329,9 +34459,9 @@ var require_required = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/limitItems.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/validation/limitItems.js
 var require_limitItems = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/limitItems.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/validation/limitItems.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -34358,9 +34488,9 @@ var require_limitItems = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/runtime/equal.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/runtime/equal.js
 var require_equal = __commonJS({
-  "node_modules/ajv/dist/runtime/equal.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/runtime/equal.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var equal = require_fast_deep_equal();
@@ -34369,9 +34499,9 @@ var require_equal = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/uniqueItems.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/validation/uniqueItems.js
 var require_uniqueItems = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/uniqueItems.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/validation/uniqueItems.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var dataType_1 = require_dataType();
@@ -34436,9 +34566,9 @@ var require_uniqueItems = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/const.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/validation/const.js
 var require_const = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/const.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/validation/const.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -34465,9 +34595,9 @@ var require_const = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/enum.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/validation/enum.js
 var require_enum = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/enum.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/validation/enum.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -34514,9 +34644,9 @@ var require_enum = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/index.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/validation/index.js
 var require_validation = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/index.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/validation/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var limitNumber_1 = require_limitNumber();
@@ -34552,9 +34682,9 @@ var require_validation = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/additionalItems.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/additionalItems.js
 var require_additionalItems = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/additionalItems.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/additionalItems.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateAdditionalItems = void 0;
@@ -34605,9 +34735,9 @@ var require_additionalItems = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/items.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/items.js
 var require_items = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/items.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/items.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateTuple = void 0;
@@ -34662,9 +34792,9 @@ var require_items = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/prefixItems.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/prefixItems.js
 var require_prefixItems = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/prefixItems.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/prefixItems.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var items_1 = require_items();
@@ -34679,9 +34809,9 @@ var require_prefixItems = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/items2020.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/items2020.js
 var require_items2020 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/items2020.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/items2020.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -34714,9 +34844,9 @@ var require_items2020 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/contains.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/contains.js
 var require_contains = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/contains.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/contains.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -34808,9 +34938,9 @@ var require_contains = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/dependencies.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/dependencies.js
 var require_dependencies = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/dependencies.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/dependencies.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateSchemaDeps = exports.validatePropertyDeps = exports.error = void 0;
@@ -34902,9 +35032,9 @@ var require_dependencies = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/propertyNames.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/propertyNames.js
 var require_propertyNames = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/propertyNames.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/propertyNames.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -34945,9 +35075,9 @@ var require_propertyNames = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js
 var require_additionalProperties = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
@@ -35051,9 +35181,9 @@ var require_additionalProperties = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/properties.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/properties.js
 var require_properties = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/properties.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/properties.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var validate_1 = require_validate();
@@ -35109,9 +35239,9 @@ var require_properties = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/patternProperties.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/patternProperties.js
 var require_patternProperties = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/patternProperties.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/patternProperties.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
@@ -35183,9 +35313,9 @@ var require_patternProperties = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/not.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/not.js
 var require_not = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/not.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/not.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var util_1 = require_util();
@@ -35214,9 +35344,9 @@ var require_not = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/anyOf.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/anyOf.js
 var require_anyOf = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/anyOf.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/anyOf.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
@@ -35231,9 +35361,9 @@ var require_anyOf = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/oneOf.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/oneOf.js
 var require_oneOf = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/oneOf.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/oneOf.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -35289,9 +35419,9 @@ var require_oneOf = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/allOf.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/allOf.js
 var require_allOf = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/allOf.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/allOf.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var util_1 = require_util();
@@ -35316,9 +35446,9 @@ var require_allOf = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/if.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/if.js
 var require_if = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/if.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/if.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -35385,9 +35515,9 @@ var require_if = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/thenElse.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/thenElse.js
 var require_thenElse = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/thenElse.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/thenElse.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var util_1 = require_util();
@@ -35403,9 +35533,9 @@ var require_thenElse = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/index.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/index.js
 var require_applicator = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/index.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/applicator/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var additionalItems_1 = require_additionalItems();
@@ -35451,9 +35581,9 @@ var require_applicator = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/format/format.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/format/format.js
 var require_format = __commonJS({
-  "node_modules/ajv/dist/vocabularies/format/format.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/format/format.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -35541,9 +35671,9 @@ var require_format = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/format/index.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/format/index.js
 var require_format2 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/format/index.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/format/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var format_1 = require_format();
@@ -35552,9 +35682,9 @@ var require_format2 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/metadata.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/metadata.js
 var require_metadata = __commonJS({
-  "node_modules/ajv/dist/vocabularies/metadata.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/metadata.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.contentVocabulary = exports.metadataVocabulary = void 0;
@@ -35575,9 +35705,9 @@ var require_metadata = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/draft7.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/draft7.js
 var require_draft7 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/draft7.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/draft7.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var core_1 = require_core2();
@@ -35597,9 +35727,9 @@ var require_draft7 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/discriminator/types.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/discriminator/types.js
 var require_types = __commonJS({
-  "node_modules/ajv/dist/vocabularies/discriminator/types.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/discriminator/types.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.DiscrError = void 0;
@@ -35611,9 +35741,9 @@ var require_types = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/discriminator/index.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/discriminator/index.js
 var require_discriminator = __commonJS({
-  "node_modules/ajv/dist/vocabularies/discriminator/index.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/vocabularies/discriminator/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -35716,9 +35846,9 @@ var require_discriminator = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/refs/json-schema-draft-07.json
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/refs/json-schema-draft-07.json
 var require_json_schema_draft_07 = __commonJS({
-  "node_modules/ajv/dist/refs/json-schema-draft-07.json"(exports, module) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/refs/json-schema-draft-07.json"(exports, module) {
     module.exports = {
       $schema: "http://json-schema.org/draft-07/schema#",
       $id: "http://json-schema.org/draft-07/schema#",
@@ -35873,9 +36003,9 @@ var require_json_schema_draft_07 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/ajv.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/ajv.js
 var require_ajv = __commonJS({
-  "node_modules/ajv/dist/ajv.js"(exports, module) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv/dist/ajv.js"(exports, module) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.MissingRefError = exports.ValidationError = exports.CodeGen = exports.Name = exports.nil = exports.stringify = exports.str = exports._ = exports.KeywordCxt = exports.Ajv = void 0;
@@ -35943,9 +36073,9 @@ var require_ajv = __commonJS({
   }
 });
 
-// node_modules/ajv-formats/dist/formats.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv-formats/dist/formats.js
 var require_formats = __commonJS({
-  "node_modules/ajv-formats/dist/formats.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv-formats/dist/formats.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.formatNames = exports.fastFormats = exports.fullFormats = void 0;
@@ -36146,9 +36276,9 @@ var require_formats = __commonJS({
   }
 });
 
-// node_modules/ajv-formats/dist/limit.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv-formats/dist/limit.js
 var require_limit = __commonJS({
-  "node_modules/ajv-formats/dist/limit.js"(exports) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv-formats/dist/limit.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.formatLimitDefinition = void 0;
@@ -36218,9 +36348,9 @@ var require_limit = __commonJS({
   }
 });
 
-// node_modules/ajv-formats/dist/index.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv-formats/dist/index.js
 var require_dist = __commonJS({
-  "node_modules/ajv-formats/dist/index.js"(exports, module) {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/ajv-formats/dist/index.js"(exports, module) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var formats_1 = require_formats();
@@ -36260,7 +36390,7 @@ var require_dist = __commonJS({
   }
 });
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js
 function createDefaultAjvInstance() {
   const ajv = new import_ajv.default({
     strict: false,
@@ -36274,7 +36404,7 @@ function createDefaultAjvInstance() {
 }
 var import_ajv, import_ajv_formats, AjvJsonSchemaValidator;
 var init_ajv_provider = __esm({
-  "node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js"() {
     import_ajv = __toESM(require_ajv(), 1);
     import_ajv_formats = __toESM(require_dist(), 1);
     AjvJsonSchemaValidator = class {
@@ -36333,10 +36463,10 @@ var init_ajv_provider = __esm({
   }
 });
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js
 var ExperimentalServerTasks;
 var init_server = __esm({
-  "node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js"() {
     init_types2();
     ExperimentalServerTasks = class {
       constructor(_server) {
@@ -36552,7 +36682,7 @@ var init_server = __esm({
   }
 });
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js
 function assertToolsCallTaskCapability(requests, method, entityName) {
   if (!requests) {
     throw new Error(`${entityName} does not support task creation (required for ${method})`);
@@ -36587,14 +36717,14 @@ function assertClientRequestTaskCapability(requests, method, entityName) {
   }
 }
 var init_helpers = __esm({
-  "node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js"() {
   }
 });
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
 var Server;
 var init_server2 = __esm({
-  "node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js"() {
     init_protocol();
     init_types2();
     init_ajv_provider();
@@ -36973,7 +37103,7 @@ var init_server2 = __esm({
   }
 });
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/completable.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/@modelcontextprotocol/sdk/dist/esm/server/completable.js
 function isCompletable(schema) {
   return !!schema && typeof schema === "object" && COMPLETABLE_SYMBOL in schema;
 }
@@ -36983,7 +37113,7 @@ function getCompleter(schema) {
 }
 var COMPLETABLE_SYMBOL, McpZodTypeKind;
 var init_completable = __esm({
-  "node_modules/@modelcontextprotocol/sdk/dist/esm/server/completable.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/@modelcontextprotocol/sdk/dist/esm/server/completable.js"() {
     COMPLETABLE_SYMBOL = /* @__PURE__ */ Symbol.for("mcp.completable");
     (function(McpZodTypeKind2) {
       McpZodTypeKind2["Completable"] = "McpCompletable";
@@ -36991,13 +37121,13 @@ var init_completable = __esm({
   }
 });
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/uriTemplate.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/uriTemplate.js
 var init_uriTemplate = __esm({
-  "node_modules/@modelcontextprotocol/sdk/dist/esm/shared/uriTemplate.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/uriTemplate.js"() {
   }
 });
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/toolNameValidation.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/toolNameValidation.js
 function validateToolName(name) {
   const warnings = [];
   if (name.length === 0) {
@@ -37055,15 +37185,15 @@ function validateAndWarnToolName(name) {
 }
 var TOOL_NAME_REGEX;
 var init_toolNameValidation = __esm({
-  "node_modules/@modelcontextprotocol/sdk/dist/esm/shared/toolNameValidation.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/toolNameValidation.js"() {
     TOOL_NAME_REGEX = /^[A-Za-z0-9._-]{1,128}$/;
   }
 });
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/mcp-server.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/mcp-server.js
 var ExperimentalMcpServerTasks;
 var init_mcp_server = __esm({
-  "node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/mcp-server.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/mcp-server.js"() {
     ExperimentalMcpServerTasks = class {
       constructor(_mcpServer) {
         this._mcpServer = _mcpServer;
@@ -37080,7 +37210,7 @@ var init_mcp_server = __esm({
   }
 });
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
 function isZodTypeLike(value) {
   return value !== null && typeof value === "object" && "parse" in value && typeof value.parse === "function" && "safeParse" in value && typeof value.safeParse === "function";
 }
@@ -37148,7 +37278,7 @@ function createCompletionResult(suggestions) {
 }
 var McpServer, EMPTY_OBJECT_JSON_SCHEMA, EMPTY_COMPLETION_RESULT;
 var init_mcp = __esm({
-  "node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js"() {
     init_server2();
     init_zod_compat();
     init_zod_json_schema_compat();
@@ -37886,7 +38016,7 @@ var init_mcp = __esm({
   }
 });
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/stdio.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/stdio.js
 function deserializeMessage(line) {
   return JSONRPCMessageSchema.parse(JSON.parse(line));
 }
@@ -37895,7 +38025,7 @@ function serializeMessage(message) {
 }
 var STDIO_DEFAULT_MAX_BUFFER_SIZE, ReadBuffer;
 var init_stdio = __esm({
-  "node_modules/@modelcontextprotocol/sdk/dist/esm/shared/stdio.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/stdio.js"() {
     init_types2();
     STDIO_DEFAULT_MAX_BUFFER_SIZE = 10 * 1024 * 1024;
     ReadBuffer = class {
@@ -37929,11 +38059,11 @@ var init_stdio = __esm({
   }
 });
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
+// ../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
 import process2 from "node:process";
 var StdioServerTransport;
 var init_stdio2 = __esm({
-  "node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js"() {
+  "../../../Users/hieu/WebstormProjects/stitch-local-skill/node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js"() {
     init_stdio();
     StdioServerTransport = class {
       constructor(_stdin = process2.stdin, _stdout = process2.stdout, options) {
@@ -38022,6 +38152,9 @@ async function runTool(operation) {
 }
 function createMcpServer(workspace) {
   const server = new McpServer({ name: "local-design-canvas", version: "0.1.0" });
+  const projectPath2 = (project) => `/api/projects/${encodeURIComponent(project)}`;
+  const requestJson = (path, method, body) => managementRequest(workspace, path, { method, headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+  const currentRevision2 = async (project) => (await managementRequest(workspace, projectPath2(project))).revision;
   server.registerTool("canvas_status", {
     title: "Canvas status",
     description: "Report whether the local canvas runtime is running for the workspace.",
@@ -38046,6 +38179,25 @@ function createMcpServer(workspace) {
     await ensureServer(workspace);
     return managementRequest(workspace, "/api/projects", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ id, name }) });
   }));
+  server.registerTool("project_rename", {
+    title: "Rename project",
+    description: "Change a project display name. The id, directory and every screen path stay the same.",
+    inputSchema: { project: external_exports.string(), name: external_exports.string() }
+  }, async ({ project, name }) => runTool(async () => {
+    await ensureServer(workspace);
+    return requestJson(projectPath2(project), "PATCH", { name, expectedRevision: await currentRevision2(project) });
+  }));
+  server.registerTool("project_delete", {
+    title: "Delete project",
+    description: "Delete a project and everything under it: every screen, its snapshot history and its prototypes. There is no undo and no trash, so pass dryRun to see exactly what would be removed first. Deleting the project the user is currently viewing also closes it in the canvas.",
+    inputSchema: { project: external_exports.string(), dryRun: external_exports.boolean().optional(), expectedRevision: external_exports.number().int().nonnegative().optional() }
+  }, async ({ project, dryRun, expectedRevision }) => runTool(async () => {
+    await ensureServer(workspace);
+    return requestJson(projectPath2(project), "DELETE", {
+      expectedRevision: expectedRevision ?? await currentRevision2(project),
+      dryRun
+    });
+  }));
   server.registerTool("screen_list", {
     title: "List screens",
     description: "List the screens of a project.",
@@ -38068,6 +38220,47 @@ function createMcpServer(workspace) {
       body: JSON.stringify({ id, name, width, height, expectedRevision: current.revision })
     });
   }));
+  server.registerTool("screen_update", {
+    title: "Move or resize screens",
+    description: "Move or resize screens on the canvas. x and y are canvas coordinates, width and height are CSS pixels. Omit a field to leave it unchanged. Reads the current revision unless expectedRevision is given, in which case a stale write is rejected instead of applied.",
+    inputSchema: { project: external_exports.string(), screens: external_exports.array(screenLayoutPatchSchema).min(1), expectedRevision: external_exports.number().int().nonnegative().optional() }
+  }, async ({ project, screens, expectedRevision }) => runTool(async () => {
+    await ensureServer(workspace);
+    return requestJson(`${projectPath2(project)}/layout`, "PATCH", {
+      patches: screens,
+      expectedRevision: expectedRevision ?? await currentRevision2(project)
+    });
+  }));
+  server.registerTool("screen_duplicate", {
+    title: "Duplicate screen",
+    description: "Copy a screen and its entry file under a new id, placed next to the original. Use it to explore a variant without touching the screen the user is looking at.",
+    inputSchema: { project: external_exports.string(), screen: external_exports.string(), newId: external_exports.string() }
+  }, async ({ project, screen, newId }) => runTool(async () => {
+    await ensureServer(workspace);
+    return requestJson(`${projectPath2(project)}/screens/${encodeURIComponent(screen)}/duplicate`, "POST", { newId });
+  }));
+  server.registerTool("screen_delete", {
+    title: "Delete screens",
+    description: "Delete one or more screens and their files. A project must keep at least one screen. Deletion is permanent; snapshots taken before it are the only way back.",
+    inputSchema: { project: external_exports.string(), screens: external_exports.array(external_exports.string()).min(1), expectedRevision: external_exports.number().int().nonnegative().optional() }
+  }, async ({ project, screens, expectedRevision }) => runTool(async () => {
+    await ensureServer(workspace);
+    return requestJson(`${projectPath2(project)}/screens`, "DELETE", {
+      screenIds: screens,
+      expectedRevision: expectedRevision ?? await currentRevision2(project)
+    });
+  }));
+  server.registerTool("screen_rename", {
+    title: "Rename screen",
+    description: "Change a screen display name. The id, directory and entry path stay the same.",
+    inputSchema: { project: external_exports.string(), screen: external_exports.string(), name: external_exports.string(), expectedRevision: external_exports.number().int().nonnegative().optional() }
+  }, async ({ project, screen, name, expectedRevision }) => runTool(async () => {
+    await ensureServer(workspace);
+    return requestJson(`${projectPath2(project)}/screens/${encodeURIComponent(screen)}`, "PATCH", {
+      name,
+      expectedRevision: expectedRevision ?? await currentRevision2(project)
+    });
+  }));
   server.registerTool("screen_capture", {
     title: "Capture screen",
     description: "Render a screen preview to a PNG and return its path and any render errors.",
@@ -38075,6 +38268,67 @@ function createMcpServer(workspace) {
   }, async ({ project, screen }) => runTool(async () => {
     await ensureServer(workspace);
     return managementRequest(workspace, `/api/projects/${encodeURIComponent(project)}/screens/${encodeURIComponent(screen)}/capture`, { method: "POST" });
+  }));
+  server.registerTool("image_diff", {
+    title: "Diff two screen images",
+    description: 'Compare two PNGs from the project pixel by pixel and return the changed-pixel count, percent, and bounding boxes of changed regions, plus a red-on-grey overlay PNG. Each side is either a path inside the project (the imagePath a screenshot returned, relative to the project root) or "live:<screen-id>" to capture the current preview first. Use it after editing to confirm what actually changed: diff the pre-edit capture against live:<screen> instead of judging the edit by eye.',
+    inputSchema: {
+      project: external_exports.string(),
+      base: external_exports.string().min(1),
+      target: external_exports.string().min(1),
+      threshold: external_exports.number().min(0).max(1).optional()
+    }
+  }, async ({ project, base, target, threshold }) => runTool(async () => {
+    await ensureServer(workspace);
+    return requestJson(`${projectPath2(project)}/image-diff`, "POST", { base, target, threshold });
+  }));
+  server.registerTool("figma_export", {
+    title: "Export screen for Figma",
+    description: "Render a screen in a headless browser and extract its element tree, layout, styles and text as structured JSON that can be pasted into Figma. Runs a browser on the local machine.",
+    inputSchema: { project: external_exports.string(), screen: external_exports.string() }
+  }, async ({ project, screen }) => runTool(async () => {
+    await ensureServer(workspace);
+    return managementRequest(workspace, `${projectPath2(project)}/screens/${encodeURIComponent(screen)}/figma`, { method: "POST" });
+  }));
+  server.registerTool("snapshot_create", {
+    title: "Snapshot project",
+    description: "Save the current state of every screen in a project so it can be restored later. Take one before a risky rewrite so the user can get back to the version they approved.",
+    inputSchema: { project: external_exports.string() }
+  }, async ({ project }) => runTool(async () => {
+    await ensureServer(workspace);
+    return managementRequest(workspace, `${projectPath2(project)}/snapshots`, { method: "POST" });
+  }));
+  server.registerTool("snapshot_restore", {
+    title: "Restore snapshot",
+    description: "Restore every screen in a project to a snapshot taken earlier. This overwrites the current screens; take a fresh snapshot first if the current state matters.",
+    inputSchema: { project: external_exports.string(), snapshot: external_exports.string() }
+  }, async ({ project, snapshot }) => runTool(async () => {
+    await ensureServer(workspace);
+    return managementRequest(workspace, `${projectPath2(project)}/snapshots/${encodeURIComponent(snapshot)}/restore`, { method: "POST" });
+  }));
+  server.registerTool("snapshot_list", {
+    title: "List snapshots",
+    description: "List a project\u2019s saved snapshots, newest first, each with its creation time and size in bytes. Use it to find an id before snapshot_restore or snapshot_delete.",
+    inputSchema: { project: external_exports.string() }
+  }, async ({ project }) => runTool(async () => {
+    await ensureServer(workspace);
+    return managementRequest(workspace, `${projectPath2(project)}/snapshots`);
+  }));
+  server.registerTool("snapshot_delete", {
+    title: "Delete snapshot",
+    description: "Permanently remove one saved snapshot of a project. This cannot be undone; the current project state is not affected.",
+    inputSchema: { project: external_exports.string(), snapshot: external_exports.string() }
+  }, async ({ project, snapshot }) => runTool(async () => {
+    await ensureServer(workspace);
+    return managementRequest(workspace, `${projectPath2(project)}/snapshots/${encodeURIComponent(snapshot)}`, { method: "DELETE" });
+  }));
+  server.registerTool("audit_tokens", {
+    title: "Audit design tokens",
+    description: "Check every screen against design-system.css: colors written as literals instead of tokens, font-family set without a token, spacing off the scale, var() references with no matching token, and tokens nothing uses. Findings name the file and line to fix. Run it after adding or editing screens, before saying the work is done.",
+    inputSchema: { project: external_exports.string() }
+  }, async ({ project }) => runTool(async () => {
+    await ensureServer(workspace);
+    return managementRequest(workspace, `${projectPath2(project)}/token-audit`);
   }));
   server.registerTool("reference_fetch", {
     title: "Fetch design reference",
@@ -38120,6 +38374,65 @@ function createMcpServer(workspace) {
     await ensureServer(workspace);
     return managementRequest(workspace, `/api/projects/${encodeURIComponent(project)}/selection`);
   }));
+  const prototypePath = (project, id) => `${projectPath2(project)}/prototypes${id ? `/${encodeURIComponent(id)}` : ""}`;
+  const transitions = external_exports.array(prototypeTransitionSchema);
+  const baseline = external_exports.record(external_exports.string(), external_exports.string());
+  server.registerTool("prototype_sources", {
+    title: "Prototype source revisions",
+    description: "Read current source fingerprints for the selected design screens.",
+    inputSchema: { project: external_exports.string(), screens: external_exports.array(external_exports.string()).min(2) }
+  }, async ({ project, screens }) => runTool(async () => {
+    await ensureServer(workspace);
+    return managementRequest(workspace, `/api/projects/${encodeURIComponent(project)}/prototype-sources?screenIds=${encodeURIComponent(screens.join(","))}`);
+  }));
+  server.registerTool("prototype_list", {
+    title: "List prototypes",
+    description: "List prototype IDs and stale status for a project.",
+    inputSchema: { project: external_exports.string() }
+  }, async ({ project }) => runTool(async () => {
+    await ensureServer(workspace);
+    return managementRequest(workspace, prototypePath(project));
+  }));
+  server.registerTool("prototype_get", {
+    title: "Get prototype",
+    description: "Read a prototype by project and stable ID.",
+    inputSchema: { project: external_exports.string(), id: external_exports.string() }
+  }, async ({ project, id }) => runTool(async () => {
+    await ensureServer(workspace);
+    return managementRequest(workspace, prototypePath(project, id));
+  }));
+  server.registerTool("prototype_create", {
+    title: "Create prototype",
+    description: "Save AI-inferred screen transitions without copying source screens.",
+    inputSchema: { project: external_exports.string(), id: external_exports.string(), name: external_exports.string(), screens: external_exports.array(external_exports.string()).min(2), startScreen: external_exports.string(), transitions, expectedSourceBaseline: baseline }
+  }, async ({ project, id, name, screens, startScreen, transitions: links, expectedSourceBaseline }) => runTool(async () => {
+    await ensureServer(workspace);
+    return requestJson(prototypePath(project), "POST", { id, name, screenIds: screens, startScreenId: startScreen, transitions: links, expectedSourceBaseline });
+  }));
+  server.registerTool("prototype_update", {
+    title: "Update prototype",
+    description: "Edit prototype links or name without clearing stale source status.",
+    inputSchema: { project: external_exports.string(), id: external_exports.string(), expectedRevision: external_exports.number().int(), name: external_exports.string().optional(), startScreen: external_exports.string().optional(), transitions: transitions.optional() }
+  }, async ({ project, id, expectedRevision, name, startScreen, transitions: links }) => runTool(async () => {
+    await ensureServer(workspace);
+    return requestJson(prototypePath(project, id), "PATCH", { expectedRevision, name, startScreenId: startScreen, transitions: links });
+  }));
+  server.registerTool("prototype_regenerate", {
+    title: "Regenerate prototype",
+    description: "Replace transitions and source baseline for one existing prototype after the user requests regeneration.",
+    inputSchema: { project: external_exports.string(), id: external_exports.string(), expectedRevision: external_exports.number().int(), screens: external_exports.array(external_exports.string()).min(2), startScreen: external_exports.string(), transitions, expectedSourceBaseline: baseline }
+  }, async ({ project, id, expectedRevision, screens, startScreen, transitions: links, expectedSourceBaseline }) => runTool(async () => {
+    await ensureServer(workspace);
+    return requestJson(`${prototypePath(project, id)}/regenerate`, "POST", { expectedRevision, screenIds: screens, startScreenId: startScreen, transitions: links, expectedSourceBaseline });
+  }));
+  server.registerTool("prototype_delete", {
+    title: "Delete prototype",
+    description: "Remove one prototype by project and stable ID.",
+    inputSchema: { project: external_exports.string(), id: external_exports.string(), expectedRevision: external_exports.number().int() }
+  }, async ({ project, id, expectedRevision }) => runTool(async () => {
+    await ensureServer(workspace);
+    return requestJson(prototypePath(project, id), "DELETE", { expectedRevision });
+  }));
   return server;
 }
 async function serveMcp(workspace) {
@@ -38141,19 +38454,19 @@ var init_src = __esm({
 
 // packages/cli/src/index.ts
 init_schema();
-init_lifecycle();
-init_client();
-import { spawn as spawn2 } from "node:child_process";
 import { realpathSync } from "node:fs";
-import { cwd } from "node:process";
 import { pathToFileURL } from "node:url";
+
+// packages/cli/src/args.ts
+import { cwd } from "node:process";
 function parseArguments(argv) {
-  const parsed = { positionals: [], workspace: cwd(), json: false, open: false, options: /* @__PURE__ */ new Map() };
+  const parsed = { positionals: [], workspace: cwd(), json: false, open: false, dryRun: false, options: /* @__PURE__ */ new Map() };
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index];
     if (argument === "--workspace") parsed.workspace = argv[++index] ?? "";
     else if (argument === "--json") parsed.json = true;
     else if (argument === "--open") parsed.open = true;
+    else if (argument === "--dry-run") parsed.dryRun = true;
     else if (argument === "--port") parsed.port = Number(argv[++index]);
     else if (argument.startsWith("--")) parsed.options.set(argument, argv[++index] ?? "");
     else parsed.positionals.push(argument);
@@ -38170,6 +38483,371 @@ function integerOption(parsed, name) {
   if (!Number.isInteger(value)) throw new Error(`${name} ph\u1EA3i l\xE0 s\u1ED1 nguy\xEAn.`);
   return value;
 }
+
+// packages/cli/src/commands.ts
+init_lifecycle();
+init_client();
+import { readFile as readFile2 } from "node:fs/promises";
+var projectPath = (id) => `/api/projects/${encodeURIComponent(id)}`;
+var jsonRequest = (workspace, path, method, body) => managementRequest(workspace, path, { method, headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+var currentRevision = async (workspace, projectId) => (await managementRequest(workspace, projectPath(projectId))).revision;
+var COMMANDS = [
+  {
+    words: ["start"],
+    route: null,
+    run: async ({ args }) => {
+      const runtime = await ensureServer(args.workspace, { managementPort: args.port });
+      if (args.open) {
+        const url2 = new URL(runtime.url);
+        url2.hash = new URLSearchParams({ previewUrl: runtime.previewUrl }).toString();
+        const { spawn: spawn2 } = await import("node:child_process");
+        if (process.platform === "darwin") {
+          const child = spawn2("open", [url2.toString()], { detached: true, stdio: "ignore" });
+          child.unref();
+        }
+      }
+      return runtime;
+    }
+  },
+  {
+    words: ["status"],
+    route: null,
+    run: async ({ args }) => {
+      const runtime = await getServerStatus(args.workspace);
+      return { running: runtime !== null, runtime };
+    }
+  },
+  {
+    words: ["stop"],
+    route: null,
+    run: async ({ args }) => {
+      await stopServer(args.workspace);
+      return { stopped: true };
+    }
+  },
+  {
+    words: ["project", "create"],
+    route: "POST /api/projects",
+    run: async ({ args, rest }) => {
+      const [id] = rest;
+      if (!id) throw new Error("Thi\u1EBFu ID project.");
+      return jsonRequest(args.workspace, "/api/projects", "POST", { id, name: option(args, "--name") });
+    }
+  },
+  {
+    words: ["project", "list"],
+    route: "GET /api/projects",
+    run: async ({ args }) => managementRequest(args.workspace, "/api/projects")
+  },
+  {
+    words: ["project", "rename"],
+    route: "PATCH /api/projects/:projectId",
+    run: async ({ args, rest }) => {
+      const [id] = rest;
+      if (!id) throw new Error("Thi\u1EBFu ID project.");
+      return jsonRequest(args.workspace, projectPath(id), "PATCH", { name: option(args, "--name"), expectedRevision: await currentRevision(args.workspace, id) });
+    }
+  },
+  {
+    words: ["project", "delete"],
+    route: "DELETE /api/projects/:projectId",
+    run: async ({ args, rest }) => {
+      const [id] = rest;
+      if (!id) throw new Error("Thi\u1EBFu ID project.");
+      return jsonRequest(args.workspace, projectPath(id), "DELETE", {
+        expectedRevision: await currentRevision(args.workspace, id),
+        dryRun: args.dryRun
+      });
+    }
+  },
+  {
+    words: ["screen", "list"],
+    route: "GET /api/projects/:projectId",
+    run: async ({ args }) => {
+      const project = await managementRequest(args.workspace, projectPath(option(args, "--project")));
+      return project.screens;
+    }
+  },
+  {
+    words: ["screen", "add"],
+    route: "POST /api/projects/:projectId/screens",
+    run: async ({ args, rest }) => {
+      const [id] = rest;
+      if (!id) throw new Error("Thi\u1EBFu ID m\xE0n h\xECnh.");
+      const projectId = option(args, "--project");
+      return jsonRequest(args.workspace, `${projectPath(projectId)}/screens`, "POST", {
+        id,
+        name: option(args, "--name"),
+        width: integerOption(args, "--width"),
+        height: integerOption(args, "--height"),
+        expectedRevision: await currentRevision(args.workspace, projectId)
+      });
+    }
+  },
+  {
+    words: ["screen", "update"],
+    route: "PATCH /api/projects/:projectId/layout",
+    run: async ({ args, rest }) => {
+      const [id] = rest;
+      if (!id) throw new Error("Thi\u1EBFu ID m\xE0n h\xECnh.");
+      const projectId = option(args, "--project");
+      const patch = { id };
+      for (const name of ["--x", "--y", "--width", "--height"]) {
+        if (args.options.has(name)) patch[name.slice(2)] = integerOption(args, name);
+      }
+      if (Object.keys(patch).length === 1) throw new Error("C\u1EA7n \xEDt nh\u1EA5t m\u1ED9t thu\u1ED9c t\xEDnh layout \u0111\u1EC3 c\u1EADp nh\u1EADt.");
+      return jsonRequest(args.workspace, `${projectPath(projectId)}/layout`, "PATCH", {
+        patches: [patch],
+        expectedRevision: await currentRevision(args.workspace, projectId)
+      });
+    }
+  },
+  {
+    words: ["screen", "duplicate"],
+    route: "POST /api/projects/:projectId/screens/:screenId/duplicate",
+    run: async ({ args, rest }) => {
+      const [id] = rest;
+      if (!id) throw new Error("Thi\u1EBFu ID m\xE0n h\xECnh.");
+      const projectId = option(args, "--project");
+      return jsonRequest(args.workspace, `${projectPath(projectId)}/screens/${encodeURIComponent(id)}/duplicate`, "POST", { newId: option(args, "--new-id") });
+    }
+  },
+  {
+    words: ["screen", "delete"],
+    route: "DELETE /api/projects/:projectId/screens",
+    run: async ({ args, rest }) => {
+      if (rest.length === 0) throw new Error("C\u1EA7n \xEDt nh\u1EA5t m\u1ED9t ID m\xE0n h\xECnh \u0111\u1EC3 x\xF3a.");
+      const projectId = option(args, "--project");
+      return jsonRequest(args.workspace, `${projectPath(projectId)}/screens`, "DELETE", {
+        screenIds: rest,
+        expectedRevision: await currentRevision(args.workspace, projectId)
+      });
+    }
+  },
+  {
+    words: ["screen", "rename"],
+    route: "PATCH /api/projects/:projectId/screens/:screenId",
+    run: async ({ args, rest }) => {
+      const [screenId] = rest;
+      if (!screenId) throw new Error("Thi\u1EBFu ID m\xE0n h\xECnh.");
+      const projectId = option(args, "--project");
+      return jsonRequest(args.workspace, `${projectPath(projectId)}/screens/${encodeURIComponent(screenId)}`, "PATCH", {
+        name: option(args, "--name"),
+        expectedRevision: await currentRevision(args.workspace, projectId)
+      });
+    }
+  },
+  {
+    words: ["screen", "order"],
+    route: "PATCH /api/projects/:projectId/screen-order",
+    run: async ({ args, rest }) => {
+      if (rest.length === 0) throw new Error("C\u1EA7n li\u1EC7t k\xEA \u0111\u1EE7 ID m\xE0n h\xECnh theo th\u1EE9 t\u1EF1 layer mong mu\u1ED1n.");
+      const projectId = option(args, "--project");
+      return jsonRequest(args.workspace, `${projectPath(projectId)}/screen-order`, "PATCH", {
+        order: rest,
+        expectedRevision: await currentRevision(args.workspace, projectId)
+      });
+    }
+  },
+  {
+    words: ["screen", "focus"],
+    route: "GET /api/projects/:projectId/focus",
+    run: async ({ args }) => managementRequest(args.workspace, `${projectPath(option(args, "--project"))}/focus`)
+  },
+  {
+    words: ["screen", "edit", "start"],
+    route: "PUT /api/projects/:projectId/editing",
+    run: async ({ args }) => {
+      const body = {};
+      if (args.options.has("--screen")) body.screenId = option(args, "--screen");
+      if (args.options.has("--message")) body.message = option(args, "--message");
+      return jsonRequest(args.workspace, `${projectPath(option(args, "--project"))}/editing`, "PUT", body);
+    }
+  },
+  {
+    words: ["screen", "edit", "done"],
+    route: "DELETE /api/projects/:projectId/editing",
+    run: async ({ args }) => managementRequest(args.workspace, `${projectPath(option(args, "--project"))}/editing`, { method: "DELETE" })
+  },
+  {
+    words: ["screen", "edit", "status"],
+    route: "GET /api/projects/:projectId/editing",
+    run: async ({ args }) => managementRequest(args.workspace, `${projectPath(option(args, "--project"))}/editing`)
+  },
+  {
+    words: ["screenshot"],
+    route: "POST /api/projects/:projectId/screens/:screenId/capture",
+    run: async ({ args, rest }) => {
+      const [screenId] = rest;
+      if (!screenId) throw new Error("Thi\u1EBFu ID m\xE0n h\xECnh.");
+      const projectId = option(args, "--project");
+      return managementRequest(args.workspace, `${projectPath(projectId)}/screens/${encodeURIComponent(screenId)}/capture`, { method: "POST" });
+    }
+  },
+  {
+    words: ["figma", "export"],
+    route: "POST /api/projects/:projectId/screens/:screenId/figma",
+    run: async ({ args, rest }) => {
+      const [screenId] = rest;
+      if (!screenId) throw new Error("Thi\u1EBFu ID m\xE0n h\xECnh.");
+      const projectId = option(args, "--project");
+      return managementRequest(args.workspace, `${projectPath(projectId)}/screens/${encodeURIComponent(screenId)}/figma`, { method: "POST" });
+    }
+  },
+  {
+    words: ["snapshot", "create"],
+    route: "POST /api/projects/:projectId/snapshots",
+    run: async ({ args }) => managementRequest(args.workspace, `${projectPath(option(args, "--project"))}/snapshots`, { method: "POST" })
+  },
+  {
+    words: ["snapshot", "list"],
+    route: "GET /api/projects/:projectId/snapshots",
+    run: async ({ args }) => managementRequest(args.workspace, `${projectPath(option(args, "--project"))}/snapshots`)
+  },
+  {
+    words: ["snapshot", "delete"],
+    route: "DELETE /api/projects/:projectId/snapshots/:snapshotId",
+    run: async ({ args, rest }) => {
+      const [snapshotId] = rest;
+      if (!snapshotId) throw new Error("Thi\u1EBFu ID snapshot.");
+      const projectId = option(args, "--project");
+      return managementRequest(args.workspace, `${projectPath(projectId)}/snapshots/${encodeURIComponent(snapshotId)}`, { method: "DELETE" });
+    }
+  },
+  {
+    words: ["snapshot", "restore"],
+    route: "POST /api/projects/:projectId/snapshots/:snapshotId/restore",
+    run: async ({ args, rest }) => {
+      const [snapshotId] = rest;
+      if (!snapshotId) throw new Error("Thi\u1EBFu ID snapshot.");
+      const projectId = option(args, "--project");
+      return managementRequest(args.workspace, `${projectPath(projectId)}/snapshots/${encodeURIComponent(snapshotId)}/restore`, { method: "POST" });
+    }
+  },
+  {
+    words: ["image", "diff"],
+    route: "POST /api/projects/:projectId/image-diff",
+    run: async ({ args, rest }) => {
+      const [base, target] = rest;
+      if (!base || !target) throw new Error("C\u1EA7n hai \u1EA3nh \u0111\u1EC3 so: \u0111\u01B0\u1EDDng d\u1EABn PNG ho\u1EB7c live:<screen-id>.");
+      const projectId = option(args, "--project");
+      const body = { base, target };
+      if (args.options.has("--threshold")) body.threshold = Number(option(args, "--threshold"));
+      return jsonRequest(args.workspace, `${projectPath(projectId)}/image-diff`, "POST", body);
+    }
+  },
+  {
+    words: ["selection", "get"],
+    route: "GET /api/projects/:projectId/selection",
+    run: async ({ args }) => managementRequest(args.workspace, `${projectPath(option(args, "--project"))}/selection`)
+  },
+  {
+    words: ["audit", "tokens"],
+    route: "GET /api/projects/:projectId/token-audit",
+    run: async ({ args }) => managementRequest(args.workspace, `${projectPath(option(args, "--project"))}/token-audit`)
+  },
+  {
+    words: ["reference", "fetch"],
+    route: "POST /api/projects/:projectId/reference",
+    run: async ({ args, rest }) => {
+      const [url2] = rest;
+      if (!url2) throw new Error("Thi\u1EBFu URL tham chi\u1EBFu.");
+      return jsonRequest(args.workspace, `${projectPath(option(args, "--project"))}/reference`, "POST", { url: url2 });
+    }
+  },
+  {
+    words: ["prototype", "sources"],
+    route: "GET /api/projects/:projectId/prototype-sources",
+    run: async ({ args }) => {
+      const projectId = option(args, "--project");
+      const screens = option(args, "--screens");
+      return managementRequest(args.workspace, `${projectPath(projectId)}/prototype-sources?screenIds=${encodeURIComponent(screens)}`);
+    }
+  },
+  {
+    words: ["prototype", "list"],
+    route: "GET /api/projects/:projectId/prototypes",
+    run: async ({ args }) => managementRequest(args.workspace, `${projectPath(option(args, "--project"))}/prototypes`)
+  },
+  {
+    words: ["prototype", "get"],
+    route: "GET /api/projects/:projectId/prototypes/:prototypeId",
+    run: async ({ args, rest }) => {
+      const [id] = rest;
+      if (!id) throw new Error("Thi\u1EBFu ID prototype.");
+      const projectId = option(args, "--project");
+      return managementRequest(args.workspace, `${projectPath(projectId)}/prototypes/${encodeURIComponent(id)}`);
+    }
+  },
+  {
+    words: ["prototype", "delete"],
+    route: "DELETE /api/projects/:projectId/prototypes/:prototypeId",
+    run: async ({ args, rest }) => {
+      const [id] = rest;
+      if (!id) throw new Error("Thi\u1EBFu ID prototype.");
+      const projectId = option(args, "--project");
+      return jsonRequest(args.workspace, `${projectPath(projectId)}/prototypes/${encodeURIComponent(id)}`, "DELETE", { expectedRevision: integerOption(args, "--revision") });
+    }
+  },
+  {
+    words: ["prototype", "create"],
+    route: "POST /api/projects/:projectId/prototypes",
+    run: async ({ args, rest }) => {
+      const [id] = rest;
+      if (!id) throw new Error("Thi\u1EBFu ID prototype.");
+      const projectId = option(args, "--project");
+      const input2 = JSON.parse(await readFile2(option(args, "--input"), "utf8"));
+      if (input2.id !== id) throw new Error("ID trong file input ph\u1EA3i tr\xF9ng ID l\u1EC7nh t\u1EA1o prototype.");
+      return jsonRequest(args.workspace, `${projectPath(projectId)}/prototypes`, "POST", input2);
+    }
+  },
+  {
+    words: ["prototype", "update"],
+    route: "PATCH /api/projects/:projectId/prototypes/:prototypeId",
+    run: async ({ args, rest }) => {
+      const [id] = rest;
+      if (!id) throw new Error("Thi\u1EBFu ID prototype.");
+      const projectId = option(args, "--project");
+      const input2 = JSON.parse(await readFile2(option(args, "--input"), "utf8"));
+      return jsonRequest(args.workspace, `${projectPath(projectId)}/prototypes/${encodeURIComponent(id)}`, "PATCH", input2);
+    }
+  },
+  {
+    words: ["prototype", "regenerate"],
+    route: "POST /api/projects/:projectId/prototypes/:prototypeId/regenerate",
+    run: async ({ args, rest }) => {
+      const [id] = rest;
+      if (!id) throw new Error("Thi\u1EBFu ID prototype.");
+      const projectId = option(args, "--project");
+      const input2 = JSON.parse(await readFile2(option(args, "--input"), "utf8"));
+      return jsonRequest(args.workspace, `${projectPath(projectId)}/prototypes/${encodeURIComponent(id)}/regenerate`, "POST", input2);
+    }
+  },
+  {
+    words: ["mcp", "serve"],
+    route: null,
+    run: async ({ args }) => {
+      const { serveMcp: serveMcp2 } = await Promise.resolve().then(() => (init_src(), src_exports));
+      await serveMcp2(args.workspace);
+      return null;
+    }
+  }
+];
+function matchCommand(positionals) {
+  let best = null;
+  for (const spec of COMMANDS) {
+    if (spec.words.length > positionals.length) continue;
+    if (!spec.words.every((word, index) => positionals[index] === word)) continue;
+    if (!best || spec.words.length > best.words.length) best = spec;
+  }
+  return best ? { spec: best, rest: positionals.slice(best.words.length) } : null;
+}
+function usage() {
+  const names = COMMANDS.map((spec) => spec.words.join(" ")).sort();
+  return `L\u1EC7nh h\u1EE3p l\u1EC7: ${names.join(", ")}.`;
+}
+
+// packages/cli/src/index.ts
 function writeResult(result, json2) {
   if (json2) process.stdout.write(`${JSON.stringify(result)}
 `);
@@ -38178,154 +38856,19 @@ function writeResult(result, json2) {
   else process.stderr.write(`${result.error.code}: ${result.error.message}
 `);
 }
-function openBrowser(url2) {
-  if (process.platform !== "darwin") return;
-  const child = spawn2("open", [url2], { detached: true, stdio: "ignore" });
-  child.unref();
-}
 function canvasOpenUrl(runtime) {
   const url2 = new URL(runtime.url);
-  url2.hash = new URLSearchParams({ token: runtime.token, previewUrl: runtime.previewUrl }).toString();
+  url2.hash = new URLSearchParams({ previewUrl: runtime.previewUrl }).toString();
   return url2.toString();
 }
 async function run(argv) {
   const args = parseArguments(argv);
-  const [command, action, id] = args.positionals;
   try {
-    if (command === "start") {
-      const runtime = await ensureServer(args.workspace, { managementPort: args.port });
-      if (args.open) {
-        const credentials = await getServerCredentials(args.workspace);
-        if (!credentials) throw new Error("Server v\u1EEBa kh\u1EDFi \u0111\u1ED9ng nh\u01B0ng kh\xF4ng l\u1EA5y \u0111\u01B0\u1EE3c phi\xEAn canvas.");
-        openBrowser(canvasOpenUrl(credentials));
-      }
-      writeResult({ ok: true, data: runtime }, args.json);
-      return 0;
-    }
-    if (command === "status") {
-      const runtime = await getServerStatus(args.workspace);
-      writeResult({ ok: true, data: { running: runtime !== null, runtime } }, args.json);
-      return 0;
-    }
-    if (command === "stop") {
-      await stopServer(args.workspace);
-      writeResult({ ok: true, data: { stopped: true } }, args.json);
-      return 0;
-    }
-    if (command === "project" && action === "create" && id) {
-      const result = await managementRequest(args.workspace, "/api/projects", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ id, name: option(args, "--name") })
-      });
-      writeResult({ ok: true, data: result }, args.json);
-      return 0;
-    }
-    if (command === "project" && action === "list") {
-      writeResult({ ok: true, data: await managementRequest(args.workspace, "/api/projects") }, args.json);
-      return 0;
-    }
-    if (command === "screen" && action === "list") {
-      const project = await managementRequest(args.workspace, `/api/projects/${encodeURIComponent(option(args, "--project"))}`);
-      writeResult({ ok: true, data: project.screens }, args.json);
-      return 0;
-    }
-    if (command === "screen" && action === "add" && id) {
-      const projectId = option(args, "--project");
-      const project = await managementRequest(args.workspace, `/api/projects/${encodeURIComponent(projectId)}`);
-      const result = await managementRequest(args.workspace, `/api/projects/${encodeURIComponent(projectId)}/screens`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          id,
-          name: option(args, "--name"),
-          width: integerOption(args, "--width"),
-          height: integerOption(args, "--height"),
-          expectedRevision: project.revision
-        })
-      });
-      writeResult({ ok: true, data: result }, args.json);
-      return 0;
-    }
-    if (command === "screen" && action === "update" && id) {
-      const projectId = option(args, "--project");
-      const project = await managementRequest(args.workspace, `/api/projects/${encodeURIComponent(projectId)}`);
-      const patch = { id };
-      for (const name of ["--x", "--y", "--width", "--height"]) {
-        if (args.options.has(name)) patch[name.slice(2)] = integerOption(args, name);
-      }
-      if (Object.keys(patch).length === 1) throw new Error("C\u1EA7n \xEDt nh\u1EA5t m\u1ED9t thu\u1ED9c t\xEDnh layout \u0111\u1EC3 c\u1EADp nh\u1EADt.");
-      const result = await managementRequest(args.workspace, `/api/projects/${encodeURIComponent(projectId)}/layout`, {
-        method: "PATCH",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ patches: [patch], expectedRevision: project.revision })
-      });
-      writeResult({ ok: true, data: result }, args.json);
-      return 0;
-    }
-    if (command === "screen" && action === "focus") {
-      const result = await managementRequest(args.workspace, `/api/projects/${encodeURIComponent(option(args, "--project"))}/focus`);
-      writeResult({ ok: true, data: result }, args.json);
-      return 0;
-    }
-    if (command === "screen" && action === "edit" && id === "start") {
-      const projectId = option(args, "--project");
-      const body = {};
-      if (args.options.has("--screen")) body.screenId = option(args, "--screen");
-      if (args.options.has("--message")) body.message = option(args, "--message");
-      const result = await managementRequest(args.workspace, `/api/projects/${encodeURIComponent(projectId)}/editing`, {
-        method: "PUT",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(body)
-      });
-      writeResult({ ok: true, data: result }, args.json);
-      return 0;
-    }
-    if (command === "screen" && action === "edit" && id === "done") {
-      const projectId = option(args, "--project");
-      const result = await managementRequest(args.workspace, `/api/projects/${encodeURIComponent(projectId)}/editing`, { method: "DELETE" });
-      writeResult({ ok: true, data: result }, args.json);
-      return 0;
-    }
-    if (command === "screen" && action === "duplicate" && id) {
-      const projectId = option(args, "--project");
-      const result = await managementRequest(args.workspace, `/api/projects/${encodeURIComponent(projectId)}/screens/${encodeURIComponent(id)}/duplicate`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ newId: option(args, "--new-id") }) });
-      writeResult({ ok: true, data: result }, args.json);
-      return 0;
-    }
-    if (command === "screenshot" && action) {
-      const projectId = option(args, "--project");
-      const result = await managementRequest(args.workspace, `/api/projects/${encodeURIComponent(projectId)}/screens/${encodeURIComponent(action)}/capture`, { method: "POST" });
-      writeResult({ ok: true, data: result }, args.json);
-      return 0;
-    }
-    if (command === "snapshot" && action === "create") {
-      const result = await managementRequest(args.workspace, `/api/projects/${encodeURIComponent(option(args, "--project"))}/snapshots`, { method: "POST" });
-      writeResult({ ok: true, data: result }, args.json);
-      return 0;
-    }
-    if (command === "snapshot" && action === "restore" && id) {
-      const projectId = option(args, "--project");
-      const result = await managementRequest(args.workspace, `/api/projects/${encodeURIComponent(projectId)}/snapshots/${encodeURIComponent(id)}/restore`, { method: "POST" });
-      writeResult({ ok: true, data: result }, args.json);
-      return 0;
-    }
-    if (command === "selection" && action === "get") {
-      const result = await managementRequest(args.workspace, `/api/projects/${encodeURIComponent(option(args, "--project"))}/selection`);
-      writeResult({ ok: true, data: result }, args.json);
-      return 0;
-    }
-    if (command === "reference" && action === "fetch" && id) {
-      const result = await managementRequest(args.workspace, `/api/projects/${encodeURIComponent(option(args, "--project"))}/reference`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ url: id }) });
-      writeResult({ ok: true, data: result }, args.json);
-      return 0;
-    }
-    if (command === "mcp" && action === "serve") {
-      const { serveMcp: serveMcp2 } = await Promise.resolve().then(() => (init_src(), src_exports));
-      await serveMcp2(args.workspace);
-      return 0;
-    }
-    throw new Error("L\u1EC7nh h\u1EE3p l\u1EC7: start, status, stop, project create/list, screen add/list/update/duplicate/focus/edit start|done, screenshot, snapshot create/restore, selection get, reference fetch <url>, mcp serve.");
+    const matched = matchCommand(args.positionals);
+    if (!matched) throw new Error(usage());
+    const data = await matched.spec.run({ args, rest: matched.rest });
+    writeResult({ ok: true, data }, args.json);
+    return 0;
   } catch (error62) {
     const canvasError = asCanvasError(error62);
     writeResult({ ok: false, error: { code: canvasError.code, message: canvasError.message } }, args.json);

@@ -199,7 +199,15 @@ export function prototypeBridgeScriptSource(config: BridgeConfig & { parentOrigi
   window.addEventListener("message",function(event){
     if(event.source!==host||event.origin!==config.parentOrigin)return;
     var data=event.data;
-    if(!data||data.source!=="local-design-canvas"||data.kind!=="prototype.init"||data.nonce!==config.nonce||data.projectId!==config.projectId||data.screenId!==config.screenId||!Array.isArray(data.elementIds))return;
+    if(!data||data.source!=="local-design-canvas"||data.nonce!==config.nonce||data.projectId!==config.projectId||data.screenId!==config.screenId)return;
+    if(data.kind==="prototype.scroll"){
+      var wanted=typeof data.elementId==="string"?data.elementId:"", hit=null, all=document.querySelectorAll("[data-design-id]");
+      for(var s=0;s<all.length&&!hit;s++)if(all[s].getAttribute("data-design-id")===wanted)hit=all[s];
+      if(hit&&hit.scrollIntoView)hit.scrollIntoView({behavior:"smooth",block:"center"});
+      send("prototype.scrolled",{elementId:wanted,found:!!hit});
+      return;
+    }
+    if(data.kind!=="prototype.init"||!Array.isArray(data.elementIds))return;
     linked=Object.create(null);
     var missing=[];
     if(!markerStyle){
@@ -237,6 +245,13 @@ export function prototypeBridgeScriptSource(config: BridgeConfig & { parentOrigi
     if(anchor){event.preventDefault();event.stopImmediatePropagation()}
   },true);
   document.addEventListener("submit",function(event){event.preventDefault();event.stopImmediatePropagation()},true);
+  // Escape is handled here as well as in the player: focus usually sits inside
+  // this frame after a click, so the parent document never sees the key.
+  document.addEventListener("keydown",function(event){
+    if(event.key!=="Escape"||!linked)return;
+    event.preventDefault();event.stopImmediatePropagation();
+    send("prototype.escape");
+  },true);
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",ready);
   else ready();
   window.addEventListener("load",ready);

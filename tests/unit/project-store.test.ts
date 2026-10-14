@@ -420,7 +420,16 @@ describe('project store', () => {
       await mkdir(sourceDir, { recursive: true });
       await writeFile(join(sourceDir, 'index.html'), '<html></html>', 'utf8');
 
-      await expect(deleteProject(fixture.workspace, project.id, 0)).resolves.toEqual({ deleted: true });
+      // The result is the summary of what went, not just a flag: the canvas and
+      // the CLI report it back to the user.
+      await expect(deleteProject(fixture.workspace, project.id, 0)).resolves.toEqual({
+        projectId: 'shop',
+        name: 'Cửa hàng',
+        screens: [],
+        snapshots: 0,
+        prototypes: 0,
+        deleted: true,
+      });
 
       await expect(readProject(fixture.workspace, project.id)).rejects.toMatchObject({ code: 'PROJECT_NOT_FOUND' });
       await expect(readFile(join(sourceDir, 'index.html'), 'utf8')).rejects.toMatchObject({ code: 'ENOENT' });

@@ -198,6 +198,12 @@ describe('mcp adapter', () => {
     await api('/api/projects/shop/screens', { method: 'POST', body: JSON.stringify({ id: 'home', name: 'Home', width: 800, height: 600, expectedRevision: 0 }) });
     const client = await connectClient();
     try {
+      // A dry run reports exactly what would go and leaves the project in place.
+      const preview = await callJson(client, 'project_delete', { project: 'shop', dryRun: true });
+      expect(preview).toMatchObject({ ok: true, data: { projectId: 'shop', screens: ['home'], deleted: false } });
+      const untouched = await callJson(client, 'project_list');
+      expect(untouched.data).toMatchObject([{ id: 'shop' }]);
+
       const deleted = await callJson(client, 'project_delete', { project: 'shop' });
       expect(deleted).toMatchObject({ ok: true, data: { deleted: true } });
       const projects = await callJson(client, 'project_list');
