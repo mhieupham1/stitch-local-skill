@@ -23,6 +23,7 @@ import { exportScreenForFigma } from './figma-export.js';
 import { fetchReference } from './reference.js';
 import { auditDesignTokens } from './token-audit.js';
 import { createSnapshot, duplicateScreen, restoreSnapshot } from './snapshots.js';
+import { diffProjectImages } from './image-diff.js';
 import { SelectionStore } from './selection.js';
 import { ensureDesignIds } from './design-ids.js';
 import { createPrototype, deletePrototype, listPrototypes, readPrototype, regeneratePrototype, updatePrototype } from './prototypes.js';
@@ -380,6 +381,16 @@ export async function createManagementApp(options: ManagementAppOptions): Promis
     return success(current);
   });
 
+  const imageDiffBodySchema = z.object({
+    base: z.string().min(1).max(1024),
+    target: z.string().min(1).max(1024),
+    threshold: z.number().min(0).max(1).optional(),
+  });
+  app.post<{ Params: { projectId: string } }>('/api/projects/:projectId/image-diff', async (request) => {
+    const projectId = projectIdSchema.parse(request.params.projectId);
+    const body = imageDiffBodySchema.parse(request.body);
+    return success(await diffProjectImages(options.workspace, projectId, body));
+  });
   app.post<{ Params: { projectId: string } }>('/api/projects/:projectId/snapshots', async (request) => success(await createSnapshot(options.workspace, request.params.projectId)));
   app.post<{ Params: { projectId: string; snapshotId: string } }>('/api/projects/:projectId/snapshots/:snapshotId/restore', async (request) => {
     const result = await restoreSnapshot(options.workspace, request.params.projectId, request.params.snapshotId);

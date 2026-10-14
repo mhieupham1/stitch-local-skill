@@ -151,6 +151,20 @@ export function createMcpServer(workspace: string): McpServer {
     return managementRequest(workspace, `/api/projects/${encodeURIComponent(project)}/screens/${encodeURIComponent(screen)}/capture`, { method: 'POST' });
   }));
 
+  server.registerTool('image_diff', {
+    title: 'Diff two screen images',
+    description: 'Compare two PNGs from the project pixel by pixel and return the changed-pixel count, percent, and bounding boxes of changed regions, plus a red-on-grey overlay PNG. Each side is either a path inside the project (the imagePath a screenshot returned, relative to the project root) or "live:<screen-id>" to capture the current preview first. Use it after editing to confirm what actually changed: diff the pre-edit capture against live:<screen> instead of judging the edit by eye.',
+    inputSchema: {
+      project: z.string(),
+      base: z.string().min(1),
+      target: z.string().min(1),
+      threshold: z.number().min(0).max(1).optional(),
+    },
+  }, async ({ project, base, target, threshold }) => runTool(async () => {
+    await ensureServer(workspace);
+    return requestJson(`${projectPath(project)}/image-diff`, 'POST', { base, target, threshold });
+  }));
+
   server.registerTool('figma_export', {
     title: 'Export screen for Figma',
     description: 'Render a screen in a headless browser and extract its element tree, layout, styles and text as structured JSON that can be pasted into Figma. Runs a browser on the local machine.',

@@ -144,6 +144,7 @@ Mọi lệnh nhận `--workspace <path>` và `--json`. Ở chế độ `--json`,
 | Di chuyển / đổi kích thước khung | `$canvas screen update overview --project shop-dashboard --x 1600 --y 0 --width 1280 --height 900 --workspace "$workspace" --json` |
 | Nhân bản màn hình | `$canvas screen duplicate overview --new-id overview-alt --project shop-dashboard --workspace "$workspace" --json` |
 | Chụp ảnh preview | `$canvas screenshot overview --project shop-dashboard --workspace "$workspace" --json` |
+| So hai ảnh render | `$canvas image diff <png-cũ> live:overview --project shop-dashboard --workspace "$workspace" --json` |
 | Tạo / khôi phục snapshot | `$canvas snapshot create --project shop-dashboard --workspace "$workspace" --json` / `$canvas snapshot restore <snapshot-id> --project shop-dashboard --workspace "$workspace" --json` |
 | Đọc màn hình đang được chọn trên canvas | `$canvas screen focus --project shop-dashboard --workspace "$workspace" --json` |
 | Khóa màn hình khi agent đang sửa | `$canvas screen edit start --project shop-dashboard --screen overview --message 'Đang chỉnh sửa…' --workspace "$workspace" --json` |
@@ -192,6 +193,14 @@ $canvas screenshot overview --project shop-dashboard --workspace "$workspace" --
 
 Trả về đường dẫn PNG, kích thước và danh sách lỗi (console, page, resource) lưu trong `artifacts/captures` của project. Vòng lặp gợi ý: chụp → agent đọc ảnh và lỗi → sửa → chụp lại; nên dừng sau ba vòng và báo phần chưa đạt.
 
+**So hai ảnh render** bằng `image diff`, khi bạn muốn biết một lần sửa thực sự thay đổi những vùng nào thay vì tin vào mắt:
+
+```bash
+$canvas image diff artifacts/captures/overview-1728000000000.png live:overview --project shop-dashboard --workspace "$workspace" --json
+```
+
+Hai bên nhận hoặc đường dẫn PNG trong project (đường dẫn `imagePath` mà `screenshot` trả về dùng nguyên được) hoặc `live:<screen-id>` để chụp lại preview hiện tại ngay lúc diff. Kết quả gồm số và phần trăm pixel đổi, danh sách `regions` (khung viền các vùng đổi, lớn nhất trước), và `diffPath` — ảnh overlay đỏ-trên-xám trong `artifacts/diffs` để mở xem. Pixel chống răng cưa tô vàng và không bị tính là đổi. Hai ảnh khác kích thước viewport trả `DIFF_SIZE_MISMATCH`. Vòng lặp khuyến nghị: `screenshot` lấy mốc → sửa → `image diff <mốc> live:<screen>` kiểm chứng đúng vùng dự định đổi.
+
 **Nhân bản** một màn hình thành biến thể có ID và đường dẫn riêng, vẫn dùng chung token:
 
 ```bash
@@ -236,6 +245,7 @@ stdout dành riêng cho giao thức, log ra stderr. Adapter khởi động hoặ
 - `project_list`, `project_create`.
 - `screen_list`, `screen_add`.
 - `screen_capture` — chụp ảnh preview kèm lỗi render.
+- `image_diff` — so hai ảnh trong project và trả vùng đổi + ảnh overlay.
 - `reference_fetch` — mở một URL và trích nội dung + ảnh full-page làm tham chiếu thiết kế.
 - `screen_focus` — đọc màn hình đang được tô sáng trên canvas.
 - `screen_edit_start` / `screen_edit_done` — khóa/mở khóa khung đang chỉnh sửa.

@@ -237,6 +237,18 @@ export const COMMANDS: CommandSpec[] = [
     },
   },
   {
+    words: ['image', 'diff'],
+    route: 'POST /api/projects/:projectId/image-diff',
+    run: async ({ args, rest }) => {
+      const [base, target] = rest;
+      if (!base || !target) throw new Error('Cần hai ảnh để so: đường dẫn PNG hoặc live:<screen-id>.');
+      const projectId = option(args, '--project');
+      const body: Record<string, unknown> = { base, target };
+      if (args.options.has('--threshold')) body.threshold = Number(option(args, '--threshold'));
+      return jsonRequest(args.workspace, `${projectPath(projectId)}/image-diff`, 'POST', body);
+    },
+  },
+  {
     words: ['selection', 'get'],
     route: 'GET /api/projects/:projectId/selection',
     run: async ({ args }) => managementRequest(args.workspace, `${projectPath(option(args, '--project'))}/selection`),

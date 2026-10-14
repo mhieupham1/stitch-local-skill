@@ -23,6 +23,7 @@ Every command accepts `--workspace "$workspace"` and can emit exactly one JSON r
 | Add a screen | `$canvas screen add overview --project shop-dashboard --name 'Tổng quan' --width 1440 --height 1000 --workspace "$workspace" --json` |
 | Move or resize a frame | `$canvas screen update overview --project shop-dashboard --x 1600 --y 0 --width 1280 --height 900 --workspace "$workspace" --json` |
 | Capture a preview | `$canvas screenshot overview --project shop-dashboard --workspace "$workspace" --json` |
+| Diff two screen renders | `$canvas image diff <base-png> live:overview --project shop-dashboard --workspace "$workspace" --json` |
 | Duplicate a screen | `$canvas screen duplicate overview --new-id overview-alt --project shop-dashboard --workspace "$workspace" --json` |
 | Delete screens | `$canvas screen delete overview-alt stale-draft --project shop-dashboard --workspace "$workspace" --json` |
 | Change layer order | `$canvas screen order detail home --project shop-dashboard --workspace "$workspace" --json` |
@@ -40,6 +41,8 @@ Every command accepts `--workspace "$workspace"` and can emit exactly one JSON r
 | Delete a prototype | `$canvas prototype delete booking --project shop-dashboard --revision 2 --workspace "$workspace" --json` |
 | Fetch a page as a design reference | `$canvas reference fetch 'https://example.com/page' --project shop-dashboard --workspace "$workspace" --json` |
 | Serve the MCP adapter over stdio | `$canvas mcp serve --workspace "$workspace"` |
+
+`image diff <base> <target>` compares two same-size PNGs pixel by pixel and returns `changedPixels`, `changedPercent`, `regions` (bounding boxes of contiguous changed areas, largest first), `identical`, and `diffPath` — a red-on-grey overlay PNG under `artifacts/diffs`. Each side is either a PNG inside the project (the `imagePath` a `screenshot` returned, relative to the project root or absolute inside it) or `live:<screen-id>`, which re-captures the current preview first, so one call answers "what did my edit change": diff the pre-edit capture against `live:<screen-id>` instead of judging by eye. `--threshold` (0–1, default 0.1) sets colour sensitivity; anti-aliased pixels are painted yellow and never counted. Different viewport sizes return `DIFF_SIZE_MISMATCH` — re-capture both sides at the same size.
 
 `reference fetch <url>` opens the URL in a headless browser on the user's machine and returns `title`, `headings`, `sections`, `links`, plus `imagePath` (a full-page screenshot) and `dataPath`, both under `artifacts/references`. It fetches whatever URL you pass, so confirm the URL with the user first. Treat the result as a layout reference only: build your own static HTML/CSS and do not copy the source page's content or assets.
 

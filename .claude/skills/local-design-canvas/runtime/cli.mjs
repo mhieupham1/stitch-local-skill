@@ -2497,7 +2497,7 @@ function handleIntersectionResults(result, left, right) {
   const unrecKeys = /* @__PURE__ */ new Map();
   let unrecIssue;
   const keyIssues = /* @__PURE__ */ new Map();
-  const collect = (iss, side) => {
+  const collect2 = (iss, side) => {
     let keys;
     if (iss.code === "unrecognized_keys" && !iss.path?.length) {
       unrecIssue ?? (unrecIssue = iss);
@@ -2518,11 +2518,11 @@ function handleIntersectionResults(result, left, right) {
     return true;
   };
   for (const iss of left.issues) {
-    if (!collect(iss, "l"))
+    if (!collect2(iss, "l"))
       result.issues.push(iss);
   }
   for (const iss of right.issues) {
-    if (!collect(iss, "r"))
+    if (!collect2(iss, "r"))
       result.issues.push(iss);
   }
   const bothKeys = [...unrecKeys].filter(([, f]) => f.l && f.r).map(([k]) => k);
@@ -20401,6 +20401,18 @@ var init_zod = __esm({
 });
 
 // packages/core/src/schema.ts
+function checkPrototypeLinks(value, context) {
+  const ids = new Set(value.screenIds);
+  if (ids.size !== value.screenIds.length) context.addIssue({ code: "custom", message: "M\xE0n h\xECnh prototype b\u1ECB tr\xF9ng." });
+  if (!ids.has(value.startScreenId)) context.addIssue({ code: "custom", message: "M\xE0n h\xECnh b\u1EAFt \u0111\u1EA7u kh\xF4ng thu\u1ED9c prototype." });
+  const links = /* @__PURE__ */ new Set();
+  for (const transition of value.transitions) {
+    if (!ids.has(transition.fromScreenId) || transition.toScreenId !== void 0 && !ids.has(transition.toScreenId)) context.addIssue({ code: "custom", message: "Li\xEAn k\u1EBFt tr\u1ECF t\u1EDBi m\xE0n h\xECnh ngo\xE0i prototype." });
+    const key = `${transition.fromScreenId}\0${transition.elementId}`;
+    if (links.has(key)) context.addIssue({ code: "custom", message: "M\u1ED9t ph\u1EA7n t\u1EED ch\u1EC9 \u0111\u01B0\u1EE3c n\u1ED1i t\u1EDBi m\u1ED9t m\xE0n h\xECnh." });
+    links.add(key);
+  }
+}
 function asCanvasError(error62, fallbackCode = "INTERNAL_ERROR") {
   if (error62 instanceof CanvasError) return error62;
   if (error62 instanceof external_exports.ZodError) {
@@ -20408,7 +20420,7 @@ function asCanvasError(error62, fallbackCode = "INTERNAL_ERROR") {
   }
   return new CanvasError(fallbackCode, error62 instanceof Error ? error62.message : "L\u1ED7i kh\xF4ng x\xE1c \u0111\u1ECBnh.", 500);
 }
-var ID_PATTERN, projectIdSchema, screenSchema, projectSchema, screenLayoutPatchSchema, selectionBoundsSchema, selectionContextSchema, canvasEventSchema, CanvasError;
+var ID_PATTERN, projectIdSchema, screenSchema, projectSchema, screenLayoutPatchSchema, screenOrderSchema, PROTOTYPE_TRANSITION_KINDS, prototypeTransitionKindSchema, prototypeTransitionSchema, prototypeFieldsSchema, sourceBaselineSchema, prototypeSchema, prototypeCreateInputSchema, prototypePatchInputSchema, prototypeRegenerateInputSchema, selectionBoundsSchema, selectionContextSchema, canvasEventSchema, CanvasError;
 var init_schema = __esm({
   "packages/core/src/schema.ts"() {
     "use strict";
@@ -20438,6 +20450,55 @@ var init_schema = __esm({
       width: external_exports.number().int().min(240).max(4096).optional(),
       height: external_exports.number().int().min(240).max(4096).optional()
     });
+    screenOrderSchema = external_exports.array(projectIdSchema);
+    PROTOTYPE_TRANSITION_KINDS = ["push", "back", "overlay", "scroll"];
+    prototypeTransitionKindSchema = external_exports.enum(PROTOTYPE_TRANSITION_KINDS);
+    prototypeTransitionSchema = external_exports.object({
+      fromScreenId: projectIdSchema,
+      elementId: external_exports.string().trim().min(1).max(200),
+      kind: prototypeTransitionKindSchema.default("push"),
+      toScreenId: projectIdSchema.optional(),
+      toElementId: external_exports.string().trim().min(1).max(200).optional()
+    }).refine((value) => {
+      const needsScreen = value.kind === "push" || value.kind === "overlay";
+      return value.kind === "scroll" ? value.toElementId !== void 0 && value.toScreenId === void 0 : needsScreen ? value.toScreenId !== void 0 && value.toElementId === void 0 : value.toScreenId === void 0 && value.toElementId === void 0;
+    }, {
+      message: "Chuy\u1EC3n c\u1EA3nh sai \u0111\xEDch: `push`/`overlay` c\u1EA7n `toScreenId`, `scroll` c\u1EA7n `toElementId`, `back` kh\xF4ng nh\u1EADn \u0111\xEDch n\xE0o.",
+      path: ["toScreenId"]
+    });
+    prototypeFieldsSchema = external_exports.object({
+      id: projectIdSchema,
+      name: external_exports.string().trim().min(1).max(120),
+      screenIds: external_exports.array(projectIdSchema).min(2).max(50),
+      startScreenId: projectIdSchema,
+      transitions: external_exports.array(prototypeTransitionSchema).max(5e3)
+    });
+    sourceBaselineSchema = external_exports.record(projectIdSchema, external_exports.string().regex(/^[a-f0-9]{64}$/));
+    prototypeSchema = prototypeFieldsSchema.extend({
+      schemaVersion: external_exports.literal(1),
+      revision: external_exports.number().int().nonnegative(),
+      x: external_exports.number().finite().optional(),
+      y: external_exports.number().finite().optional(),
+      sourceBaseline: sourceBaselineSchema,
+      requiresRegeneration: external_exports.boolean().optional()
+    }).superRefine((value, context) => {
+      checkPrototypeLinks(value, context);
+      if (Object.keys(value.sourceBaseline).length !== value.screenIds.length || value.screenIds.some((id) => !(id in value.sourceBaseline))) {
+        context.addIssue({ code: "custom", message: "D\u1EA5u v\xE2n tay ngu\u1ED3n kh\xF4ng kh\u1EDBp danh s\xE1ch m\xE0n h\xECnh." });
+      }
+    });
+    prototypeCreateInputSchema = prototypeFieldsSchema.extend({ expectedSourceBaseline: sourceBaselineSchema }).superRefine((value, context) => {
+      checkPrototypeLinks(value, context);
+    });
+    prototypePatchInputSchema = prototypeFieldsSchema.omit({ id: true }).partial().extend({
+      expectedRevision: external_exports.number().int().nonnegative(),
+      x: external_exports.number().finite().optional(),
+      y: external_exports.number().finite().optional()
+    });
+    prototypeRegenerateInputSchema = prototypeFieldsSchema.omit({ id: true, name: true }).extend({
+      expectedRevision: external_exports.number().int().nonnegative(),
+      expectedSourceBaseline: sourceBaselineSchema
+    }).superRefine((value, context) => checkPrototypeLinks(value, context));
     selectionBoundsSchema = external_exports.object({
       x: external_exports.number().finite(),
       y: external_exports.number().finite(),
@@ -20460,7 +20521,7 @@ var init_schema = __esm({
       instanceId: external_exports.string().min(1),
       projectId: projectIdSchema,
       screenIds: external_exports.array(projectIdSchema),
-      type: external_exports.enum(["project.updated", "screen.changed", "project.error", "screen.editing"]),
+      type: external_exports.enum(["project.updated", "screen.changed", "project.error", "screen.editing", "prototype.updated"]),
       message: external_exports.string().optional()
     });
     CanvasError = class extends Error {
@@ -20490,25 +20551,82 @@ var init_paths = __esm({
   }
 });
 
-// packages/server/src/lifecycle.ts
-import { mkdir as mkdir2, open as open2, readFile, rm, stat as stat2, writeFile } from "node:fs/promises";
+// packages/server/src/build-id.ts
+import { createHash } from "node:crypto";
+import { readdir, stat as stat2 } from "node:fs/promises";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { join } from "node:path";
+async function codeRoots() {
+  const bundled = process.env.LOCAL_CANVAS_SERVER_ENTRY;
+  if (bundled) return [dirname(bundled)];
+  const moduleDirectory = dirname(fileURLToPath(import.meta.url));
+  if (await exists(join(moduleDirectory, "server.mjs"))) return [moduleDirectory];
+  const repository = fileURLToPath(new URL("../../../", import.meta.url));
+  return [join(repository, "packages"), join(repository, "templates")];
+}
+async function exists(path) {
+  try {
+    await stat2(path);
+    return true;
+  } catch {
+    return false;
+  }
+}
+async function collect(root, files) {
+  let entries;
+  try {
+    entries = await readdir(root, { withFileTypes: true });
+  } catch {
+    return;
+  }
+  for (const entry of entries) {
+    if (IGNORED.has(entry.name)) continue;
+    const path = join(root, entry.name);
+    if (entry.isDirectory()) await collect(path, files);
+    else if (entry.isFile()) files.push(path);
+  }
+}
+async function computeBuildId() {
+  return fingerprint(await codeRoots());
+}
+async function fingerprint(roots) {
+  const files = [];
+  for (const root of roots) await collect(root, files);
+  const hash2 = createHash("sha256");
+  for (const file2 of files.sort()) {
+    const info = await stat2(file2);
+    hash2.update(`${file2}\0${info.size}\0${info.mtimeMs}
+`);
+  }
+  return hash2.digest("hex").slice(0, 16);
+}
+var IGNORED;
+var init_build_id = __esm({
+  "packages/server/src/build-id.ts"() {
+    "use strict";
+    IGNORED = /* @__PURE__ */ new Set(["node_modules", ".git", ".local-canvas", "dist"]);
+  }
+});
+
+// packages/server/src/lifecycle.ts
+import { mkdir as mkdir2, open as open2, readFile, rm, stat as stat3, writeFile } from "node:fs/promises";
+import { fileURLToPath as fileURLToPath2 } from "node:url";
+import { join as join2 } from "node:path";
 import { spawn } from "node:child_process";
 function runtimeDirectory(workspace) {
-  return join(workspace, ".local-canvas");
+  return join2(workspace, ".local-canvas");
 }
 function runtimePath(workspace) {
-  return join(runtimeDirectory(workspace), "runtime.json");
+  return join2(runtimeDirectory(workspace), "runtime.json");
 }
 function runtimeLogPath(workspace) {
-  return join(runtimeDirectory(workspace), "server.log");
+  return join2(runtimeDirectory(workspace), "server.log");
 }
 function lockPath(workspace) {
-  return join(runtimeDirectory(workspace), "start.lock");
+  return join2(runtimeDirectory(workspace), "start.lock");
 }
 function lockOwnerPath(workspace) {
-  return join(lockPath(workspace), "owner.json");
+  return join2(lockPath(workspace), "owner.json");
 }
 function publicRuntime(state) {
   return { instanceId: state.instanceId, pid: state.pid, url: state.url, previewUrl: state.previewUrl };
@@ -20516,7 +20634,7 @@ function publicRuntime(state) {
 function isRuntimeState(value) {
   if (!value || typeof value !== "object") return false;
   const state = value;
-  return typeof state.instanceId === "string" && typeof state.pid === "number" && typeof state.url === "string" && typeof state.previewUrl === "string" && typeof state.token === "string";
+  return typeof state.instanceId === "string" && typeof state.pid === "number" && typeof state.url === "string" && typeof state.previewUrl === "string";
 }
 async function readRuntime(workspace) {
   try {
@@ -20531,26 +20649,29 @@ async function isHealthy(state) {
   const timer = setTimeout(() => controller.abort(), 700);
   try {
     const response = await fetch(`${state.url}/health`, { signal: controller.signal });
-    if (!response.ok) return false;
+    if (!response.ok) return null;
     const body = await response.json();
-    return body.ok === true && body.data?.instanceId === state.instanceId;
+    if (body.ok !== true || body.data?.instanceId !== state.instanceId) return null;
+    return { buildId: typeof body.data.buildId === "string" ? body.data.buildId : void 0 };
   } catch {
-    return false;
+    return null;
   } finally {
     clearTimeout(timer);
   }
 }
-async function getServerStatus(workspace) {
-  const canonicalWorkspacePath = await canonicalWorkspace(workspace);
-  const state = await readRuntime(canonicalWorkspacePath);
-  if (!state || !await isHealthy(state)) return null;
-  return publicRuntime(state);
+async function liveServer(workspace) {
+  const state = await readRuntime(workspace);
+  if (!state) return null;
+  const health = await isHealthy(state);
+  return health ? { state, health } : null;
 }
-async function getServerCredentials(workspace) {
-  const canonicalWorkspacePath = await canonicalWorkspace(workspace);
-  const state = await readRuntime(canonicalWorkspacePath);
-  if (!state || !await isHealthy(state)) return null;
-  return state;
+async function usableServer(workspace) {
+  const live = await liveServer(workspace);
+  if (!live) return null;
+  return live.health.buildId === await computeBuildId() ? publicRuntime(live.state) : null;
+}
+async function getServerStatus(workspace) {
+  return usableServer(await canonicalWorkspace(workspace));
 }
 async function acquireStartupLock(workspace) {
   const path = lockPath(workspace);
@@ -20594,7 +20715,7 @@ async function isStaleLock(workspace) {
   } catch {
   }
   try {
-    return Date.now() - (await stat2(lockPath(workspace))).mtimeMs >= START_TIMEOUT_MS;
+    return Date.now() - (await stat3(lockPath(workspace))).mtimeMs >= START_TIMEOUT_MS;
   } catch {
     return false;
   }
@@ -20606,10 +20727,10 @@ function validatePort(port) {
 }
 async function startProcess(workspace, options) {
   const releaseEntrypoint = process.env.LOCAL_CANVAS_SERVER_ENTRY;
-  const nodeModulesTsc = fileURLToPath(new URL("../../../node_modules/tsx/dist/cli.mjs", import.meta.url));
-  const sourceEntrypoint = fileURLToPath(new URL("./standalone.ts", import.meta.url));
+  const nodeModulesTsc = fileURLToPath2(new URL("../../../node_modules/tsx/dist/cli.mjs", import.meta.url));
+  const sourceEntrypoint = fileURLToPath2(new URL("./standalone.ts", import.meta.url));
   const log = await open2(runtimeLogPath(workspace), "a", 384);
-  const args = releaseEntrypoint ? [releaseEntrypoint, "--workspace", workspace, "--instance-id", crypto.randomUUID(), "--token", crypto.randomUUID()] : [nodeModulesTsc, sourceEntrypoint, "--workspace", workspace, "--instance-id", crypto.randomUUID(), "--token", crypto.randomUUID()];
+  const args = releaseEntrypoint ? [releaseEntrypoint, "--workspace", workspace, "--instance-id", crypto.randomUUID()] : [nodeModulesTsc, sourceEntrypoint, "--workspace", workspace, "--instance-id", crypto.randomUUID()];
   if (options.managementPort !== void 0) args.push("--management-port", String(options.managementPort));
   if (options.previewPort !== void 0) args.push("--preview-port", String(options.previewPort));
   const child = spawn(process.execPath, args, {
@@ -20636,12 +20757,15 @@ async function ensureServer(workspace, options = {}) {
   validatePort(options.previewPort);
   const canonicalWorkspacePath = await canonicalWorkspace(workspace);
   await mkdir2(runtimeDirectory(canonicalWorkspacePath), { recursive: true, mode: 448 });
-  const existing = await getServerStatus(canonicalWorkspacePath);
-  if (existing) return existing;
+  const buildId = await computeBuildId();
+  const existing = await liveServer(canonicalWorkspacePath);
+  if (existing && existing.health.buildId === buildId) return publicRuntime(existing.state);
+  if (existing) await stopServer(canonicalWorkspacePath);
   const release = await acquireStartupLock(canonicalWorkspacePath);
   try {
-    const afterLock = await getServerStatus(canonicalWorkspacePath);
-    if (afterLock) return afterLock;
+    const afterLock = await liveServer(canonicalWorkspacePath);
+    if (afterLock && afterLock.health.buildId === buildId) return publicRuntime(afterLock.state);
+    if (afterLock) await stopServer(canonicalWorkspacePath);
     await rm(runtimePath(canonicalWorkspacePath), { force: true });
     await startProcess(canonicalWorkspacePath, options);
     const deadline = Date.now() + START_TIMEOUT_MS;
@@ -20657,16 +20781,23 @@ async function ensureServer(workspace, options = {}) {
 }
 async function stopServer(workspace) {
   const canonicalWorkspacePath = await canonicalWorkspace(workspace);
-  const state = await readRuntime(canonicalWorkspacePath);
-  if (!state || !await isHealthy(state)) return;
-  const response = await fetch(`${state.url}/api/shutdown`, {
-    method: "POST",
-    headers: { authorization: `Bearer ${state.token}` }
-  });
-  if (!response.ok) throw new CanvasError("SERVER_STOP_FAILED", "Server t\u1EEB ch\u1ED1i y\xEAu c\u1EA7u d\u1EEBng.", response.status);
+  const live = await liveServer(canonicalWorkspacePath);
+  if (!live) return;
+  let asked = false;
+  try {
+    asked = (await fetch(`${live.state.url}/api/shutdown`, { method: "POST" })).ok;
+  } catch {
+    asked = false;
+  }
+  if (!asked) {
+    try {
+      process.kill(live.state.pid, "SIGTERM");
+    } catch {
+    }
+  }
   const deadline = Date.now() + 4e3;
   while (Date.now() < deadline) {
-    if (!await getServerStatus(canonicalWorkspacePath)) return;
+    if (!await liveServer(canonicalWorkspacePath)) return;
     await sleep(POLL_INTERVAL_MS);
   }
   throw new CanvasError("SERVER_STOP_TIMEOUT", "Server ch\u01B0a d\u1EEBng sau 4 gi\xE2y.", 503);
@@ -20677,6 +20808,7 @@ var init_lifecycle = __esm({
     "use strict";
     init_paths();
     init_schema();
+    init_build_id();
     START_TIMEOUT_MS = 1e4;
     POLL_INTERVAL_MS = 50;
     sleep = (milliseconds) => new Promise((resolve2) => setTimeout(resolve2, milliseconds));
@@ -20685,12 +20817,9 @@ var init_lifecycle = __esm({
 
 // packages/cli/src/client.ts
 async function managementRequest(workspace, path, init = {}) {
-  const status = await getServerCredentials(workspace);
-  if (!status) throw new CanvasError("SERVER_NOT_RUNNING", "Server ch\u01B0a ch\u1EA1y cho workspace n\xE0y.", 503);
-  const response = await fetch(`${status.url}${path}`, {
-    ...init,
-    headers: { authorization: `Bearer ${status.token}`, ...init.headers }
-  });
+  const status = await getServerStatus(workspace);
+  if (!status) throw new CanvasError("SERVER_NOT_RUNNING", "Server ch\u01B0a ch\u1EA1y b\u1EB1ng b\u1EA3n build hi\u1EC7n t\u1EA1i cho workspace n\xE0y.", 503);
+  const response = await fetch(`${status.url}${path}`, init);
   const body = await response.json();
   if (!body.ok) throw new CanvasError(body.error.code, body.error.message, response.status);
   return body.data;
@@ -38022,6 +38151,9 @@ async function runTool(operation) {
 }
 function createMcpServer(workspace) {
   const server = new McpServer({ name: "local-design-canvas", version: "0.1.0" });
+  const projectPath2 = (project) => `/api/projects/${encodeURIComponent(project)}`;
+  const requestJson = (path, method, body) => managementRequest(workspace, path, { method, headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+  const currentRevision2 = async (project) => (await managementRequest(workspace, projectPath2(project))).revision;
   server.registerTool("canvas_status", {
     title: "Canvas status",
     description: "Report whether the local canvas runtime is running for the workspace.",
@@ -38046,6 +38178,25 @@ function createMcpServer(workspace) {
     await ensureServer(workspace);
     return managementRequest(workspace, "/api/projects", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ id, name }) });
   }));
+  server.registerTool("project_rename", {
+    title: "Rename project",
+    description: "Change a project display name. The id, directory and every screen path stay the same.",
+    inputSchema: { project: external_exports.string(), name: external_exports.string() }
+  }, async ({ project, name }) => runTool(async () => {
+    await ensureServer(workspace);
+    return requestJson(projectPath2(project), "PATCH", { name, expectedRevision: await currentRevision2(project) });
+  }));
+  server.registerTool("project_delete", {
+    title: "Delete project",
+    description: "Delete a project and everything under it: every screen, its snapshot history and its prototypes. There is no undo and no trash, so pass dryRun to see exactly what would be removed first. Deleting the project the user is currently viewing also closes it in the canvas.",
+    inputSchema: { project: external_exports.string(), dryRun: external_exports.boolean().optional(), expectedRevision: external_exports.number().int().nonnegative().optional() }
+  }, async ({ project, dryRun, expectedRevision }) => runTool(async () => {
+    await ensureServer(workspace);
+    return requestJson(projectPath2(project), "DELETE", {
+      expectedRevision: expectedRevision ?? await currentRevision2(project),
+      dryRun
+    });
+  }));
   server.registerTool("screen_list", {
     title: "List screens",
     description: "List the screens of a project.",
@@ -38068,6 +38219,36 @@ function createMcpServer(workspace) {
       body: JSON.stringify({ id, name, width, height, expectedRevision: current.revision })
     });
   }));
+  server.registerTool("screen_update", {
+    title: "Move or resize screens",
+    description: "Move or resize screens on the canvas. x and y are canvas coordinates, width and height are CSS pixels. Omit a field to leave it unchanged. Reads the current revision unless expectedRevision is given, in which case a stale write is rejected instead of applied.",
+    inputSchema: { project: external_exports.string(), screens: external_exports.array(screenLayoutPatchSchema).min(1), expectedRevision: external_exports.number().int().nonnegative().optional() }
+  }, async ({ project, screens, expectedRevision }) => runTool(async () => {
+    await ensureServer(workspace);
+    return requestJson(`${projectPath2(project)}/layout`, "PATCH", {
+      patches: screens,
+      expectedRevision: expectedRevision ?? await currentRevision2(project)
+    });
+  }));
+  server.registerTool("screen_duplicate", {
+    title: "Duplicate screen",
+    description: "Copy a screen and its entry file under a new id, placed next to the original. Use it to explore a variant without touching the screen the user is looking at.",
+    inputSchema: { project: external_exports.string(), screen: external_exports.string(), newId: external_exports.string() }
+  }, async ({ project, screen, newId }) => runTool(async () => {
+    await ensureServer(workspace);
+    return requestJson(`${projectPath2(project)}/screens/${encodeURIComponent(screen)}/duplicate`, "POST", { newId });
+  }));
+  server.registerTool("screen_delete", {
+    title: "Delete screens",
+    description: "Delete one or more screens and their files. A project must keep at least one screen. Deletion is permanent; snapshots taken before it are the only way back.",
+    inputSchema: { project: external_exports.string(), screens: external_exports.array(external_exports.string()).min(1), expectedRevision: external_exports.number().int().nonnegative().optional() }
+  }, async ({ project, screens, expectedRevision }) => runTool(async () => {
+    await ensureServer(workspace);
+    return requestJson(`${projectPath2(project)}/screens`, "DELETE", {
+      screenIds: screens,
+      expectedRevision: expectedRevision ?? await currentRevision2(project)
+    });
+  }));
   server.registerTool("screen_capture", {
     title: "Capture screen",
     description: "Render a screen preview to a PNG and return its path and any render errors.",
@@ -38075,6 +38256,51 @@ function createMcpServer(workspace) {
   }, async ({ project, screen }) => runTool(async () => {
     await ensureServer(workspace);
     return managementRequest(workspace, `/api/projects/${encodeURIComponent(project)}/screens/${encodeURIComponent(screen)}/capture`, { method: "POST" });
+  }));
+  server.registerTool("image_diff", {
+    title: "Diff two screen images",
+    description: 'Compare two PNGs from the project pixel by pixel and return the changed-pixel count, percent, and bounding boxes of changed regions, plus a red-on-grey overlay PNG. Each side is either a path inside the project (the imagePath a screenshot returned, relative to the project root) or "live:<screen-id>" to capture the current preview first. Use it after editing to confirm what actually changed: diff the pre-edit capture against live:<screen> instead of judging the edit by eye.',
+    inputSchema: {
+      project: external_exports.string(),
+      base: external_exports.string().min(1),
+      target: external_exports.string().min(1),
+      threshold: external_exports.number().min(0).max(1).optional()
+    }
+  }, async ({ project, base, target, threshold }) => runTool(async () => {
+    await ensureServer(workspace);
+    return requestJson(`${projectPath2(project)}/image-diff`, "POST", { base, target, threshold });
+  }));
+  server.registerTool("figma_export", {
+    title: "Export screen for Figma",
+    description: "Render a screen in a headless browser and extract its element tree, layout, styles and text as structured JSON that can be pasted into Figma. Runs a browser on the local machine.",
+    inputSchema: { project: external_exports.string(), screen: external_exports.string() }
+  }, async ({ project, screen }) => runTool(async () => {
+    await ensureServer(workspace);
+    return managementRequest(workspace, `${projectPath2(project)}/screens/${encodeURIComponent(screen)}/figma`, { method: "POST" });
+  }));
+  server.registerTool("snapshot_create", {
+    title: "Snapshot project",
+    description: "Save the current state of every screen in a project so it can be restored later. Take one before a risky rewrite so the user can get back to the version they approved.",
+    inputSchema: { project: external_exports.string() }
+  }, async ({ project }) => runTool(async () => {
+    await ensureServer(workspace);
+    return managementRequest(workspace, `${projectPath2(project)}/snapshots`, { method: "POST" });
+  }));
+  server.registerTool("snapshot_restore", {
+    title: "Restore snapshot",
+    description: "Restore every screen in a project to a snapshot taken earlier. This overwrites the current screens; take a fresh snapshot first if the current state matters.",
+    inputSchema: { project: external_exports.string(), snapshot: external_exports.string() }
+  }, async ({ project, snapshot }) => runTool(async () => {
+    await ensureServer(workspace);
+    return managementRequest(workspace, `${projectPath2(project)}/snapshots/${encodeURIComponent(snapshot)}/restore`, { method: "POST" });
+  }));
+  server.registerTool("audit_tokens", {
+    title: "Audit design tokens",
+    description: "Check every screen against design-system.css: colors written as literals instead of tokens, font-family set without a token, spacing off the scale, var() references with no matching token, and tokens nothing uses. Findings name the file and line to fix. Run it after adding or editing screens, before saying the work is done.",
+    inputSchema: { project: external_exports.string() }
+  }, async ({ project }) => runTool(async () => {
+    await ensureServer(workspace);
+    return managementRequest(workspace, `${projectPath2(project)}/token-audit`);
   }));
   server.registerTool("reference_fetch", {
     title: "Fetch design reference",
@@ -38120,6 +38346,65 @@ function createMcpServer(workspace) {
     await ensureServer(workspace);
     return managementRequest(workspace, `/api/projects/${encodeURIComponent(project)}/selection`);
   }));
+  const prototypePath = (project, id) => `${projectPath2(project)}/prototypes${id ? `/${encodeURIComponent(id)}` : ""}`;
+  const transitions = external_exports.array(prototypeTransitionSchema);
+  const baseline = external_exports.record(external_exports.string(), external_exports.string());
+  server.registerTool("prototype_sources", {
+    title: "Prototype source revisions",
+    description: "Read current source fingerprints for the selected design screens.",
+    inputSchema: { project: external_exports.string(), screens: external_exports.array(external_exports.string()).min(2) }
+  }, async ({ project, screens }) => runTool(async () => {
+    await ensureServer(workspace);
+    return managementRequest(workspace, `/api/projects/${encodeURIComponent(project)}/prototype-sources?screenIds=${encodeURIComponent(screens.join(","))}`);
+  }));
+  server.registerTool("prototype_list", {
+    title: "List prototypes",
+    description: "List prototype IDs and stale status for a project.",
+    inputSchema: { project: external_exports.string() }
+  }, async ({ project }) => runTool(async () => {
+    await ensureServer(workspace);
+    return managementRequest(workspace, prototypePath(project));
+  }));
+  server.registerTool("prototype_get", {
+    title: "Get prototype",
+    description: "Read a prototype by project and stable ID.",
+    inputSchema: { project: external_exports.string(), id: external_exports.string() }
+  }, async ({ project, id }) => runTool(async () => {
+    await ensureServer(workspace);
+    return managementRequest(workspace, prototypePath(project, id));
+  }));
+  server.registerTool("prototype_create", {
+    title: "Create prototype",
+    description: "Save AI-inferred screen transitions without copying source screens.",
+    inputSchema: { project: external_exports.string(), id: external_exports.string(), name: external_exports.string(), screens: external_exports.array(external_exports.string()).min(2), startScreen: external_exports.string(), transitions, expectedSourceBaseline: baseline }
+  }, async ({ project, id, name, screens, startScreen, transitions: links, expectedSourceBaseline }) => runTool(async () => {
+    await ensureServer(workspace);
+    return requestJson(prototypePath(project), "POST", { id, name, screenIds: screens, startScreenId: startScreen, transitions: links, expectedSourceBaseline });
+  }));
+  server.registerTool("prototype_update", {
+    title: "Update prototype",
+    description: "Edit prototype links or name without clearing stale source status.",
+    inputSchema: { project: external_exports.string(), id: external_exports.string(), expectedRevision: external_exports.number().int(), name: external_exports.string().optional(), startScreen: external_exports.string().optional(), transitions: transitions.optional() }
+  }, async ({ project, id, expectedRevision, name, startScreen, transitions: links }) => runTool(async () => {
+    await ensureServer(workspace);
+    return requestJson(prototypePath(project, id), "PATCH", { expectedRevision, name, startScreenId: startScreen, transitions: links });
+  }));
+  server.registerTool("prototype_regenerate", {
+    title: "Regenerate prototype",
+    description: "Replace transitions and source baseline for one existing prototype after the user requests regeneration.",
+    inputSchema: { project: external_exports.string(), id: external_exports.string(), expectedRevision: external_exports.number().int(), screens: external_exports.array(external_exports.string()).min(2), startScreen: external_exports.string(), transitions, expectedSourceBaseline: baseline }
+  }, async ({ project, id, expectedRevision, screens, startScreen, transitions: links, expectedSourceBaseline }) => runTool(async () => {
+    await ensureServer(workspace);
+    return requestJson(`${prototypePath(project, id)}/regenerate`, "POST", { expectedRevision, screenIds: screens, startScreenId: startScreen, transitions: links, expectedSourceBaseline });
+  }));
+  server.registerTool("prototype_delete", {
+    title: "Delete prototype",
+    description: "Remove one prototype by project and stable ID.",
+    inputSchema: { project: external_exports.string(), id: external_exports.string(), expectedRevision: external_exports.number().int() }
+  }, async ({ project, id, expectedRevision }) => runTool(async () => {
+    await ensureServer(workspace);
+    return requestJson(prototypePath(project, id), "DELETE", { expectedRevision });
+  }));
   return server;
 }
 async function serveMcp(workspace) {
@@ -38141,19 +38426,19 @@ var init_src = __esm({
 
 // packages/cli/src/index.ts
 init_schema();
-init_lifecycle();
-init_client();
-import { spawn as spawn2 } from "node:child_process";
 import { realpathSync } from "node:fs";
-import { cwd } from "node:process";
 import { pathToFileURL } from "node:url";
+
+// packages/cli/src/args.ts
+import { cwd } from "node:process";
 function parseArguments(argv) {
-  const parsed = { positionals: [], workspace: cwd(), json: false, open: false, options: /* @__PURE__ */ new Map() };
+  const parsed = { positionals: [], workspace: cwd(), json: false, open: false, dryRun: false, options: /* @__PURE__ */ new Map() };
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index];
     if (argument === "--workspace") parsed.workspace = argv[++index] ?? "";
     else if (argument === "--json") parsed.json = true;
     else if (argument === "--open") parsed.open = true;
+    else if (argument === "--dry-run") parsed.dryRun = true;
     else if (argument === "--port") parsed.port = Number(argv[++index]);
     else if (argument.startsWith("--")) parsed.options.set(argument, argv[++index] ?? "");
     else parsed.positionals.push(argument);
@@ -38170,6 +38455,343 @@ function integerOption(parsed, name) {
   if (!Number.isInteger(value)) throw new Error(`${name} ph\u1EA3i l\xE0 s\u1ED1 nguy\xEAn.`);
   return value;
 }
+
+// packages/cli/src/commands.ts
+init_lifecycle();
+init_client();
+import { readFile as readFile2 } from "node:fs/promises";
+var projectPath = (id) => `/api/projects/${encodeURIComponent(id)}`;
+var jsonRequest = (workspace, path, method, body) => managementRequest(workspace, path, { method, headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+var currentRevision = async (workspace, projectId) => (await managementRequest(workspace, projectPath(projectId))).revision;
+var COMMANDS = [
+  {
+    words: ["start"],
+    route: null,
+    run: async ({ args }) => {
+      const runtime = await ensureServer(args.workspace, { managementPort: args.port });
+      if (args.open) {
+        const url2 = new URL(runtime.url);
+        url2.hash = new URLSearchParams({ previewUrl: runtime.previewUrl }).toString();
+        const { spawn: spawn2 } = await import("node:child_process");
+        if (process.platform === "darwin") {
+          const child = spawn2("open", [url2.toString()], { detached: true, stdio: "ignore" });
+          child.unref();
+        }
+      }
+      return runtime;
+    }
+  },
+  {
+    words: ["status"],
+    route: null,
+    run: async ({ args }) => {
+      const runtime = await getServerStatus(args.workspace);
+      return { running: runtime !== null, runtime };
+    }
+  },
+  {
+    words: ["stop"],
+    route: null,
+    run: async ({ args }) => {
+      await stopServer(args.workspace);
+      return { stopped: true };
+    }
+  },
+  {
+    words: ["project", "create"],
+    route: "POST /api/projects",
+    run: async ({ args, rest }) => {
+      const [id] = rest;
+      if (!id) throw new Error("Thi\u1EBFu ID project.");
+      return jsonRequest(args.workspace, "/api/projects", "POST", { id, name: option(args, "--name") });
+    }
+  },
+  {
+    words: ["project", "list"],
+    route: "GET /api/projects",
+    run: async ({ args }) => managementRequest(args.workspace, "/api/projects")
+  },
+  {
+    words: ["project", "rename"],
+    route: "PATCH /api/projects/:projectId",
+    run: async ({ args, rest }) => {
+      const [id] = rest;
+      if (!id) throw new Error("Thi\u1EBFu ID project.");
+      return jsonRequest(args.workspace, projectPath(id), "PATCH", { name: option(args, "--name"), expectedRevision: await currentRevision(args.workspace, id) });
+    }
+  },
+  {
+    words: ["project", "delete"],
+    route: "DELETE /api/projects/:projectId",
+    run: async ({ args, rest }) => {
+      const [id] = rest;
+      if (!id) throw new Error("Thi\u1EBFu ID project.");
+      return jsonRequest(args.workspace, projectPath(id), "DELETE", {
+        expectedRevision: await currentRevision(args.workspace, id),
+        dryRun: args.dryRun
+      });
+    }
+  },
+  {
+    words: ["screen", "list"],
+    route: "GET /api/projects/:projectId",
+    run: async ({ args }) => {
+      const project = await managementRequest(args.workspace, projectPath(option(args, "--project")));
+      return project.screens;
+    }
+  },
+  {
+    words: ["screen", "add"],
+    route: "POST /api/projects/:projectId/screens",
+    run: async ({ args, rest }) => {
+      const [id] = rest;
+      if (!id) throw new Error("Thi\u1EBFu ID m\xE0n h\xECnh.");
+      const projectId = option(args, "--project");
+      return jsonRequest(args.workspace, `${projectPath(projectId)}/screens`, "POST", {
+        id,
+        name: option(args, "--name"),
+        width: integerOption(args, "--width"),
+        height: integerOption(args, "--height"),
+        expectedRevision: await currentRevision(args.workspace, projectId)
+      });
+    }
+  },
+  {
+    words: ["screen", "update"],
+    route: "PATCH /api/projects/:projectId/layout",
+    run: async ({ args, rest }) => {
+      const [id] = rest;
+      if (!id) throw new Error("Thi\u1EBFu ID m\xE0n h\xECnh.");
+      const projectId = option(args, "--project");
+      const patch = { id };
+      for (const name of ["--x", "--y", "--width", "--height"]) {
+        if (args.options.has(name)) patch[name.slice(2)] = integerOption(args, name);
+      }
+      if (Object.keys(patch).length === 1) throw new Error("C\u1EA7n \xEDt nh\u1EA5t m\u1ED9t thu\u1ED9c t\xEDnh layout \u0111\u1EC3 c\u1EADp nh\u1EADt.");
+      return jsonRequest(args.workspace, `${projectPath(projectId)}/layout`, "PATCH", {
+        patches: [patch],
+        expectedRevision: await currentRevision(args.workspace, projectId)
+      });
+    }
+  },
+  {
+    words: ["screen", "duplicate"],
+    route: "POST /api/projects/:projectId/screens/:screenId/duplicate",
+    run: async ({ args, rest }) => {
+      const [id] = rest;
+      if (!id) throw new Error("Thi\u1EBFu ID m\xE0n h\xECnh.");
+      const projectId = option(args, "--project");
+      return jsonRequest(args.workspace, `${projectPath(projectId)}/screens/${encodeURIComponent(id)}/duplicate`, "POST", { newId: option(args, "--new-id") });
+    }
+  },
+  {
+    words: ["screen", "delete"],
+    route: "DELETE /api/projects/:projectId/screens",
+    run: async ({ args, rest }) => {
+      if (rest.length === 0) throw new Error("C\u1EA7n \xEDt nh\u1EA5t m\u1ED9t ID m\xE0n h\xECnh \u0111\u1EC3 x\xF3a.");
+      const projectId = option(args, "--project");
+      return jsonRequest(args.workspace, `${projectPath(projectId)}/screens`, "DELETE", {
+        screenIds: rest,
+        expectedRevision: await currentRevision(args.workspace, projectId)
+      });
+    }
+  },
+  {
+    words: ["screen", "order"],
+    route: "PATCH /api/projects/:projectId/screen-order",
+    run: async ({ args, rest }) => {
+      if (rest.length === 0) throw new Error("C\u1EA7n li\u1EC7t k\xEA \u0111\u1EE7 ID m\xE0n h\xECnh theo th\u1EE9 t\u1EF1 layer mong mu\u1ED1n.");
+      const projectId = option(args, "--project");
+      return jsonRequest(args.workspace, `${projectPath(projectId)}/screen-order`, "PATCH", {
+        order: rest,
+        expectedRevision: await currentRevision(args.workspace, projectId)
+      });
+    }
+  },
+  {
+    words: ["screen", "focus"],
+    route: "GET /api/projects/:projectId/focus",
+    run: async ({ args }) => managementRequest(args.workspace, `${projectPath(option(args, "--project"))}/focus`)
+  },
+  {
+    words: ["screen", "edit", "start"],
+    route: "PUT /api/projects/:projectId/editing",
+    run: async ({ args }) => {
+      const body = {};
+      if (args.options.has("--screen")) body.screenId = option(args, "--screen");
+      if (args.options.has("--message")) body.message = option(args, "--message");
+      return jsonRequest(args.workspace, `${projectPath(option(args, "--project"))}/editing`, "PUT", body);
+    }
+  },
+  {
+    words: ["screen", "edit", "done"],
+    route: "DELETE /api/projects/:projectId/editing",
+    run: async ({ args }) => managementRequest(args.workspace, `${projectPath(option(args, "--project"))}/editing`, { method: "DELETE" })
+  },
+  {
+    words: ["screen", "edit", "status"],
+    route: "GET /api/projects/:projectId/editing",
+    run: async ({ args }) => managementRequest(args.workspace, `${projectPath(option(args, "--project"))}/editing`)
+  },
+  {
+    words: ["screenshot"],
+    route: "POST /api/projects/:projectId/screens/:screenId/capture",
+    run: async ({ args, rest }) => {
+      const [screenId] = rest;
+      if (!screenId) throw new Error("Thi\u1EBFu ID m\xE0n h\xECnh.");
+      const projectId = option(args, "--project");
+      return managementRequest(args.workspace, `${projectPath(projectId)}/screens/${encodeURIComponent(screenId)}/capture`, { method: "POST" });
+    }
+  },
+  {
+    words: ["figma", "export"],
+    route: "POST /api/projects/:projectId/screens/:screenId/figma",
+    run: async ({ args, rest }) => {
+      const [screenId] = rest;
+      if (!screenId) throw new Error("Thi\u1EBFu ID m\xE0n h\xECnh.");
+      const projectId = option(args, "--project");
+      return managementRequest(args.workspace, `${projectPath(projectId)}/screens/${encodeURIComponent(screenId)}/figma`, { method: "POST" });
+    }
+  },
+  {
+    words: ["snapshot", "create"],
+    route: "POST /api/projects/:projectId/snapshots",
+    run: async ({ args }) => managementRequest(args.workspace, `${projectPath(option(args, "--project"))}/snapshots`, { method: "POST" })
+  },
+  {
+    words: ["snapshot", "restore"],
+    route: "POST /api/projects/:projectId/snapshots/:snapshotId/restore",
+    run: async ({ args, rest }) => {
+      const [snapshotId] = rest;
+      if (!snapshotId) throw new Error("Thi\u1EBFu ID snapshot.");
+      const projectId = option(args, "--project");
+      return managementRequest(args.workspace, `${projectPath(projectId)}/snapshots/${encodeURIComponent(snapshotId)}/restore`, { method: "POST" });
+    }
+  },
+  {
+    words: ["image", "diff"],
+    route: "POST /api/projects/:projectId/image-diff",
+    run: async ({ args, rest }) => {
+      const [base, target] = rest;
+      if (!base || !target) throw new Error("C\u1EA7n hai \u1EA3nh \u0111\u1EC3 so: \u0111\u01B0\u1EDDng d\u1EABn PNG ho\u1EB7c live:<screen-id>.");
+      const projectId = option(args, "--project");
+      const body = { base, target };
+      if (args.options.has("--threshold")) body.threshold = Number(option(args, "--threshold"));
+      return jsonRequest(args.workspace, `${projectPath(projectId)}/image-diff`, "POST", body);
+    }
+  },
+  {
+    words: ["selection", "get"],
+    route: "GET /api/projects/:projectId/selection",
+    run: async ({ args }) => managementRequest(args.workspace, `${projectPath(option(args, "--project"))}/selection`)
+  },
+  {
+    words: ["audit", "tokens"],
+    route: "GET /api/projects/:projectId/token-audit",
+    run: async ({ args }) => managementRequest(args.workspace, `${projectPath(option(args, "--project"))}/token-audit`)
+  },
+  {
+    words: ["reference", "fetch"],
+    route: "POST /api/projects/:projectId/reference",
+    run: async ({ args, rest }) => {
+      const [url2] = rest;
+      if (!url2) throw new Error("Thi\u1EBFu URL tham chi\u1EBFu.");
+      return jsonRequest(args.workspace, `${projectPath(option(args, "--project"))}/reference`, "POST", { url: url2 });
+    }
+  },
+  {
+    words: ["prototype", "sources"],
+    route: "GET /api/projects/:projectId/prototype-sources",
+    run: async ({ args }) => {
+      const projectId = option(args, "--project");
+      const screens = option(args, "--screens");
+      return managementRequest(args.workspace, `${projectPath(projectId)}/prototype-sources?screenIds=${encodeURIComponent(screens)}`);
+    }
+  },
+  {
+    words: ["prototype", "list"],
+    route: "GET /api/projects/:projectId/prototypes",
+    run: async ({ args }) => managementRequest(args.workspace, `${projectPath(option(args, "--project"))}/prototypes`)
+  },
+  {
+    words: ["prototype", "get"],
+    route: "GET /api/projects/:projectId/prototypes/:prototypeId",
+    run: async ({ args, rest }) => {
+      const [id] = rest;
+      if (!id) throw new Error("Thi\u1EBFu ID prototype.");
+      const projectId = option(args, "--project");
+      return managementRequest(args.workspace, `${projectPath(projectId)}/prototypes/${encodeURIComponent(id)}`);
+    }
+  },
+  {
+    words: ["prototype", "delete"],
+    route: "DELETE /api/projects/:projectId/prototypes/:prototypeId",
+    run: async ({ args, rest }) => {
+      const [id] = rest;
+      if (!id) throw new Error("Thi\u1EBFu ID prototype.");
+      const projectId = option(args, "--project");
+      return jsonRequest(args.workspace, `${projectPath(projectId)}/prototypes/${encodeURIComponent(id)}`, "DELETE", { expectedRevision: integerOption(args, "--revision") });
+    }
+  },
+  {
+    words: ["prototype", "create"],
+    route: "POST /api/projects/:projectId/prototypes",
+    run: async ({ args, rest }) => {
+      const [id] = rest;
+      if (!id) throw new Error("Thi\u1EBFu ID prototype.");
+      const projectId = option(args, "--project");
+      const input2 = JSON.parse(await readFile2(option(args, "--input"), "utf8"));
+      if (input2.id !== id) throw new Error("ID trong file input ph\u1EA3i tr\xF9ng ID l\u1EC7nh t\u1EA1o prototype.");
+      return jsonRequest(args.workspace, `${projectPath(projectId)}/prototypes`, "POST", input2);
+    }
+  },
+  {
+    words: ["prototype", "update"],
+    route: "PATCH /api/projects/:projectId/prototypes/:prototypeId",
+    run: async ({ args, rest }) => {
+      const [id] = rest;
+      if (!id) throw new Error("Thi\u1EBFu ID prototype.");
+      const projectId = option(args, "--project");
+      const input2 = JSON.parse(await readFile2(option(args, "--input"), "utf8"));
+      return jsonRequest(args.workspace, `${projectPath(projectId)}/prototypes/${encodeURIComponent(id)}`, "PATCH", input2);
+    }
+  },
+  {
+    words: ["prototype", "regenerate"],
+    route: "POST /api/projects/:projectId/prototypes/:prototypeId/regenerate",
+    run: async ({ args, rest }) => {
+      const [id] = rest;
+      if (!id) throw new Error("Thi\u1EBFu ID prototype.");
+      const projectId = option(args, "--project");
+      const input2 = JSON.parse(await readFile2(option(args, "--input"), "utf8"));
+      return jsonRequest(args.workspace, `${projectPath(projectId)}/prototypes/${encodeURIComponent(id)}/regenerate`, "POST", input2);
+    }
+  },
+  {
+    words: ["mcp", "serve"],
+    route: null,
+    run: async ({ args }) => {
+      const { serveMcp: serveMcp2 } = await Promise.resolve().then(() => (init_src(), src_exports));
+      await serveMcp2(args.workspace);
+      return null;
+    }
+  }
+];
+function matchCommand(positionals) {
+  let best = null;
+  for (const spec of COMMANDS) {
+    if (spec.words.length > positionals.length) continue;
+    if (!spec.words.every((word, index) => positionals[index] === word)) continue;
+    if (!best || spec.words.length > best.words.length) best = spec;
+  }
+  return best ? { spec: best, rest: positionals.slice(best.words.length) } : null;
+}
+function usage() {
+  const names = COMMANDS.map((spec) => spec.words.join(" ")).sort();
+  return `L\u1EC7nh h\u1EE3p l\u1EC7: ${names.join(", ")}.`;
+}
+
+// packages/cli/src/index.ts
 function writeResult(result, json2) {
   if (json2) process.stdout.write(`${JSON.stringify(result)}
 `);
@@ -38178,154 +38800,19 @@ function writeResult(result, json2) {
   else process.stderr.write(`${result.error.code}: ${result.error.message}
 `);
 }
-function openBrowser(url2) {
-  if (process.platform !== "darwin") return;
-  const child = spawn2("open", [url2], { detached: true, stdio: "ignore" });
-  child.unref();
-}
 function canvasOpenUrl(runtime) {
   const url2 = new URL(runtime.url);
-  url2.hash = new URLSearchParams({ token: runtime.token, previewUrl: runtime.previewUrl }).toString();
+  url2.hash = new URLSearchParams({ previewUrl: runtime.previewUrl }).toString();
   return url2.toString();
 }
 async function run(argv) {
   const args = parseArguments(argv);
-  const [command, action, id] = args.positionals;
   try {
-    if (command === "start") {
-      const runtime = await ensureServer(args.workspace, { managementPort: args.port });
-      if (args.open) {
-        const credentials = await getServerCredentials(args.workspace);
-        if (!credentials) throw new Error("Server v\u1EEBa kh\u1EDFi \u0111\u1ED9ng nh\u01B0ng kh\xF4ng l\u1EA5y \u0111\u01B0\u1EE3c phi\xEAn canvas.");
-        openBrowser(canvasOpenUrl(credentials));
-      }
-      writeResult({ ok: true, data: runtime }, args.json);
-      return 0;
-    }
-    if (command === "status") {
-      const runtime = await getServerStatus(args.workspace);
-      writeResult({ ok: true, data: { running: runtime !== null, runtime } }, args.json);
-      return 0;
-    }
-    if (command === "stop") {
-      await stopServer(args.workspace);
-      writeResult({ ok: true, data: { stopped: true } }, args.json);
-      return 0;
-    }
-    if (command === "project" && action === "create" && id) {
-      const result = await managementRequest(args.workspace, "/api/projects", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ id, name: option(args, "--name") })
-      });
-      writeResult({ ok: true, data: result }, args.json);
-      return 0;
-    }
-    if (command === "project" && action === "list") {
-      writeResult({ ok: true, data: await managementRequest(args.workspace, "/api/projects") }, args.json);
-      return 0;
-    }
-    if (command === "screen" && action === "list") {
-      const project = await managementRequest(args.workspace, `/api/projects/${encodeURIComponent(option(args, "--project"))}`);
-      writeResult({ ok: true, data: project.screens }, args.json);
-      return 0;
-    }
-    if (command === "screen" && action === "add" && id) {
-      const projectId = option(args, "--project");
-      const project = await managementRequest(args.workspace, `/api/projects/${encodeURIComponent(projectId)}`);
-      const result = await managementRequest(args.workspace, `/api/projects/${encodeURIComponent(projectId)}/screens`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          id,
-          name: option(args, "--name"),
-          width: integerOption(args, "--width"),
-          height: integerOption(args, "--height"),
-          expectedRevision: project.revision
-        })
-      });
-      writeResult({ ok: true, data: result }, args.json);
-      return 0;
-    }
-    if (command === "screen" && action === "update" && id) {
-      const projectId = option(args, "--project");
-      const project = await managementRequest(args.workspace, `/api/projects/${encodeURIComponent(projectId)}`);
-      const patch = { id };
-      for (const name of ["--x", "--y", "--width", "--height"]) {
-        if (args.options.has(name)) patch[name.slice(2)] = integerOption(args, name);
-      }
-      if (Object.keys(patch).length === 1) throw new Error("C\u1EA7n \xEDt nh\u1EA5t m\u1ED9t thu\u1ED9c t\xEDnh layout \u0111\u1EC3 c\u1EADp nh\u1EADt.");
-      const result = await managementRequest(args.workspace, `/api/projects/${encodeURIComponent(projectId)}/layout`, {
-        method: "PATCH",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ patches: [patch], expectedRevision: project.revision })
-      });
-      writeResult({ ok: true, data: result }, args.json);
-      return 0;
-    }
-    if (command === "screen" && action === "focus") {
-      const result = await managementRequest(args.workspace, `/api/projects/${encodeURIComponent(option(args, "--project"))}/focus`);
-      writeResult({ ok: true, data: result }, args.json);
-      return 0;
-    }
-    if (command === "screen" && action === "edit" && id === "start") {
-      const projectId = option(args, "--project");
-      const body = {};
-      if (args.options.has("--screen")) body.screenId = option(args, "--screen");
-      if (args.options.has("--message")) body.message = option(args, "--message");
-      const result = await managementRequest(args.workspace, `/api/projects/${encodeURIComponent(projectId)}/editing`, {
-        method: "PUT",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(body)
-      });
-      writeResult({ ok: true, data: result }, args.json);
-      return 0;
-    }
-    if (command === "screen" && action === "edit" && id === "done") {
-      const projectId = option(args, "--project");
-      const result = await managementRequest(args.workspace, `/api/projects/${encodeURIComponent(projectId)}/editing`, { method: "DELETE" });
-      writeResult({ ok: true, data: result }, args.json);
-      return 0;
-    }
-    if (command === "screen" && action === "duplicate" && id) {
-      const projectId = option(args, "--project");
-      const result = await managementRequest(args.workspace, `/api/projects/${encodeURIComponent(projectId)}/screens/${encodeURIComponent(id)}/duplicate`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ newId: option(args, "--new-id") }) });
-      writeResult({ ok: true, data: result }, args.json);
-      return 0;
-    }
-    if (command === "screenshot" && action) {
-      const projectId = option(args, "--project");
-      const result = await managementRequest(args.workspace, `/api/projects/${encodeURIComponent(projectId)}/screens/${encodeURIComponent(action)}/capture`, { method: "POST" });
-      writeResult({ ok: true, data: result }, args.json);
-      return 0;
-    }
-    if (command === "snapshot" && action === "create") {
-      const result = await managementRequest(args.workspace, `/api/projects/${encodeURIComponent(option(args, "--project"))}/snapshots`, { method: "POST" });
-      writeResult({ ok: true, data: result }, args.json);
-      return 0;
-    }
-    if (command === "snapshot" && action === "restore" && id) {
-      const projectId = option(args, "--project");
-      const result = await managementRequest(args.workspace, `/api/projects/${encodeURIComponent(projectId)}/snapshots/${encodeURIComponent(id)}/restore`, { method: "POST" });
-      writeResult({ ok: true, data: result }, args.json);
-      return 0;
-    }
-    if (command === "selection" && action === "get") {
-      const result = await managementRequest(args.workspace, `/api/projects/${encodeURIComponent(option(args, "--project"))}/selection`);
-      writeResult({ ok: true, data: result }, args.json);
-      return 0;
-    }
-    if (command === "reference" && action === "fetch" && id) {
-      const result = await managementRequest(args.workspace, `/api/projects/${encodeURIComponent(option(args, "--project"))}/reference`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ url: id }) });
-      writeResult({ ok: true, data: result }, args.json);
-      return 0;
-    }
-    if (command === "mcp" && action === "serve") {
-      const { serveMcp: serveMcp2 } = await Promise.resolve().then(() => (init_src(), src_exports));
-      await serveMcp2(args.workspace);
-      return 0;
-    }
-    throw new Error("L\u1EC7nh h\u1EE3p l\u1EC7: start, status, stop, project create/list, screen add/list/update/duplicate/focus/edit start|done, screenshot, snapshot create/restore, selection get, reference fetch <url>, mcp serve.");
+    const matched = matchCommand(args.positionals);
+    if (!matched) throw new Error(usage());
+    const data = await matched.spec.run({ args, rest: matched.rest });
+    writeResult({ ok: true, data }, args.json);
+    return 0;
   } catch (error62) {
     const canvasError = asCanvasError(error62);
     writeResult({ ok: false, error: { code: canvasError.code, message: canvasError.message } }, args.json);
